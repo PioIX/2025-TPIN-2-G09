@@ -20,7 +20,6 @@ export default function RegistroYLogin() {
   const showModal = (title, message) => {
     setTextoMensaje(`${title}: ${message}`);
     setMostrarMensaje(true);
-    setTimeout(() => setMostrarMensaje(false), 3000); 
   };
 
   async function ingresar() {
@@ -42,7 +41,6 @@ export default function RegistroYLogin() {
       const result = await response.json()
       console.log("Respuesta del servidor:", result)
       if (result.validar === true) {
-        showModal("Éxito", "¡Has iniciado sesión correctamente!");
         sessionStorage.setItem("playerId", result.id)
         router.push("/"); //PONER LA SIGUIENTE PÁGINA
       } else {
@@ -91,45 +89,35 @@ export default function RegistroYLogin() {
 
   return (
     <div className={styles.container}>
-      {modo === "login" ? (
-        <>
-          <h1 className={styles.titulo}>Iniciar sesión</h1>
-          <Input type="email" placeholder="Correo electrónico" value={email} onChange={(e) => setEmail(e.target.value)} page="login"></Input>
-          <br></br>
-          <Input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} page="login"></Input>
-          <br></br>
-          <Button onClick={ingresar} text="Ingresar"></Button>
-          <p className={styles.texto}>
-            ¿No tenés cuenta?{" "}
-            <button className={styles.linkBoton} onClick={() => setModo("registro")}>Registrate</button>
-          </p>
-        </>
-      ) : (
-        <>
-          <h1 className={styles.titulo}>Registrarse</h1>
-          <Input type="text" placeholder="Nombre de usuario" value={username} onChange={(e) => setUsername(e.target.value)} page="login"></Input>
-          <br></br>
-          <Input type="email" placeholder="Correo electrónico" value={email} onChange={(e) => setEmail(e.target.value)} page="login"></Input>
-          <br></br>
-          <Input type="url" placeholder="Dirección del avatar" value={avatar} onChange={(e) => setAvatar(e.target.value)} page="login"></Input>
-          <br></br>
-          <Input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} page="login"></Input>
-          <br></br>
-          <Input type="password" placeholder="Confirmar contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} page="login"cd></Input>
-          <br></br>
-          <Button onClick={registrar} text="Registrarse"></Button>
-          <p className={styles.texto}>
-            ¿Ya tenés cuenta?{" "}
-            <button className={styles.linkBoton} onClick={() => setModo("login")}>Inicia sesión</button>
-          </p>
-        </>
-      )}
-
+      <div className={styles.pizzaIcon}></div>
+      <div className={styles.tabsContainer}>
+        <button className={`${styles.tab} ${modo === "login" ? styles.tabActive : ""}`} onClick={() => setModo("login")}>LOGIN</button>
+        <button className={`${styles.tab} ${modo === "registro" ? styles.tabActive : ""}`} onClick={() => setModo("registro")}>REGISTRO</button>
+      </div>
+      <div className={styles.formContainer}>
+        {modo === "login" ? (
+          <>
+            <Input type="email" placeholder="Correo electrónico" value={email} onChange={(e) => setEmail(e.target.value)} page="login"></Input>
+            <Input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} page="login"></Input>
+            <Button onClick={ingresar} text="Ingresar"></Button>
+          </>
+        ) : (
+          <>
+            <Input type="text" placeholder="Nombre de usuario" value={username} onChange={(e) => setUsername(e.target.value)} page="login"></Input>
+            <Input type="email" placeholder="Correo electrónico" value={email} onChange={(e) => setEmail(e.target.value)} page="login"></Input>
+            <button className={styles.btnAvatar}>Avatar</button>
+            <Input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} page="login"></Input>
+            <Input type="password" placeholder="Confirmar contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} page="login"cd></Input>
+            <Button onClick={registrar} text="Registrarse"></Button>
+          </>
+        )}
+      </div>
+    
       {mostrarMensaje && (
         <div className={styles.mensaje}>
           {textoMensaje}
         </div>
       )}
     </div>
-  );
+  )
 }

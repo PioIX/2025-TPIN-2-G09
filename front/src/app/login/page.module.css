@@ -1,0 +1,121 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5e6d3;
+  padding: 20px;
+  position: relative;
+}
+
+.pizza {
+  font-size: 80px;
+  margin-bottom: 30px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: -2px;
+  z-index: 10;
+  position: relative;
+}
+
+.tab {
+  background-color: #e8d5bf;
+  border: 2px solid #2c2c2c;
+  border-bottom: none;
+  border-radius: 15px 15px 0 0;
+  padding: 12px 40px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #5c5c5c;
+  transition: all 0.3s ease;
+}
+
+.tab:first-child {
+  border-right: none;
+}
+
+.tabActive {
+  background-color: #fff;
+  color: #2c2c2c;
+}
+
+.formContainer {
+  background-color: #fff;
+  border: 2px solid #2c2c2c;
+  border-radius: 20px;
+  padding: 40px 30px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.texto {
+  text-align: center;
+  margin-top: 15px;
+  color: #5c5c5c;
+  font-size: 14px;
+}
+
+.linkBoton {
+  background: none;
+  border: none;
+  color: #d97841;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  font-family: inherit;
+}
+
+.linkBoton:hover {
+  color: #c86735;
+}
+
+.mensaje {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  color: #2c2c2c;
+  padding: 15px 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  font-size: 14px;
+  max-width: 90%;
+  text-align: center;
+  border: 2px solid #d97841;
+}
+
+.btnAvatar {
+  width: 100%;
+  max-width: 300px;
+  padding: 12px 20px;
+  border: 2px solid #2c2c2c;
+  border-radius: 25px;
+  font-size: 14px;
+  background-color: white;
+  color: #8c8c8c;
+  outline: none;
+  transition: all 0.3s ease;
+  display: block;
+  margin: 0 auto 15px auto;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.btnAvatar:active {
+  border-color: #d97841;
+  box-shadow: 0 0 0 3px rgba(217, 120, 65, 0.1);
+}
+
+.btnAvatar:hover {
+  border-color: #5c5c5c;
+}
