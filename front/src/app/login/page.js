@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import styles from "./page.module.css";
+import Popup from "reactjs-popup";
 
 export default function RegistroYLogin() {
   const [modo, setModo] = useState("login");
@@ -16,10 +17,32 @@ export default function RegistroYLogin() {
   const [mostrarMensaje, setMostrarMensaje] = useState(false); //showModal
   const [textoMensaje, setTextoMensaje] = useState(""); //showModal
   const router = useRouter();
+  const [isPopupOpen, setIsPopupOpen] = useState(false)
 
+  const avatares = [
+    {nombre : "Ana", ruta: "/imagesAvatar/Ana.png"},
+    {nombre : "Juan", ruta: "/imagesAvatar/Juan.png"},
+    {nombre : "Luca", ruta: "/imagesAvatar/Luca.png"},
+    {nombre : "Sol", ruta: "/imagesAvatar/Sol.png"}
+  ]
+  
   const showModal = (title, message) => {
     setTextoMensaje(`${title}: ${message}`);
     setMostrarMensaje(true);
+  };
+
+  const abrirPopupAvatar = () => {
+    setIsPopupOpen(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+  const seleccionarAvatar = (rutaAvatar) => {
+    setAvatar(rutaAvatar);
+    closePopup();
+    showModal("Avatar seleccionado", "Avatar elegido correctamente");
   };
 
   async function ingresar() {
@@ -42,7 +65,7 @@ export default function RegistroYLogin() {
       console.log("Respuesta del servidor:", result)
       if (result.validar === true) {
         sessionStorage.setItem("playerId", result.id)
-        router.push("/"); //PONER LA SIGUIENTE PÁGINA
+        router.push("/menu"); //PONER LA SIGUIENTE PÁGINA
       } else {
         showModal("Error", result.message || "Credenciales incorrectas");
       }
@@ -53,16 +76,26 @@ export default function RegistroYLogin() {
   }
 
   async function registrar() {
+    if (!username || !email || !password || !confirmPassword) {
+      showModal("Error", "Debes completar todos los campos")
+      return
+    }
+
     if (password !== confirmPassword) {
-      showModal("Error", "Las contraseñas no coinciden");
-      return;
+      showModal("Error", "Las contraseñas no coinciden")
+      return
+    }
+
+    if (!avatar){
+      showModal("Error", "Debes seleccionar un avatar")
+      return
     }
 
     const datosRegistro = {
       username,
       email,
       password,
-      avatar: avatar || null, 
+      avatar: avatar, 
     };
 
     try {
@@ -105,7 +138,7 @@ export default function RegistroYLogin() {
           <>
             <Input type="text" placeholder="Nombre de usuario" value={username} onChange={(e) => setUsername(e.target.value)} page="login"></Input>
             <Input type="email" placeholder="Correo electrónico" value={email} onChange={(e) => setEmail(e.target.value)} page="login"></Input>
-            <button className={styles.btnAvatar}>Avatar</button>
+            <button className={styles.btnAvatar} onClick={abrirPopupAvatar}>{avatar ? "Avatar seleccionado" : "Seleccionar avatar"}</button>
             <Input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} page="login"></Input>
             <Input type="password" placeholder="Confirmar contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} page="login"cd></Input>
             <Button onClick={registrar} text="Registrarse"></Button>
@@ -118,6 +151,27 @@ export default function RegistroYLogin() {
           {textoMensaje}
         </div>
       )}
+
+      <Popup 
+          open={isPopupOpen}
+          onClose={closePopup}
+          modal
+          nested
+          closeOnDocumentClick={false}
+      >
+        <div style={styles.modal}>
+          <h2 style={styles.modalTitle}>Selecciona tu Avatar</h2>
+          <div style={styles.avatarGrid}>
+            {avatares.map((av, index) => (
+              <button key={index} onClick={() => seleccionarAvatar(av.ruta)} style={styles.avatarButton}>
+                <img src={av.ruta} alt={av.nombre} style={styles.avatarImage}/>
+                <p style={styles.avatarName}>{av.nombre}</p>
+              </button>
+            ))}
+          </div>
+          <button onClick={closePopup} style={styles.closeButton}>Cancelar</button>
+        </div>
+      </Popup>
     </div>
   )
 }

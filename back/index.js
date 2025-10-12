@@ -183,7 +183,7 @@ app.post('/registerUser', async function (req,res) {
     console.log(req.body)
     try{
         const existingPlayer = await realizarQuery(`
-            SELECT * FROM PLayers WHERE email = "${req.body.email}";
+            SELECT * FROM Players WHERE email = "${req.body.email}";
         `);
         if (existingPlayer.length > 0) {
             res.send({ res: false, message: "Ya existe un usuario con este email" });
