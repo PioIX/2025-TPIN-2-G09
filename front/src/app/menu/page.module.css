@@ -1,0 +1,252 @@
+.menuContainer {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 115px;
+}
+
+.backgroundImage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.contentWrapper {
+  position: relative;
+  z-index: 1;
+  padding: 10px 20px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.title {
+  font-size: 5.5rem;
+  font-weight: 900;
+  color: #FF6B35;
+  text-shadow: 
+    5px 5px 0px #8B3A1E,
+    -2px -2px 0px #FFD700;
+  font-family: 'Verdana Black', Verdana;
+  letter-spacing: 4px;
+  margin: -20px 0 0 0;
+  text-transform: uppercase;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 165px;
+}
+
+.gameButton {
+  background: linear-gradient(180deg, #FF6B35 0%, #D84315 100%);
+  color: #FFF8DC;
+  font-size: 1.3rem;
+  font-weight: 800;
+  padding: 16px 50px;
+  border: 4px solid #8B3A1E;
+  border-radius: 15px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-family: 'Arial Black', sans-serif;
+  letter-spacing: 1px;
+  box-shadow: 
+    0 6px 0 #8B3A1E,
+    0 8px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.1s ease;
+  min-width: 260px;
+}
+
+.gameButton:hover {
+  background: linear-gradient(180deg, #FF8A5C 0%, #E85A2F 100%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 0 #8B3A1E,
+    0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.gameButton:active {
+  transform: translateY(4px);
+  box-shadow: 
+    0 2px 0 #8B3A1E,
+    0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rulesButton {
+  background: linear-gradient(180deg, #FFD54F 0%, #FFA726 100%);
+  color: #5D4037;
+  border-color: #8B6914;
+  box-shadow: 
+    0 6px 0 #8B6914,
+    0 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+.rulesButton:hover {
+  background: linear-gradient(180deg, #FFE082 0%, #FFB74D 100%);
+  box-shadow: 
+    0 8px 0 #8B6914,
+    0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.rulesButton:active {
+  box-shadow: 
+    0 2px 0 #8B6914,
+    0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  background: linear-gradient(135deg, #FFF8DC 0%, #FFE4B5 100%);
+  padding: 40px;
+  border-radius: 20px;
+  border: 6px solid #FF6B35;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalTitle {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #D84315;
+  text-shadow: 2px 2px 0px #FFD700;
+  margin-bottom: 20px;
+  font-family: 'Arial Black', sans-serif;
+  text-transform: uppercase;
+}
+
+.modalText {
+  color: #5D4037;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 30px;
+  text-align: left;
+  font-family: Arial, sans-serif;
+}
+
+.closeButton {
+  background: linear-gradient(180deg, #FF6B35 0%, #D84315 100%);
+  color: #FFF8DC;
+  font-size: 1.2rem;
+  font-weight: 800;
+  padding: 12px 40px;
+  border: 3px solid #8B3A1E;
+  border-radius: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-family: 'Arial Black', sans-serif;
+  box-shadow: 0 4px 0 #8B3A1E;
+  transition: all 0.1s ease;
+}
+
+.closeButton:hover {
+  background: linear-gradient(180deg, #FF8A5C 0%, #E85A2F 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 #8B3A1E;
+}
+
+.closeButton:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #8B3A1E;
+}
+
+.modalContent::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modalContent::-webkit-scrollbar-track {
+  background: #FFE4B5;
+  border-radius: 10px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+  background: #FF6B35;
+  border-radius: 10px;
+  border: 2px solid #FFE4B5;
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+  background: #D84315;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+    text-shadow: 
+      3px 3px 0px #8B3A1E,
+      -1px -1px 0px #FFD700;
+  }
+
+  .game-button {
+    font-size: 1.2rem;
+    padding: 15px 40px;
+    min-width: 240px;
+  }
+
+  .modal-content {
+    padding: 25px;
+    margin: 20px;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .modal-text {
+    font-size: 1rem;
+  }
+}
