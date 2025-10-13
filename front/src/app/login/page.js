@@ -65,7 +65,7 @@ export default function RegistroYLogin() {
       console.log("Respuesta del servidor:", result)
       if (result.validar === true) {
         sessionStorage.setItem("playerId", result.id)
-        router.push("/menu"); //PONER LA SIGUIENTE PÁGINA
+        router.push("/menu");
       } else {
         showModal("Error", result.message || "Credenciales incorrectas");
       }
@@ -159,17 +159,16 @@ export default function RegistroYLogin() {
           nested
           closeOnDocumentClick={false}
       >
-        <div style={styles.modal}>
-          <h2 style={styles.modalTitle}>Selecciona tu Avatar</h2>
-          <div style={styles.avatarGrid}>
+        <div className={styles.modal}>
+          <h2 className={styles.modalTitle}>Selecciona tu Avatar</h2>
+          <div className={styles.avatarGrid}>
             {avatares.map((av, index) => (
-              <button key={index} onClick={() => seleccionarAvatar(av.ruta)} style={styles.avatarButton}>
-                <img src={av.ruta} alt={av.nombre} style={styles.avatarImage}/>
-                <p style={styles.avatarName}>{av.nombre}</p>
+              <button key={index} onClick={() => seleccionarAvatar(av.ruta)} className={styles.avatarButton}>
+                <img src={av.ruta} alt={av.nombre} className={styles.avatarImage}/>
               </button>
             ))}
           </div>
-          <button onClick={closePopup} style={styles.closeButton}>Cancelar</button>
+          <button onClick={closePopup} className={styles.closeButton}>Cancelar</button>
         </div>
       </Popup>
     </div>
