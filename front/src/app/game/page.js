@@ -6,21 +6,31 @@ export default function PizzaGame() {
   const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({
     background: false,
-    character: false
+    character: false,
+    kitchen: false
   });
   const imagesRef = useRef({
     background: null,
-    character: null
+    character: null,
+    kitchen: null
   });
+  const [showKitchen, setShowKitchen] = useState(false);
   const animationRef = useRef({
-    characterY: 400, // Empieza fuera de la pantalla (abajo)
-    targetY: 91,     // Posición final
+    characterY: 400,
+    targetY: 91,
     isAnimating: true,
-    animationSpeed: 3 // Velocidad de la animación
+    animationSpeed: 5,
+    showBubble: false
+  });
+  const buttonRef = useRef({
+    x: 0,
+    y: 0,
+    width: 180,
+    height: 45,
+    hover: false
   });
 
   useEffect(() => {
-    // Cargar imagen de fondo
     const bgImg = document.createElement('img');
     bgImg.onload = () => {
       imagesRef.current.background = bgImg;
@@ -28,13 +38,19 @@ export default function PizzaGame() {
     };
     bgImg.src = '/imagesFondos/FondoPizzeria.png';
 
-    // Cargar imagen del personaje
     const charImg = document.createElement('img');
     charImg.onload = () => {
       imagesRef.current.character = charImg;
       setImagesLoaded(prev => ({ ...prev, character: true }));
     };
     charImg.src = '/imagesCustomers/Personaje1.png';
+
+    const kitchenImg = document.createElement('img');
+    kitchenImg.onload = () => {
+      imagesRef.current.kitchen = kitchenImg;
+      setImagesLoaded(prev => ({ ...prev, kitchen: true }));
+    };
+    kitchenImg.src = '/imagesFondos/FondoCocina.png';
   }, []);
 
   useEffect(() => {
@@ -43,18 +59,19 @@ export default function PizzaGame() {
 
     const ctx = canvas.getContext('2d');
     
-    // Loop de animación
     let animationFrameId;
     const animate = () => {
-      // Actualizar posición del personaje si está animando
       if (animationRef.current.isAnimating) {
         if (animationRef.current.characterY > animationRef.current.targetY) {
           animationRef.current.characterY -= animationRef.current.animationSpeed;
           
-          // Detener la animación cuando llegue a la posición final
           if (animationRef.current.characterY <= animationRef.current.targetY) {
             animationRef.current.characterY = animationRef.current.targetY;
             animationRef.current.isAnimating = false;
+            
+            setTimeout(() => {
+              animationRef.current.showBubble = true;
+            }, 300);
           }
         }
       }
@@ -70,33 +87,141 @@ export default function PizzaGame() {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [imagesLoaded]);
+  }, [imagesLoaded, showKitchen]);
+
+  const drawBubble = (ctx) => {
+    const x = window.innerWidth * 0.3;
+    const y = window.innerHeight * 0.25;
+    const width = 450;
+    const height = 120;
+
+    ctx.shadowColor = 'rgba(0,0,0,0.15)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 5;
+
+    ctx.fillStyle = '#FFE5E5';
+    ctx.strokeStyle = '#FF9999';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, 18);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(x + 40, y + height);
+    ctx.lineTo(x + 50, y + height + 15);
+    ctx.lineTo(x + 60, y + height);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.shadowColor = 'transparent';
+
+    ctx.fillStyle = '#333';
+    ctx.font = '17px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Pedido', x + width/2, y + 30);
+
+    return { x, y, width, height };
+  };
+
+  const drawButton = (ctx, bubbleInfo) => {
+    const btn = buttonRef.current;
+    btn.x = bubbleInfo.x + bubbleInfo.width/2 - btn.width/2;
+    btn.y = bubbleInfo.y + bubbleInfo.height + 25;
+
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+
+    ctx.fillStyle = btn.hover ? '#ffdadaff' : '#FF6B6B';
+    ctx.beginPath();
+    ctx.roundRect(btn.x, btn.y, btn.width, btn.height, 10);
+    ctx.fill();
+
+    ctx.shadowColor = 'transparent';
+
+    ctx.fillStyle = '#FFF';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Ok', btn.x + btn.width/2, btn.y + btn.height/2 + 5);
+  };
 
   const drawScene = (ctx) => {
-    // Limpiar canvas
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-    // Dibujar fondo
-    if (imagesRef.current.background && imagesLoaded.background) {
-      ctx.drawImage(imagesRef.current.background, 0, 0, window.innerWidth, window.innerHeight);
-    }
+    if (showKitchen) {
+      if (imagesRef.current.kitchen && imagesLoaded.kitchen) {
+        ctx.drawImage(imagesRef.current.kitchen, 0, 0, window.innerWidth, window.innerHeight);
+      }
+    } else {
+      if (imagesRef.current.background && imagesLoaded.background) {
+        ctx.drawImage(imagesRef.current.background, 0, 0, window.innerWidth, window.innerHeight);
+      }
 
-    // Dibujar personaje
-    if (imagesRef.current.character && imagesLoaded.character) {
-      // Calcular proporciones para que el personaje mantenga su tamaño relativo
-      const scaleX = window.innerWidth / 550;
-      const scaleY = window.innerHeight / 400;
-      
-      const charX = 50 * scaleX;
-      const charY = animationRef.current.characterY * scaleY; // Usa la posición animada
-      const charWidth = 150 * scaleX;
-      const charHeight = 280 * scaleY;
-      
-      ctx.drawImage(imagesRef.current.character, charX, charY, charWidth, charHeight);
+      if (imagesRef.current.character && imagesLoaded.character) {
+        const scaleX = window.innerWidth / 550;
+        const scaleY = window.innerHeight / 400;
+        
+        const charX = 50 * scaleX;
+        const charY = animationRef.current.characterY * scaleY;
+        const charWidth = 150 * scaleX;
+        const charHeight = 280 * scaleY;
+        
+        ctx.drawImage(imagesRef.current.character, charX, charY, charWidth, charHeight);
+      }
+
+      if (animationRef.current.showBubble) {
+        const bubbleInfo = drawBubble(ctx);
+        drawButton(ctx, bubbleInfo);
+      }
     }
   };
 
-  // Redibujar cuando cambie el tamaño de la ventana
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const handleMouseMove = (e) => {
+      if (showKitchen) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const btn = buttonRef.current;
+      
+      const wasHover = btn.hover;
+      btn.hover = x >= btn.x && x <= btn.x + btn.width && 
+                  y >= btn.y && y <= btn.y + btn.height;
+      
+      if (wasHover !== btn.hover) {
+        canvas.style.cursor = btn.hover ? 'pointer' : 'default';
+      }
+    };
+
+    const handleClick = (e) => {
+      if (showKitchen) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const btn = buttonRef.current;
+      
+      if (x >= btn.x && x <= btn.x + btn.width && 
+          y >= btn.y && y <= btn.y + btn.height) {
+        setShowKitchen(true);
+      }
+    };
+
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('click', handleClick);
+
+    return () => {
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('click', handleClick);
+    };
+  }, [showKitchen]);
+
   useEffect(() => {
     const handleResize = () => {
       const canvas = canvasRef.current;
@@ -111,7 +236,7 @@ export default function PizzaGame() {
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [imagesLoaded]);
+  }, [imagesLoaded, showKitchen]);
 
   return (
     <div style={{ 
