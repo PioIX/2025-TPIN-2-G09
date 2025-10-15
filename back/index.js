@@ -74,22 +74,52 @@ app.get('/customers', async function (req, res) {
     res.send(respuesta);
 });
 
-app.get('/playersxgame', async function (req, res) {
+app.get('/playersgame', async function (req, res) {
     let respuesta;
     if (req.query.id_user != undefined) {
-        respuesta = await realizarQuery(`SELECT * FROM PlayersxGame WHERE id_playerxgame=${req.query.id_playerxgame}`)
+        respuesta = await realizarQuery(`SELECT * FROM PlayersGame WHERE id_playergame=${req.query.id_playergame}`)
     } else {
-        respuesta = await realizarQuery("SELECT * FROM PlayersxGame");
+        respuesta = await realizarQuery("SELECT * FROM PlayersGame");
     }
     res.send(respuesta);
 });
 
-app.get('/results', async function (req, res) {
+app.get('/resultxplayer', async function (req, res) {
     let respuesta;
     if (req.query.id_user != undefined) {
-        respuesta = await realizarQuery(`SELECT * FROM Results WHERE id_result=${req.query.id_result}`)
+        respuesta = await realizarQuery(`SELECT * FROM ResultxPlayer WHERE id_result=${req.query.id_result}`)
     } else {
-        respuesta = await realizarQuery("SELECT * FROM Results");
+        respuesta = await realizarQuery("SELECT * FROM ResultxPlayer");
+    }
+    res.send(respuesta);
+});
+
+app.get('/pizzas', async function (req, res) {
+    let respuesta;
+    if (req.query.id_user != undefined) {
+        respuesta = await realizarQuery(`SELECT * FROM Pizzas WHERE id_pizza=${req.query.id_pizza}`)
+    } else {
+        respuesta = await realizarQuery("SELECT * FROM Pizzas");
+    }
+    res.send(respuesta);
+});
+
+app.get('/qualitypizza', async function (req, res) {
+    let respuesta;
+    if (req.query.id_user != undefined) {
+        respuesta = await realizarQuery(`SELECT * FROM QualityPizza WHERE id_qualitypizza=${req.query.id_qualitypizza}`)
+    } else {
+        respuesta = await realizarQuery("SELECT * FROM QualityPizza");
+    }
+    res.send(respuesta);
+});
+
+app.get('/customerxgame', async function (req, res) {
+    let respuesta;
+    if (req.query.id_user != undefined) {
+        respuesta = await realizarQuery(`SELECT * FROM CustomerxGame WHERE id_customerxgame=${req.query.id_customerxgame}`)
+    } else {
+        respuesta = await realizarQuery("SELECT * FROM CustomerxGame");
     }
     res.send(respuesta);
 });
@@ -116,51 +146,85 @@ app.post('/customers', async function (req, res) {
             req.body.avatar_costumer = null;
         }
         const customer = await realizarQuery(`
-            INSERT INTO Customers (name, avatar_costumer, day) VALUES
-            ('${req.body.name}', '${req.body.avatar_costumer}', '${req.body.day}');
+            INSERT INTO Customers (name, avatar_costumer) VALUES
+            ('${req.body.name}', '${req.body.avatar_costumer}');
         `);
     } catch (error) {
         console.error(error);
     }
 });
-
 
 app.post('/games', async function (req, res) {
     console.log(req.body);
     try {
         const game = await realizarQuery(`
-            INSERT INTO Games (day) VALUES
-            ('${req.body.day}');
+            INSERT INTO Games (code) VALUES
+            ('${req.body.code}');
         `);
     } catch (error) {
         console.error(error);
     }
 });
 
-app.post('/playersxgame', async function (req, res) {
+app.post('/playersgame', async function (req, res) {
     console.log(req.body);
     try {
         const playerxgame = await realizarQuery(`
-            INSERT INTO PlayersxGame (id_player, id_game) VALUES
-            ('${req.body.id_player}', '${req.body.id_game}');
+            INSERT INTO PlayersGame (id_player, id_game, id_result) VALUES
+            ('${req.body.id_player}', '${req.body.id_game}', '${req.body.id_result}');
         `);
     } catch (error) {
         console.error(error);
     }
 });
 
-app.post('/results', async function (req, res) {
+app.post('/resultxplayer', async function (req, res) {
     console.log(req.body);
     try {
         const result = await realizarQuery(`
-            INSERT INTO Results (id_game, id_player, money, points, time ) VALUES
-            ('${req.body.id_game}', '${req.body.id_player}', '${req.body.money}', '${req.body.points}', '${req.body.time}');
+            INSERT INTO ResultxPlayer (time, money, id_player, id_game ) VALUES
+            ('${req.body.time}', '${req.body.money}', '${req.body.id_player}', '${req.body.id_game}');
         `);
     } catch (error) {
         console.error(error);
     }
 });
 
+app.post('/pizzas', async function (req, res) {
+    console.log(req.body);
+    try {
+        const result = await realizarQuery(`
+            INSERT INTO Pizzas (type, ing1, ing2, ing3 ) VALUES
+            ('${req.body.type}', '${req.body.ing1}', '${req.body.ing2}', '${req.body.ing3}');
+        `);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.post('/qualitypizza', async function (req, res) {
+    console.log(req.body);
+    try {
+        const result = await realizarQuery(`
+            INSERT INTO QualityPizza (id_pizza, quality, quantitying1, quantitying2, quantitying3 ) VALUES
+            ('${req.body.id_pizza}', '${req.body.quality}', '${req.body.quantitying1}', '${req.body.quantitying2}', '${req.body.quantitying3}');
+        `);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+app.post('/customerxgame', async function (req, res) {
+    console.log(req.body);
+    try {
+        const result = await realizarQuery(`
+            INSERT INTO CustomerxGame (id_game, id_customer, id_pizza) VALUES
+            ('${req.body.id_game}', '${req.body.id_customer}', '${req.body.id_pizza}');
+        `);
+    } catch (error) {
+        console.error(error);
+    }
+});
 
 app.post('/loginUser', async function (req, res) {
     console.log("Resultado de búsqueda:", req.body);
