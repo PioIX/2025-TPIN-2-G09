@@ -146,8 +146,8 @@ app.post('/customers', async function (req, res) {
             req.body.avatar_costumer = null;
         }
         const customer = await realizarQuery(`
-            INSERT INTO Customers (name, avatar_costumer) VALUES
-            ('${req.body.name}', '${req.body.avatar_costumer}');
+            INSERT INTO Customers (name, avatar_costumer, text) VALUES
+            ('${req.body.name}', '${req.body.avatar_costumer}', '${req.body.text}');
         `);
     } catch (error) {
         console.error(error);
@@ -263,6 +263,34 @@ app.post('/registerUser', async function (req,res) {
         console.log("Error al ingresar",error)
     }
 })
+
+app.get('/customersOrder', async function (req, res) {
+    try {
+        const id_customer = req.query.id;
+        
+        const result = await realizarQuery(`
+            SELECT text 
+            FROM Customers 
+            WHERE id = ${id_customer}
+        `);
+        
+        if (result.length === 0) {
+            return res.status(404).json({ 
+                error: 'Cliente no encontrado' 
+            });
+        }
+        
+        res.json({
+            orderText: result[0].text
+        });
+        
+    } catch (error) {
+        console.error('Error al obtener pedido:', error);
+        res.status(500).json({ 
+            error: 'Error al obtener el pedido' 
+        });
+    }
+});
 
 io.on("connection", (socket) => {
     const req = socket.request;

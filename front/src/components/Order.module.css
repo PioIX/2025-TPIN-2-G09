@@ -1,0 +1,84 @@
+.orderContainer {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.dialogContainer {
+  position: absolute;
+  top: 20%;
+  left: 35%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.dialogBubble {
+  background-color: #F5E6D3;
+  padding: 25px 30px;
+  border-radius: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  max-width: 350px;
+  font-family: Arial, sans-serif;
+  border: 3px solid #D4B896;
+}
+
+.dialogText {
+  margin: 0;
+  font-size: 20px;
+  color: #2C2416;
+  line-height: 1.4;
+  text-align: center;
+  font-weight: 500;
+}
+
+.okButton {
+  position: absolute;
+  bottom: 15%;
+  right: 25%;
+  background-color: #F5E6D3;
+  border: 3px solid #D4B896;
+  border-radius: 15px;
+  padding: 12px 35px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #2C2416;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  font-family: Arial, sans-serif;
+}
+
+.okButton:hover {
+  background-color: #E8D4BA;
+  transform: scale(1.05);
+}
+
+.okButton:active {
+  transform: scale(0.98);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
