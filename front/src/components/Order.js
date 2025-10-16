@@ -3,37 +3,48 @@
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 
-export default function Order({ 
-  characterImage = '/imagesCustomers/Personaje1.png',
-  onOkClick,
-  orderId
-}) {
+export default function Order({customerId=1, onOkClick}) {
+  /*{ characterImage = '/imagesCustomers/Personaje1.png',
+  onOkClick}*/
   const [orderText, setOrderText] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [characterImage, setCharacterImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
 
-  // Función para obtener el pedido desde la base de datos
+  // Función para obtener el pedido desde la base de datos según la imagen
   useEffect(() => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:3000/customersOrder?id=${orderId}`);
+
+        const response = await fetch(
+          `http://localhost:4000/customersOrder?id_customer=${customerId}`
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error al obtener el pedido');
+        }
+
         const data = await response.json();
         setOrderText(data.orderText || '');
+        setCustomerName(data.customerName || '');
+        if (data.customerName) {
+          setCharacterImage(`/imagesCustomers/${data.customerName}.png`);
+        }
       } catch (error) {
         console.error('Error al cargar el pedido:', error);
-        setOrderText('Error al cargar el pedido');
+        setOrderText('No se pudo cargar el pedido');
       } finally {
         setLoading(false);
       }
     };
 
-    if (orderId) {
       fetchOrder();
-    }
-  }, [orderId]);
+  }, [customerId]);  // Aseguramos que la imagen sea la dependecia del efecto
 
-  const canvasRef = useRef(null);
+  /*const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({
     background: false,
     character: false
@@ -203,5 +214,5 @@ export default function Order({
         </div>
       )}
     </div>
-  );
+  );*/
 }

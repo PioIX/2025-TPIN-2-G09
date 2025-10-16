@@ -232,20 +232,20 @@ app.post('/loginUser', async function (req, res) {
         const result = await realizarQuery(`
             SELECT * FROM Players WHERE email = "${req.body.email}" AND password = "${req.body.password}";
         `);
-        if(result.length > 0){
-            res.send({validar: true, id: result[0].id_player})
+        if (result.length > 0) {
+            res.send({ validar: true, id: result[0].id_player })
         } else {
-            res.send({validar: false})
+            res.send({ validar: false })
         }
     } catch (error) {
         console.log("Error al buscar usuario:", error);
-        res.status(500).send({error: "No se pudo buscar el usuario"});
+        res.status(500).send({ error: "No se pudo buscar el usuario" });
     }
 });
 
-app.post('/registerUser', async function (req,res) {
+app.post('/registerUser', async function (req, res) {
     console.log(req.body)
-    try{
+    try {
         const existingPlayer = await realizarQuery(`
             SELECT * FROM Players WHERE email = "${req.body.email}";
         `);
@@ -259,38 +259,44 @@ app.post('/registerUser', async function (req,res) {
         `);
         console.log("Usuario registrado:", insertResult);
         res.send({ res: true, message: "Usuario registrado correctamente" });
-    } catch(error){
-        console.log("Error al ingresar",error)
+    } catch (error) {
+        console.log("Error al ingresar", error)
     }
 })
 
 app.get('/customersOrder', async function (req, res) {
+
     try {
-        const id_customer = req.query.id;
-        
-        const result = await realizarQuery(`
-            SELECT text 
-            FROM Customers 
-            WHERE id = ${id_customer}
-        `);
-        
-        if (result.length === 0) {
-            return res.status(404).json({ 
-                error: 'Cliente no encontrado' 
+        const characterId = req.query.id_customer;
+
+        if (!characterId) {
+            return res.status(400).json({
+                error: 'ID de cliente es requerido'
             });
         }
-        
+        const result = await realizarQuery(
+            `SELECT name, text FROM Customers WHERE id_customer = ${characterId}`
+
+        );
+        // Si no se encuentra el cliente
+        if (result.length === 0) {
+            return res.status(404).json({
+                error: 'Cliente no encontrado'
+            });
+        }
+        // Enviar la respuesta con el texto
         res.json({
-            orderText: result[0].text
+            customerName: result[0].name || '',
+            orderText: result[0].text || ''
         });
-        
     } catch (error) {
         console.error('Error al obtener pedido:', error);
-        res.status(500).json({ 
-            error: 'Error al obtener el pedido' 
+        res.status(500).json({
+            error: 'Error al obtener el pedido'
         });
     }
 });
+
 
 io.on("connection", (socket) => {
     const req = socket.request;
@@ -298,7 +304,7 @@ io.on("connection", (socket) => {
 
     socket.on('joinRoom', data => {
         console.log("🚀 ~ io.on ~ req.session.room:", req.session.room)
-        if (req.session.room != undefined && req.session.room.length > 0){
+        if (req.session.room != undefined && req.session.room.length > 0) {
             socket.leave(req.session.room);
         }
         req.session.room = data.room;
@@ -324,9 +330,9 @@ io.on("connection", (socket) => {
     });
 
     socket.on('sendMessage', (data) => {
-		io.to(req.session.room).emit("newMessage", { 
-            room: req.session.room, 
-            message: data 
+        io.to(req.session.room).emit("newMessage", {
+            room: req.session.room,
+            message: data
         });
 
         realizarQuery(`
@@ -343,7 +349,7 @@ io.on("connection", (socket) => {
             `);
         }
 
-	});
+    });
 
     socket.on('disconnect', () => {
         console.log("Usuario desconectado:", socket.id);

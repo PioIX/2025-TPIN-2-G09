@@ -18,7 +18,7 @@
 .dialogContainer {
   position: absolute;
   top: 20%;
-  left: 35%;
+  left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -47,9 +47,6 @@
 }
 
 .okButton {
-  position: absolute;
-  bottom: 15%;
-  right: 25%;
   background-color: #F5E6D3;
   border: 3px solid #D4B896;
   border-radius: 15px;
