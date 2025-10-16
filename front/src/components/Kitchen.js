@@ -130,8 +130,11 @@ export default function Kitchen(){
                 </div>
                 <div className={styles.ingredients}>
                     {ingredients.map((ingredient) => (
-                        <button key={ingredient.id} className={styles.ingredientBtn} onClick={() => handleIngredientClick(ingredient)} title={ingredient.name}>ç
+                        <button key={ingredient.id} className={styles.ingredientBtn} onClick={() => handleIngredientClick(ingredient)} title={ingredient.name}>
                             <img src={ingredient.image} alt={ingredient.name}></img>
+                        </button>
+                    ))}
+                    </div>
                 <div className={styles.ingredientsBox}>
                     {ingredientsBox.map((ingredientBox) => (
                         <button key={ingredientBox.id} className={styles.ingredientBtn} onClick={() => handleIngredientClick(ingredientBox)} title={ingredientBox.name}>ç
