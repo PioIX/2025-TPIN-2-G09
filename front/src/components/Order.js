@@ -1,11 +1,14 @@
+"use client"
+
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 
-export default function Order({ 
-  characterImage = '/imagesCustomers/Personaje1.png',
-  onOkClick
-}) {
+export default function Order({customerId=1, onOkClick}) {
+  /*{ characterImage = '/imagesCustomers/Personaje1.png',
+  onOkClick}*/
   const [orderText, setOrderText] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [characterImage, setCharacterImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -15,13 +18,8 @@ export default function Order({
       try {
         setLoading(true);
 
-        // Comprobamos que el avatar (characterImage) no esté vacío
-        if (!characterImage) {
-          throw new Error('El avatar no puede estar vacío');
-        }
-
         const response = await fetch(
-          `http://localhost:4000/customersOrder?id_customer=1`
+          `http://localhost:4000/customersOrder?id_customer=${customerId}`
         );
 
         if (!response.ok) {
@@ -31,6 +29,10 @@ export default function Order({
 
         const data = await response.json();
         setOrderText(data.orderText || '');
+        setCustomerName(data.customerName || '');
+        if (data.customerName) {
+          setCharacterImage(`/imagesCustomers/${data.customerName}.png`);
+        }
       } catch (error) {
         console.error('Error al cargar el pedido:', error);
         setOrderText('No se pudo cargar el pedido');
@@ -39,12 +41,10 @@ export default function Order({
       }
     };
 
-    if (characterImage) {
       fetchOrder();
-    }
-  }, [characterImage]);  // Aseguramos que la imagen sea la dependecia del efecto
+  }, [customerId]);  // Aseguramos que la imagen sea la dependecia del efecto
 
-  const canvasRef = useRef(null);
+  /*const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({
     background: false,
     character: false
@@ -189,5 +189,5 @@ export default function Order({
         </div>
       )}
     </div>
-  );
+  );*/
 }
