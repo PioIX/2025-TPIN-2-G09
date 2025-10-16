@@ -1,0 +1,21 @@
+.container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  margin: 0;
+  padding: 0;
+}
+
+.section {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  overflow: hidden;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
