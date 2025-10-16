@@ -1,0 +1,253 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, #f5e6d3 0%, #f0dcc8 100%);
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+}
+
+/* HEADER CON BARRA SUPERIOR */
+.header {
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(180deg, #8b4545 0%, #a55252 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.percent, .time {
+  width: 150px;
+  height: 50px;
+  background: #f5e6d3;
+  border: 3px solid #9a8a82;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* SECCIÓN DE INGREDIENTES - HORIZONTAL */
+.ingredients {
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(90deg, #d4ccc4 0%, #e0d8d0 100%);
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  padding: 15px 20px;
+  border-bottom: 4px solid #9a8a82;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow-x: auto;
+  z-index: 5;
+}
+
+/* BOTÓN DE INGREDIENTE */
+.ingredientBtn {
+  width: 80px;
+  height: 70px;
+  background: linear-gradient(135deg, #8b7a72 0%, #9d8c84 100%);
+  border: 3px solid #6b5a52;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.ingredientBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.ingredientBtn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.ingredientBtn img {
+  width: 75%;
+  height: 75%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* ÁREA PRINCIPAL */
+.mainArea {
+  display: flex;
+  flex: 1;
+  gap: 30px;
+  padding: 30px;
+  background: linear-gradient(135deg, #f5e6d3 0%, #ead5c1 100%);
+  overflow: hidden;
+}
+
+/* CONTENEDOR DE BOLLOS - LADO IZQUIERDO */
+.bunsContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 12px;
+  padding: 20px;
+  width: 280px;
+  height: auto;
+  background: linear-gradient(135deg, #8b7a72 0%, #9d8c84 100%);
+  border: 4px solid #6b5a52;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+/* BOTÓN DE BOLLO */
+.bunBtn {
+  width: 100%;
+  height: 100%;
+  min-height: 50px;
+  background: linear-gradient(135deg, #f4d4a8 0%, #e8c494 100%);
+  border: 2px solid #8b7a72;
+  border-radius: 6px;
+  cursor: grab;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.bunBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.bunBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.35),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bunBtn:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.bunBtn.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+
+/* SECCIÓN DE PIZZA - LADO DERECHO */
+.pizza {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0e6d8 0%, #e8dcc8 100%);
+  border: 3px dashed #d4c4b4;
+  border-radius: 12px;
+  padding: 30px;
+  position: relative;
+}
+
+.pizzaContainer {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pizzaImage {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  object-fit: contain;
+  pointer-events: none;
+  border-radius: 50%;
+  z-index: 1;
+  top: 0;
+  left: 0;
+}
+
+.pizzaCanvas {
+  position: absolute;
+  cursor: crosshair;
+  border-radius: 50%;
+  z-index: 2;
+  top: 0;
+  left: 0;
+}
+
+.pizzaBase {
+  width: 400px;
+  height: 400px;
+  background: transparent;
+  border-radius: 50%;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pizzaBase img {
+  width: 120%;
+  height: 120%;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+/* ESTADO ACTIVO DE INGREDIENTE */
+.ingredientBtn.active {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 15px rgba(139, 122, 114, 0.6);
+}
+
+.pizzaBase::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* SCROLLBAR PERSONALIZADO */
+.ingredients::-webkit-scrollbar {
+  height: 6px;
+}
+
+.ingredients::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.ingredients::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.ingredients::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}

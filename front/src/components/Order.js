@@ -62,26 +62,64 @@ export default function Order({customerId=1, onOkClick}) {
   });
 
   useEffect(() => {
-    const bgImg = document.createElement('img');
+    const bgImg = new Image();
     bgImg.onload = () => {
       imagesRef.current.background = bgImg;
       setImagesLoaded(prev => ({ ...prev, background: true }));
     };
+    bgImg.onerror = () => {
+      console.error('Error cargando fondo');
+      setImagesLoaded(prev => ({ ...prev, background: false }));
+    };
     bgImg.src = '/imagesFondos/FondoPizzeria.png';
 
-    const charImg = document.createElement('img');
+    const charImg = new Image();
     charImg.onload = () => {
       imagesRef.current.character = charImg;
       setImagesLoaded(prev => ({ ...prev, character: true }));
     };
+    charImg.onerror = () => {
+      console.error('Error cargando personaje');
+      setImagesLoaded(prev => ({ ...prev, character: false }));
+    };
     charImg.src = characterImage;
+
+    return () => {
+      // Limpiar referencias de imagen
+      imagesRef.current.background = null;
+      imagesRef.current.character = null;
+    };
   }, [characterImage]);
 
+  const drawScene = (ctx) => {
+    if (!ctx) return;
+    
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+    if (imagesRef.current.background && imagesLoaded.background) {
+      ctx.drawImage(imagesRef.current.background, 0, 0, window.innerWidth, window.innerHeight);
+    }
+
+    if (imagesRef.current.character && imagesLoaded.character) {
+      const scaleX = window.innerWidth / 550;
+      const scaleY = window.innerHeight / 400;
+      
+      const charX = 50 * scaleX;
+      const charY = animationRef.current.characterY * scaleY;
+      const charWidth = 150 * scaleX;
+      const charHeight = 280 * scaleY;
+      
+      ctx.drawImage(imagesRef.current.character, charX, charY, charWidth, charHeight);
+    }
+  };
+
+  // Animación principal
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     
     let animationFrameId;
     const animate = () => {
@@ -94,7 +132,6 @@ export default function Order({customerId=1, onOkClick}) {
             animationRef.current.isAnimating = false;
             animationRef.current.hasFinished = true;
             
-            // Mostrar diálogo inmediatamente cuando termine la animación
             if (!loading && orderText) {
               setShowDialog(true);
             }
@@ -121,38 +158,26 @@ export default function Order({customerId=1, onOkClick}) {
     }
   }, [loading, orderText, showDialog]);
 
-  const drawScene = (ctx) => {
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-    if (imagesRef.current.background && imagesLoaded.background) {
-      ctx.drawImage(imagesRef.current.background, 0, 0, window.innerWidth, window.innerHeight);
-    }
-
-    if (imagesRef.current.character && imagesLoaded.character) {
-      const scaleX = window.innerWidth / 550;
-      const scaleY = window.innerHeight / 400;
-      
-      const charX = 50 * scaleX;
-      const charY = animationRef.current.characterY * scaleY;
-      const charWidth = 150 * scaleX;
-      const charHeight = 280 * scaleY;
-      
-      ctx.drawImage(imagesRef.current.character, charX, charY, charWidth, charHeight);
-    }
-  };
-
+  // Resize handler - SEPARADO Y MEJORADO
   useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const handleResize = () => {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        const ctx = canvas.getContext('2d');
+      if (!canvas) return;
+      
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
         drawScene(ctx);
       }
     };
 
+    // Set inicial
     handleResize();
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [imagesLoaded]);

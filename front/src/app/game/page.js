@@ -1,15 +1,16 @@
-"use client"
-
+import styles from "./page.module.css";
+import Kitchen from "@/components/Kitchen";
 import Order from "@/components/Order";
-import { useRef, useState } from "react";
-import { useEffect } from "react";
 
 export default function Game(){
     return (
-        <>
-            <Order>
-                
-            </Order>
-        </>
+        <div className={styles.container}>
+            <div className={styles.section}>
+                <Order></Order>
+            </div>
+            <div className={styles.section}>
+                <Kitchen></Kitchen>
+            </div>
+        </div>
     );
 }
