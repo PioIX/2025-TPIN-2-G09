@@ -267,26 +267,26 @@ app.post('/registerUser', async function (req, res) {
 app.get('/customersOrder', async function (req, res) {
 
     try {
+        const characterId = req.query.id_customer;
 
-        const characterAvatar = req.query.id_customer;
-
-        if (!characterAvatar) {
+        if (!characterId) {
             return res.status(400).json({
-                error: 'Imagen de personaje es requerida'
+                error: 'ID de cliente es requerido'
             });
         }
         const result = await realizarQuery(
-            `SELECT text FROM Customers WHERE id_customer = ${characterAvatar}`
+            `SELECT name, text FROM Customers WHERE id_customer = ${characterId}`
 
         );
         // Si no se encuentra el cliente
         if (result.length === 0) {
             return res.status(404).json({
-                error: 'Cliente no encontrado para esta imagen'
+                error: 'Cliente no encontrado'
             });
         }
         // Enviar la respuesta con el texto
         res.json({
+            customerName: result[0].name || '',
             orderText: result[0].text || ''
         });
     } catch (error) {
