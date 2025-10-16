@@ -1,37 +1,48 @@
-"use client"
-
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 
 export default function Order({ 
   characterImage = '/imagesCustomers/Personaje1.png',
-  onOkClick,
-  orderId
+  onOkClick
 }) {
   const [orderText, setOrderText] = useState('');
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
 
-  // Función para obtener el pedido desde la base de datos
+  // Función para obtener el pedido desde la base de datos según la imagen
   useEffect(() => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:3000/customersOrder?id=${orderId}`);
+
+        // Comprobamos que el avatar (characterImage) no esté vacío
+        if (!characterImage) {
+          throw new Error('El avatar no puede estar vacío');
+        }
+
+        const response = await fetch(
+          `http://localhost:4000/customersOrder?id_customer=1`
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error al obtener el pedido');
+        }
+
         const data = await response.json();
         setOrderText(data.orderText || '');
       } catch (error) {
         console.error('Error al cargar el pedido:', error);
-        setOrderText('Error al cargar el pedido');
+        setOrderText('No se pudo cargar el pedido');
       } finally {
         setLoading(false);
       }
     };
 
-    if (orderId) {
+    if (characterImage) {
       fetchOrder();
     }
-  }, [orderId]);
+  }, [characterImage]);  // Aseguramos que la imagen sea la dependecia del efecto
 
   const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({
@@ -104,7 +115,6 @@ export default function Order({
     };
   }, [imagesLoaded, loading, orderText]);
 
-  // Si el pedido se carga después de que terminó la animación, mostrar el diálogo
   useEffect(() => {
     if (animationRef.current.hasFinished && !loading && orderText && !showDialog) {
       setShowDialog(true);
