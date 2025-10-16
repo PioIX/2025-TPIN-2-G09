@@ -15,6 +15,16 @@ export default function Kitchen(){
         {id:7, name:"Cebolla", image:"/imagesIngredients/onion.png"}
     ]
 
+    const ingredientsBox = [
+        {id:1, name:"Salsa", image:"/imagesIngredientsBox/tomato.png"},
+        {id:2, name:"Queso", image:"/imagesIngredientsBox/cheese.png"},
+        {id:3, name:"Pepperoni", image:"/imagesIngredientsBox/pepperoni.png"},
+        {id:4, name:"Champiñones", image:"/imagesIngredientsBox/mushroom.png"},
+        {id:5, name:"Aceituna", image:"/imagesIngredientsBox/olive.png"},
+        {id:6, name:"Albahaca", image:"/imagesIngredientsBox/pepper.png"},
+        {id:7, name:"Cebolla", image:"/imagesIngredientsBox/onion.png"}
+    ]
+
     const [visibleBuns, setVisibleBuns] = useState([true, true, true, true, true, true, true, true])
     const [activePizza, setActivePizza] = useState(false)
 
@@ -36,10 +46,10 @@ export default function Kitchen(){
     return (
         <>
             <div className={styles.container}>
-                <div className={styles.ingredients}>
-                    {ingredients.map((ingredient) => (
-                        <button key={ingredient.id} className={styles.ingredientBtn} onClick={() => handleIngredientClick(ingredient)} title={ingredient.name}>ç
-                            <img src={ingredient.image} alt={ingredient.name}></img>
+                <div className={styles.ingredientsBox}>
+                    {ingredientsBox.map((ingredientBox) => (
+                        <button key={ingredientBox.id} className={styles.ingredientBtn} onClick={() => handleIngredientClick(ingredientBox)} title={ingredientBox.name}>ç
+                            <img src={ingredientBox.image} alt={ingredientBox.name}></img>
                         </button>
                     ))}
                 </div>
