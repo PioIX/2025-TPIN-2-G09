@@ -5,7 +5,7 @@ import styles from "./Kitchen.module.css"
 import { useRouter } from "next/navigation"
 
 //SECCIÓN DE LA COCINA
-export default function Kitchen(){
+export default function Kitchen({onGoToOven}) {
     const ingredientsBox = [
         {id:1, name:"Salsa", image:"/imagesIngredients/tomato.png", drawMode: "image", size: 100},
         {id:2, name:"Queso", image:"/imagesIngredients/cheese.png", drawMode: "image", size: 120},
@@ -59,7 +59,7 @@ export default function Kitchen(){
                 const ctx=canvas.getContext('2d')
                 ctx.drawImage(pizzaBunImg, 0, 0, canvas.width, canvas.height)
             }
-            pizzaBunImg.src = "imagesIngredients/pizzaBun.png"
+            pizzaBunImg.src = "/imagesIngredients/pizzaBun.png"
         }
     }, [activePizza])
 
@@ -68,7 +68,6 @@ export default function Kitchen(){
         console.log(`Ingrediente ${ingredient.name} clickeado`)
         setSelectedIngredient(ingredient)
         setPaintingImage(false)
-        //Poner la lógica de cuando agarramos el ingrediente
     }
 
     const handleBunClick = (index) => {
@@ -98,7 +97,6 @@ export default function Kitchen(){
         const y = e.clientY - rect.top
         const size = selectedIngredient.size
 
-        // Verificar si está dentro del círculo
         if (isPointInCircle(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y, pizzaRadiusRef.current)) {
             ctx.drawImage(imageRef.current, x - size / 2, y - size / 2, size, size)
         }
@@ -141,28 +139,28 @@ export default function Kitchen(){
     }
 
     const handleGoToOven = () => {
-        const canvas = canvasRef.current
-        if(!canvas) return;
+        const canvas = canvasRef.current;
+        if(!canvas) {
+            console.log("No hay canvas");
+            return;
+        }
 
         try{
-            if(pizzaBunImageRef.current){
-                ctx = canvas.getContext('2d')
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            const pngData = canvas.toDataURL('image/png');
+            setSavedPizzaImage(pngData);
+            console.log("Pizza guardada exitosamente");
+            console.log("Llamando a onGoToOven con la imagen");
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height)
-                ctx.drawImage(pizzaBunImageRef.current, 0, 0, canvas.width, canvas.height)
-                ctx.putImageData(imageData, 0, 0)
+            // Llamar a la función del padre para cambiar a Oven
+            if(onGoToOven) {
+                onGoToOven(pngData);
+            } else {
+                console.error("onGoToOven no está definida");
             }
-            
-            const pngData = canvas.toDataURL('image/png')
-            setSavedPizzaImage(pngData)
-            console.log("Pizza guardada: ", pngData)
-
-            //Pasar a la parte del horno
         } catch(error){
-            console.error("Error al guardar la pizza: ", error)
+            console.error("Error al guardar la pizza: ", error);
         }
-    }
+    };
 
     const deliverPage = () => {
         router.push('/')
