@@ -6,7 +6,7 @@ export default function Game(){
     return (
         <div className={styles.container}>
             <div className={styles.section}>
-                <Order></Order>
+                <Order key={Date.now()} />
             </div>
             <div className={styles.section}>
                 <Kitchen></Kitchen>
@@ -14,3 +14,4 @@ export default function Game(){
         </div>
     );
 }
+

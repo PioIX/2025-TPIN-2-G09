@@ -265,25 +265,19 @@ app.post('/registerUser', async function (req, res) {
 })
 
 app.get('/customersOrder', async function (req, res) {
-
     try {
-        const characterId = req.query.id_customer;
-
-        if (!characterId) {
-            return res.status(400).json({
-                error: 'ID de cliente es requerido'
-            });
-        }
+        // Obtener un cliente aleatorio de la base de datos
         const result = await realizarQuery(
-            `SELECT name, text FROM Customers WHERE id_customer = ${characterId}`
-
+            `SELECT name, text FROM Customers ORDER BY RAND() LIMIT 1`
         );
-        // Si no se encuentra el cliente
+        
+        // Si no hay clientes en la base de datos
         if (result.length === 0) {
             return res.status(404).json({
-                error: 'Cliente no encontrado'
+                error: 'No hay clientes disponibles'
             });
         }
+        
         // Enviar la respuesta con el texto
         res.json({
             customerName: result[0].name || '',

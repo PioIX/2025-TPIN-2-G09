@@ -13,7 +13,7 @@ export default function Order({customerId=1, onOkClick}) {
   const [showDialog, setShowDialog] = useState(false);
 
   // Función para obtener el pedido desde la base de datos según la imagen
-  useEffect(() => {
+   useEffect(() => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
@@ -28,8 +28,14 @@ export default function Order({customerId=1, onOkClick}) {
         }
 
         const data = await response.json();
+        
+        // Guardar el texto del pedido
         setOrderText(data.orderText || '');
+        
+        // Guardar el nombre del cliente
         setCustomerName(data.customerName || '');
+        
+        // Construir la ruta de la imagen basándose en el nombre
         if (data.customerName) {
           setCharacterImage(`/imagesCustomers/${data.customerName}.png`);
         }
@@ -41,10 +47,10 @@ export default function Order({customerId=1, onOkClick}) {
       }
     };
 
-      fetchOrder();
+    fetchOrder();
   }, [customerId]);  // Aseguramos que la imagen sea la dependecia del efecto
 
-  /*const canvasRef = useRef(null);
+  const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({
     background: false,
     character: false
@@ -79,7 +85,7 @@ export default function Order({customerId=1, onOkClick}) {
       setImagesLoaded(prev => ({ ...prev, character: true }));
     };
     charImg.onerror = () => {
-      console.error('Error cargando personaje');
+      //console.error('Error cargando personaje');
       setImagesLoaded(prev => ({ ...prev, character: false }));
     };
     charImg.src = characterImage;
@@ -214,5 +220,5 @@ export default function Order({customerId=1, onOkClick}) {
         </div>
       )}
     </div>
-  );*/
+  );
 }
