@@ -20,10 +20,12 @@ export default function Kitchen(){
     const [activePizza, setActivePizza] = useState(false)
     const [paintingImage, setPaintingImage] = useState(false)
     const [selectedIngredient, setSelectedIngredient] = useState(null)
+    const [savedPizzaImage, setSavedPizzaImage] = useState(null)
     const router = useRouter()
 
     const canvasRef = useRef(null)
     const imageRef = useRef(null)
+    const pizzaBunImageRef = useRef(null)
     const pizzaCenterRef = useRef({ x: 0, y: 0})
     const pizzaRadiusRef = useRef(200)
 
@@ -50,6 +52,14 @@ export default function Kitchen(){
             canvas.height = 400
             pizzaCenterRef.current = { x: 200, y: 200 }
             pizzaRadiusRef.current = 200
+
+            const pizzaBunImg = new Image()
+            pizzaBunImg.onload = () => {
+                pizzaBunImageRef.current = pizzaBunImg
+                const ctx=canvas.getContext('2d')
+                ctx.drawImage(pizzaBunImg, 0, 0, canvas.width, canvas.height)
+            }
+            pizzaBunImg.src = "imagesIngredients/pizzaBun.png"
         }
     }, [activePizza])
 
@@ -130,8 +140,28 @@ export default function Kitchen(){
         setPaintingImage(false)
     }
 
-    const bakePage = () => {
-        router.push('/')
+    const handleGoToOven = () => {
+        const canvas = canvasRef.current
+        if(!canvas) return;
+
+        try{
+            if(pizzaBunImageRef.current){
+                ctx = canvas.getContext('2d')
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                ctx.drawImage(pizzaBunImageRef.current, 0, 0, canvas.width, canvas.height)
+                ctx.putImageData(imageData, 0, 0)
+            }
+            
+            const pngData = canvas.toDataURL('image/png')
+            setSavedPizzaImage(pngData)
+            console.log("Pizza guardada: ", pngData)
+
+            //Pasar a la parte del horno
+        } catch(error){
+            console.error("Error al guardar la pizza: ", error)
+        }
     }
 
     const deliverPage = () => {
@@ -168,17 +198,22 @@ export default function Kitchen(){
                     <div className={styles.pizza}>
                         {activePizza && (
                             <>
-                                <img src="/imagesIngredients/pizzaBun.png" className={styles.pizzaImage}></img>
                                 <canvas ref={canvasRef} className={styles.pizzaCanvas} onMouseDown={startPaintImage} onMouseMove={paintImageMove} onMouseUp={finishPaintImage} onMouseLeave={finishPaintImage}></canvas>
                             </>
                         )}
                     </div>
                     <div className={styles.btns}>
-                        <button className={styles.bake} onClick={bakePage}>Hornear</button>
+                        <button className={styles.bake} onClick={handleGoToOven}>Hornear</button>
                         <button className={styles.deliver} onClick={deliverPage}>Entregar</button>
                     </div>
                 </div>
             </div>
+            {savedPizzaImage && (
+                <div style={{ marginTop: '20px', padding: '10px', border: '1px solid green' }}>
+                    <h3>Pizza guardada:</h3>
+                    <img src={savedPizzaImage} alt="Pizza guardada" style={{ maxWidth: '200px', border: '1px solid black' }}></img>
+                </div>
+            )}
         </>
     )
 }
