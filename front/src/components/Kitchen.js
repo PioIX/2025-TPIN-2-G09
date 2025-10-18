@@ -48,10 +48,10 @@ export default function Kitchen({onGoToOven}) {
     useEffect(() => {
         if (activePizza && canvasRef.current) {
             const canvas = canvasRef.current
-            canvas.width = 400
-            canvas.height = 400
-            pizzaCenterRef.current = { x: 200, y: 200 }
-            pizzaRadiusRef.current = 200
+            canvas.width = 300
+            canvas.height = 300
+            pizzaCenterRef.current = { x: 150, y: 150 }
+            pizzaRadiusRef.current = 150
 
             const pizzaBunImg = new Image()
             pizzaBunImg.onload = () => {
