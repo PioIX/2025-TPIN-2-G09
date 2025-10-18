@@ -3,108 +3,176 @@
   flex-direction: column;
   width: 100%;
   height: 100vh;
-  background: linear-gradient(135deg, #f5e6d3 0%, #f0dcc8 100%);
-  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
 }
 
-/* HEADER CON BARRA SUPERIOR */
+/* ============ HEADER CON BARRA SUPERIOR ============ */
 .header {
   width: 100%;
   height: 80px;
-  background: linear-gradient(180deg, #8b4545 0%, #a55252 100%);
+  background: linear-gradient(180deg, #c73e1d 0%, #e74c3c 100%);
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 40px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   z-index: 10;
 }
 
-.percent, .time {
-  width: 150px;
+.percent,
+.order,
+.time {
+  width: 180px;
   height: 50px;
-  background: #f5e6d3;
-  border: 3px solid #9a8a82;
-  border-radius: 8px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
+  border: 2px solid #d4a574;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #c73e1d;
+  font-size: 14px;
 }
 
-/* SECCIÓN DE INGREDIENTES - HORIZONTAL */
+.order {
+  width: auto;
+  flex-grow: 1;
+  margin: 0 20px;
+  max-width: 500px;
+}
+
+/* ============ SECCIÓN DE INGREDIENTES ============ */
 .ingredientsBox {
   width: 100%;
-  height: 100px;
-  background: linear-gradient(90deg, #d4ccc4 0%, #e0d8d0 100%);
+  height: 110px;
+  background: linear-gradient(90deg, #e8dcc8 0%, #f0e6d8 100%);
   display: flex;
   flex-direction: row;
-  gap: 15px;
-  padding: 15px 20px;
-  border-bottom: 4px solid #9a8a82;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  gap: 12px;
+  padding: 15px 30px;
+  border-bottom: 3px solid #d4a574;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
   overflow-x: auto;
   z-index: 5;
+  align-items: center;
 }
 
-/* BOTÓN DE INGREDIENTE */
+/* ============ BOTÓN DE INGREDIENTE ============ */
 .ingredientBtn {
-  width: 80px;
-  height: 70px;
-  background: linear-gradient(135deg, #8b7a72 0%, #9d8c84 100%);
-  border: 3px solid #6b5a52;
-  border-radius: 6px;
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, #c9a876 0%, #d4a878 50%, #a88968 100%);
+  border: 4px solid #8b6f47;
+  border-radius: 20px 20px 15px 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 2px 8px rgba(255, 255, 255, 0.3), inset 0 -3px 8px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.ingredientBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%);
+  pointer-events: none;
+  border-radius: 20px 20px 15px 15px;
+}
+
+.ingredientBtn::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: -4px;
+  right: -4px;
+  height: 15px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.05) 100%);
+  border-radius: 0 0 10px 10px;
+  pointer-events: none;
 }
 
 .ingredientBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .ingredientBtn:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px) scale(0.98);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.ingredientBtn.active {
+  transform: scale(1.12);
+  background: linear-gradient(135deg, #d4a574 0%, #e8b88a 100%);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 20px rgba(212, 165, 116, 0.6);
+  border-color: #d4a574;
 }
 
 .ingredientBtn img {
   width: 75%;
   height: 75%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+  position: relative;
+  z-index: 1;
 }
 
-/* ÁREA PRINCIPAL */
+/* ============ ÁREA PRINCIPAL ============ */
 .mainArea {
   display: flex;
   flex: 1;
   gap: 30px;
-  padding: 30px;
-  background: linear-gradient(135deg, #f5e6d3 0%, #ead5c1 100%);
+  padding: 40px;
+  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
   overflow: hidden;
+  justify-content: space-between;
+  align-items: stretch;
 }
 
-/* CONTENEDOR DE BOLLOS - LADO IZQUIERDO */
+/* ============ CONTENEDOR DE BOLLOS ============ */
 .bunsContainer {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  gap: 12px;
-  padding: 20px;
-  width: 280px;
-  height: auto;
-  background: linear-gradient(135deg, #8b7a72 0%, #9d8c84 100%);
-  border: 4px solid #6b5a52;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+  gap: 8px;
+  padding: 10px;
+  width: 340px;
+  height: 420px;
+  background: linear-gradient(135deg, #a88968 0%, #c4a878 100%);
+  border: 4px solid #8b6f47;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-/* BOTÓN DE BOLLO */
+.bunsContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  border-radius: 16px;
+}
+
+/* ============ BOTÓN DE BOLLO ============ */
 .bunBtn {
   background-image: url('/imagesIngredients/bun.png');
   background-size: contain;
@@ -114,8 +182,8 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  width: 100px;  /* Ajusta según el tamaño de tu imagen */
-  height: 100px; /* Ajusta según el tamaño de tu imagen */
+  width: 100%;
+  height: 100%;
 }
 
 .bunBtn:hover {
@@ -131,39 +199,126 @@
   visibility: hidden;
 }
 
-
-/* SECCIÓN DE PIZZA - LADO DERECHO */
+/* ============ SECCIÓN DE PIZZA ============ */
 .pizza {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f0e6d8 0%, #e8dcc8 100%);
-  border: 3px dashed #d4c4b4;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
+  border: 3px dashed #d4a574;
+  border-radius: 20px;
   padding: 30px;
   position: relative;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05), 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.pizza::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 3px dashed #d4a574;
+  border-radius: 20px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ============ BOTONES DE ACCIÓN ============ */
+.btns {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  justify-content: flex-start;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.bake,
+.deliver {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.bake::before,
+.deliver::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.bake:hover::before,
+.deliver:hover::before {
+  left: 100%;
+}
+
+.bake {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+}
+
+.bake:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.bake:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.deliver {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+}
+
+.deliver:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(39, 174, 96, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.deliver:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .pizzaContainer {
   position: relative;
-  width: 400px;
-  height: 400px;
+  width: 300px;
+  height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
+  margin: auto;
 }
 
 .pizzaImage {
   position: absolute;
-  width: 400px;
-  height: 400px;
+  width: 380px;
+  height: 380px;
   object-fit: contain;
   pointer-events: none;
   border-radius: 50%;
   z-index: 1;
-  top: 0;
-  left: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .pizzaCanvas {
@@ -171,21 +326,25 @@
   cursor: crosshair;
   border-radius: 50%;
   z-index: 2;
-  top: 0;
-  left: 0;
-}
-
-.pizzaBase {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 400px;
   height: 400px;
   background: transparent;
+}
+
+.pizzaBase {
+  width: 380px;
+  height: 380px;
+  background: transparent;
   border-radius: 50%;
-  box-shadow: none;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .pizzaBase img {
@@ -195,12 +354,6 @@
   border-radius: 50%;
 }
 
-/* ESTADO ACTIVO DE INGREDIENTE */
-.ingredientBtn.active {
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 15px rgba(139, 122, 114, 0.6);
-}
-
 .pizzaBase::before {
   content: '';
   position: absolute;
@@ -208,26 +361,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
   border-radius: 50%;
   z-index: 1;
   pointer-events: none;
-}
-
-/* SCROLLBAR PERSONALIZADO */
-.ingredients::-webkit-scrollbar {
-  height: 6px;
-}
-
-.ingredients::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.ingredients::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-.ingredients::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
 }
