@@ -4,7 +4,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    background: #000000;
 }
 
 .ovenWrapper {
@@ -12,44 +12,87 @@
     width: 90%;
     max-width: 1000px;
     aspect-ratio: 16 / 9;
+    overflow: visible;
 }
 
-.ovenImage {
-    position: relative;
+/* CAPA 1: Fondo */
+.backgroundLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    border-radius: 20px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* CAPA 2: Varillas */
+.grillLayer {
+    position: absolute;
+    bottom: 25%;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    z-index: 2;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
-.image {
-    object-fit: cover;
+.grillContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    display: flex;
+    gap: 0;
+    animation: moveGrill 2s linear infinite;
 }
 
-/* Pizza que se desliza */
+@keyframes moveGrill {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.grillBar {
+    position: relative;
+    width: 30px;
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.grillImage {
+    object-fit: fill;
+    width: 100%;
+    height: 100%;
+}
+
+/* CAPA 3: Pizza deslizante */
 .pizzaSliding {
     position: absolute;
-    bottom: 20%;
+    bottom: 25%;
     left: -150px;
-    width: 150px;
-    height: 150px;
-    z-index: 10;
+    width: 120px;
+    height: 120px;
+    z-index: 3;
     animation: slideThrough 4s ease-in-out;
 }
 
 @keyframes slideThrough {
     0% {
         left: -150px;
-        transform: rotate(0deg);
+        transform: translateY(0) rotate(0deg);
     }
     50% {
-        left: calc(50% - 75px);
-        transform: rotate(180deg);
+        left: calc(50% - 60px);
+        transform: translateY(0) rotate(180deg);
     }
     100% {
         left: calc(100% + 150px);
-        transform: rotate(360deg);
+        transform: translateY(0) rotate(360deg);
     }
 }
 
@@ -58,6 +101,23 @@
     height: 100%;
     object-fit: contain;
     filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+}
+
+/* CAPA 4: Marco del horno (encima de todo) */
+.ovenFrame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.image {
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
 }
 
 /* Botón */
@@ -76,7 +136,7 @@
     cursor: pointer;
     box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
     transition: all 0.3s ease;
-    z-index: 20;
+    z-index: 5;
 }
 
 .toggleButton:hover:not(:disabled) {

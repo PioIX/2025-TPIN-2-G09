@@ -18,18 +18,36 @@ export default function Oven({ pizzaImage, onBack }) {
     return (
         <div className={styles.container}>
             <div className={styles.ovenWrapper}>
-                {/* Imagen completa del horno/cocina */}
-                <div className={styles.ovenImage}>
+                
+                {/* CAPA 1: Fondo de la cocina */}
+                <div className={styles.backgroundLayer}>
                     <Image 
                         src="/imagesFondos/FondoCocina.png"
-                        alt="Cocina"
+                        alt="Fondo Cocina"
                         fill
                         className={styles.image}
                         priority
                     />
                 </div>
 
-                {/* Pizza que se desliza por debajo */}
+                {/* CAPA 2: Varillas animadas (múltiples copias en loop) */}
+                <div className={styles.grillLayer}>
+                    <div className={styles.grillContainer}>
+                        {/* Creamos múltiples varillas para efecto continuo */}
+                        {[...Array(20)].map((_, i) => (
+                            <div key={i} className={styles.grillBar}>
+                                <Image 
+                                    src="/imagesFondos/Varilla.png"
+                                    alt="Varilla"
+                                    fill
+                                    className={styles.grillImage}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* CAPA 3: Pizza que se desliza */}
                 {pizzaImage && isCooking && (
                     <div className={styles.pizzaSliding}>
                         <img 
@@ -39,6 +57,17 @@ export default function Oven({ pizzaImage, onBack }) {
                         />
                     </div>
                 )}
+
+                {/* CAPA 4: Marco del horno (encima de todo) */}
+                <div className={styles.ovenFrame}>
+                    <Image 
+                        src="/imagesFondos/HornoCocina.png"
+                        alt="Marco Horno"
+                        fill
+                        className={styles.image}
+                        priority
+                    />
+                </div>
 
                 {/* Botón para iniciar la cocción */}
                 <button
