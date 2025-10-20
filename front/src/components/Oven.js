@@ -5,55 +5,48 @@ import Image from 'next/image';
 import styles from './Oven.module.css';
 
 export default function Oven({ pizzaImage, onBack }) {
-    const [ovenOpen, setOvenOpen] = useState(false);
+    const [isCooking, setIsCooking] = useState(false);
 
-    const toggleOven = () => {
-        setOvenOpen(!ovenOpen);
+    const startCooking = () => {
+        setIsCooking(true);
+        // La animación dura 4 segundos, después volvemos al estado inicial
+        setTimeout(() => {
+            setIsCooking(false);
+        }, 4000);
     };
 
     return (
         <div className={styles.container}>
             <div className={styles.ovenWrapper}>
-                <div className={styles.ovenContainer}>
-                    {/* Imagen del horno */}
-                    <div className={styles.ovenImage}>
-                        {ovenOpen ? (
-                            <Image 
-                                src="/imagesFondos/horno.png"
-                                alt="Horno Abierto"
-                                fill
-                                className={styles.image}
-                                priority
-                            />
-                        ) : (
-                            <Image 
-                                src="/imagesFondos/hornoCerrado.png"
-                                alt="Horno Cerrado"
-                                fill
-                                className={styles.image}
-                                priority
-                            />
-                        )}
-                    </div>
-
-                    {/* Pizza dentro del horno (solo cuando está abierto) */}
-                    {pizzaImage && ovenOpen && (
-                        <div className={styles.pizzaInOven}>
-                            <img 
-                                src={pizzaImage} 
-                                alt="Pizza en el horno"
-                                className={styles.pizzaImage}
-                            />
-                        </div>
-                    )}
+                {/* Imagen completa del horno/cocina */}
+                <div className={styles.ovenImage}>
+                    <Image 
+                        src="/imagesFondos/FondoCocina.png"
+                        alt="Cocina"
+                        fill
+                        className={styles.image}
+                        priority
+                    />
                 </div>
 
-                {/* Botón de abrir/cerrar */}
+                {/* Pizza que se desliza por debajo */}
+                {pizzaImage && isCooking && (
+                    <div className={styles.pizzaSliding}>
+                        <img 
+                            src={pizzaImage} 
+                            alt="Pizza cocinándose"
+                            className={styles.pizzaImage}
+                        />
+                    </div>
+                )}
+
+                {/* Botón para iniciar la cocción */}
                 <button
-                    onClick={toggleOven}
+                    onClick={startCooking}
                     className={styles.toggleButton}
+                    disabled={isCooking}
                 >
-                    {ovenOpen ? '🔥 Cerrar Horno' : '👨‍🍳 Abrir Horno'}
+                    {isCooking ? 'Cocinando...' : 'Cerrar Horno'}
                 </button>
             </div>
         </div>
