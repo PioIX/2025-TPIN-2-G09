@@ -1,153 +1,94 @@
 .container {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
+    align-items: center;
     background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
 .ovenWrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3rem;
-    width: 100%;
-    height: 100%;
-    padding: 2rem;
-}
-
-.ovenContainer {
     position: relative;
-    width: 70vw;
-    max-width: 900px;
-    aspect-ratio: 16/9; /* Mantiene proporciones naturales */
-    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+    width: 90%;
+    max-width: 1000px;
+    aspect-ratio: 16 / 9;
 }
 
 .ovenImage {
     position: relative;
     width: 100%;
     height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .image {
-    object-fit: contain;
+    object-fit: cover;
 }
 
-/* Pizza dentro del horno */
-.pizzaInOven {
+/* Pizza que se desliza */
+.pizzaSliding {
     position: absolute;
-    top: 45%;
-    left: 52%;
-    transform: translate(-50%, -50%);
-    width: 28%;
-    height: 35%;
-    z-index: 5;
-    animation: baking 3s ease-in-out infinite;
+    bottom: 20%;
+    left: -150px;
+    width: 150px;
+    height: 150px;
+    z-index: 10;
+    animation: slideThrough 4s ease-in-out;
+}
+
+@keyframes slideThrough {
+    0% {
+        left: -150px;
+        transform: rotate(0deg);
+    }
+    50% {
+        left: calc(50% - 75px);
+        transform: rotate(180deg);
+    }
+    100% {
+        left: calc(100% + 150px);
+        transform: rotate(360deg);
+    }
 }
 
 .pizzaImage {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    filter: brightness(0.85) contrast(1.15) saturate(1.1);
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
 }
 
-/* Animación de horneado */
-@keyframes baking {
-    0%, 100% {
-        filter: brightness(0.85) contrast(1.15) saturate(1.1);
-    }
-    50% {
-        filter: brightness(0.95) contrast(1.2) saturate(1.2) hue-rotate(5deg);
-    }
-}
-
-/* Botón mejorado */
+/* Botón */
 .toggleButton {
-    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-    color: white;
-    font-weight: bold;
-    font-size: 1.5rem;
-    padding: 1.5rem 4rem;
-    border-radius: 50px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    box-shadow: 
-        0 10px 30px rgba(255, 107, 53, 0.4),
-        inset 0 -3px 10px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    z-index: 10;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.toggleButton::before {
-    content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.5s;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+    transition: all 0.3s ease;
+    z-index: 20;
 }
 
-.toggleButton:hover::before {
-    left: 100%;
+.toggleButton:hover:not(:disabled) {
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 12px 30px rgba(255, 107, 53, 0.6);
 }
 
-.toggleButton:hover {
-    transform: translateY(-5px);
-    box-shadow: 
-        0 15px 40px rgba(255, 107, 53, 0.6),
-        inset 0 -3px 10px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #ff7b45 0%, #f9a12e 100%);
+.toggleButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
-.toggleButton:active {
-    transform: translateY(-2px);
-    box-shadow: 
-        0 8px 20px rgba(255, 107, 53, 0.4),
-        inset 0 -3px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
-    .ovenContainer {
-        width: 80vw;
-    }
-}
-
-@media (max-width: 768px) {
-    .ovenContainer {
-        width: 90vw;
-    }
-    
-    .toggleButton {
-        font-size: 1.2rem;
-        padding: 1.2rem 2.5rem;
-    }
-    
-    .pizzaInOven {
-        width: 26%;
-        height: 32%;
-    }
-}
-
-@media (max-width: 480px) {
-    .ovenContainer {
-        width: 95vw;
-    }
-    
-    .toggleButton {
-        font-size: 1rem;
-        padding: 1rem 2rem;
-    }
+.toggleButton:active:not(:disabled) {
+    transform: translateX(-50%) scale(0.98);
 }
