@@ -3,7 +3,8 @@
 import styles from "./Cut.module.css"
 
 //SECCIÓN DE CORTAR
-export default function Cut(){
+export default function Cut({pizzaImage}){
+    
     return(
         <>
             <div className={styles.container}>
@@ -19,10 +20,15 @@ export default function Cut(){
                     </div>
                 </div>
                 <div className={styles.table}>
-
+                    <div className={styles.pizzaCanvas}>
+                        <img className={pizzaImage} src={pizzaImage}></img>
+                    </div>
+                    <button className={styles.knifeCursor}>
+                        <img className={styles.knife} src="/imagesElements/knife.png"></img>
+                    </button>
                 </div>
                 <div className={styles.boxes}>
-                    
+                    <img className={styles.box} src="/imagesElements/boxes.png"></img>
                 </div>
             </div>
         </>
