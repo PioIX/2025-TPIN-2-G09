@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation"
 //SECCIÓN DE LA COCINA
 export default function Kitchen({onGoToOven}) {
     const ingredientsBox = [
-        {id:1, name:"Salsa", image:"/imagesIngredients/tomato.png", drawMode: "image", size: 180},
-        {id:2, name:"Queso", image:"/imagesIngredients/cheese.png", drawMode: "image", size: 200},
+        {id:1, name:"Salsa", image:"/imagesIngredients/tomato.png", drawMode: "image", size: 160},
+        {id:2, name:"Queso", image:"/imagesIngredients/cheese.png", drawMode: "image", size: 140},
         {id:3, name:"Pepperoni", image:"/imagesIngredients/pepperoni.png", drawMode: "click", size: 50},
         {id:4, name:"Champiñones", image:"/imagesIngredients/mushroom.png", drawMode: "click", size: 50},
         {id:5, name:"Aceituna", image:"/imagesIngredients/olive.png", drawMode: "click", size: 50},
@@ -162,10 +162,6 @@ export default function Kitchen({onGoToOven}) {
         }
     };
 
-    const deliverPage = () => {
-        router.push('/')
-    }
-
     return (
         <>
             <div className={styles.container}>
@@ -202,7 +198,6 @@ export default function Kitchen({onGoToOven}) {
                     </div>
                     <div className={styles.btns}>
                         <button className={styles.bake} onClick={handleGoToOven}>Hornear</button>
-                        <button className={styles.deliver} onClick={deliverPage}>Entregar</button>
                     </div>
                 </div>
             </div>
