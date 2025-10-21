@@ -43,7 +43,6 @@
     height: 35%;  /* Aumentado de 28% a 35% */
     transform: translateY(-50%);
     z-index: 2;
-    overflow: hidden;
 }
 
 .grillContainer {
@@ -95,8 +94,8 @@
     position: absolute;
     top: 50%;
     left: -150px;
-    width: 120px;
-    height: 120px;
+    width: 180px;
+    height: 150px;
     transform: translateY(-50%);
     z-index: 3;
     animation: slideThrough 7s ease-in-out;
@@ -225,3 +224,64 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
+
+/* Pizza moviéndose desde la mesita */
+.pizzaMoving {
+    position: absolute;
+    left: 6%;
+    top: 43%;
+    transform: translateY(-50%);
+    width: 100px;
+    height: 100px;
+    z-index: 6;
+    animation: movePizzaToOven 2s ease-in-out forwards;
+}
+
+@keyframes movePizzaToOven {
+    0% {
+        left: 6%;
+        top: 43%;
+    }
+    100% {
+        left: 100%;  /* Cambiado de -150px a 100% para que vaya a la derecha */
+        top: 50%;
+    }
+}
+
+
+.header {
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(180deg, #c73e1d 0%, #e74c3c 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  z-index: 10;
+}
+
+.percent,
+.order,
+.time {
+  width: 180px;
+  height: 50px;
+  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
+  border: 2px solid #d4a574;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #c73e1d;
+  font-size: 14px;
+}
+
+.order {
+  width: auto;
+  flex-grow: 1;
+  margin: 0 20px;
+  max-width: 500px;
+}
+
