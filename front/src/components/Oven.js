@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import styles from './Oven.module.css';
 
-export default function Oven({ pizzaImage, onBack }) {
+export default function Oven({ pizzaImage, onGoToCut }) {
     const [isCooking, setIsCooking] = useState(false);
 
     const startCooking = () => {
@@ -15,13 +15,30 @@ export default function Oven({ pizzaImage, onBack }) {
         }, 7000);
     };
 
+    const handleGoToCut = () => {
+        const canvas = canvasRef.current;
+        if(!canvas) {
+            console.log("No hay canvas");
+            return;
+        }
+        try{
+            if(onGoToCut) {
+                onGoToKitchen();
+            } else {
+                console.error("onGoToKitchen no está definida");
+            }
+        } catch(error){
+            console.error("Error al guardar la pizza: ", error);
+        }
+    };
+
     return (
         <div className={styles.container}>
             <div className={styles.ovenWrapper}>
-                
+
                 {/* CAPA 1: Fondo de la cocina */}
                 <div className={styles.backgroundLayer}>
-                    <Image 
+                    <Image
                         src="/imagesFondos/FondoCocina.png"
                         alt="Fondo Cocina"
                         fill
@@ -35,14 +52,14 @@ export default function Oven({ pizzaImage, onBack }) {
                     <div className={styles.grillContainer}>
                         {/* Aumentamos a 120 varillas para cubrir toda la pantalla */}
                         {[...Array(120)].map((_, i) => (
-                            <div 
-                                key={i} 
+                            <div
+                                key={i}
                                 className={styles.grillBar}
                                 style={{
                                     animationDelay: `${-i * 0.05}s`
                                 }}
                             >
-                                <Image 
+                                <Image
                                     src="/imagesFondos/Varilla.png"
                                     alt="Varilla"
                                     fill
@@ -56,8 +73,8 @@ export default function Oven({ pizzaImage, onBack }) {
                 {/* CAPA 3: Pizza que se desliza */}
                 {pizzaImage && isCooking && (
                     <div className={styles.pizzaSliding}>
-                        <img 
-                            src={pizzaImage} 
+                        <img
+                            src={pizzaImage}
                             alt="Pizza cocinándose"
                             className={styles.pizzaImage}
                         />
@@ -66,7 +83,7 @@ export default function Oven({ pizzaImage, onBack }) {
 
                 {/* CAPA 4: Marco del horno (encima de todo) */}
                 <div className={styles.ovenFrame}>
-                    <Image 
+                    <Image
                         src="/imagesFondos/HornoCocina.png"
                         alt="Marco Horno"
                         fill
@@ -83,6 +100,11 @@ export default function Oven({ pizzaImage, onBack }) {
                 >
                     {isCooking ? 'Cocinando...' : 'Cocinar'}
                 </button>
+
+                {/* Botón para pasar a cortar*/}
+                <div className={styles.btns}>
+                    <button className={styles.bake} onClick={handleGoToCut}>Cortar</button>
+                </div>
             </div>
         </div>
     );
