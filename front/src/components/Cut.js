@@ -1,10 +1,17 @@
 "use client"
 
+import { useState } from "react"
 import styles from "./Cut.module.css"
 
 //SECCIÓN DE CORTAR
 export default function Cut({pizzaImage}){
-    
+    const [cursorStyle, setCursorStyle] = useState('auto')
+
+    const knifeCursor = () => {
+        setCursorStyle("url,('/imagesElements/knife.png'), auto")
+    }
+
+
     return(
         <>
             <div className={styles.container}>
