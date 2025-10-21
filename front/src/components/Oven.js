@@ -9,10 +9,10 @@ export default function Oven({ pizzaImage, onBack }) {
 
     const startCooking = () => {
         setIsCooking(true);
-        // La animación dura 4 segundos, después volvemos al estado inicial
+        // La animación dura 7 segundos, después volvemos al estado inicial
         setTimeout(() => {
             setIsCooking(false);
-        }, 4000);
+        }, 7000);
     };
 
     return (
@@ -30,12 +30,18 @@ export default function Oven({ pizzaImage, onBack }) {
                     />
                 </div>
 
-                {/* CAPA 2: Varillas animadas (múltiples copias en loop) */}
+                {/* CAPA 2: Varillas animadas (siempre en movimiento) */}
                 <div className={styles.grillLayer}>
                     <div className={styles.grillContainer}>
-                        {/* Creamos múltiples varillas para efecto continuo */}
-                        {[...Array(20)].map((_, i) => (
-                            <div key={i} className={styles.grillBar}>
+                        {/* Aumentamos a 120 varillas para cubrir toda la pantalla */}
+                        {[...Array(120)].map((_, i) => (
+                            <div 
+                                key={i} 
+                                className={styles.grillBar}
+                                style={{
+                                    animationDelay: `${-i * 0.05}s`
+                                }}
+                            >
                                 <Image 
                                     src="/imagesFondos/Varilla.png"
                                     alt="Varilla"
@@ -75,7 +81,7 @@ export default function Oven({ pizzaImage, onBack }) {
                     className={styles.toggleButton}
                     disabled={isCooking}
                 >
-                    {isCooking ? 'Cocinando...' : 'Cerrar Horno'}
+                    {isCooking ? 'Cocinando...' : 'Cocinar'}
                 </button>
             </div>
         </div>
