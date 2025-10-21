@@ -6,34 +6,30 @@ import styles from './Oven.module.css';
 
 export default function Oven({ pizzaImage, onGoToCut }) {
     const [isCooking, setIsCooking] = useState(false);
+    const [pizzaMoving, setPizzaMoving] = useState(false);
 
     const startCooking = () => {
+        // Directamente comienza la cocción sin movimiento previo
         setIsCooking(true);
-        // La animación dura 7 segundos, después volvemos al estado inicial
+        
+        // La animación de cocción dura 7 segundos
         setTimeout(() => {
             setIsCooking(false);
+            handleGoToCut()
         }, 7000);
     };
 
     const handleGoToCut = () => {
-        const canvas = canvasRef.current;
-        if(!canvas) {
-            console.log("No hay canvas");
-            return;
-        }
-        try{
-            if(onGoToCut) {
-                onGoToKitchen();
-            } else {
-                console.error("onGoToKitchen no está definida");
-            }
-        } catch(error){
-            console.error("Error al guardar la pizza: ", error);
+        if(onGoToCut) {
+            onGoToCut();
+        } else {
+            console.error("onGoToCut no está definida");
         }
     };
 
     return (
         <div className={styles.container}>
+            
             <div className={styles.ovenWrapper}>
 
                 {/* CAPA 1: Fondo de la cocina */}
@@ -47,6 +43,49 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     />
                 </div>
 
+                {/* Mesita de la izquierda - CASI EN LA PUNTA IZQUIERDA */}
+                <div style={{
+                    position: 'absolute',
+                    left: '-35%',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '400px',
+                    height: '400px',
+                    zIndex: 1
+                }}>
+                    <img
+                        src="/imagesFondos/TablaPizza.png"
+                        alt="Mesita"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain'
+                        }}
+                    />
+                </div>
+
+                {/* Pizza en la mesita (estado inicial) - CENTRADA EN LA TABLA */}
+                {pizzaImage && !isCooking && (
+                    <div style={{
+                        position: 'absolute',
+                        left: '-22%',
+                        top: '41%',
+                        width: '140px',
+                        height: '140px',
+                        zIndex: 2
+                    }}>
+                        <img
+                            src={pizzaImage}
+                            alt="Pizza en la mesita"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4))'
+                            }}
+                        />
+                    </div>
+                )}
                 {/* CAPA 2: Varillas animadas (siempre en movimiento) */}
                 <div className={styles.grillLayer}>
                     <div className={styles.grillContainer}>
@@ -56,7 +95,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                                 key={i}
                                 className={styles.grillBar}
                                 style={{
-                                    animationDelay: `${-i * 0.05}s`
+                                    animationDelay: `${-i * 0.07}s`
                                 }}
                             >
                                 <Image
@@ -70,7 +109,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     </div>
                 </div>
 
-                {/* CAPA 3: Pizza que se desliza */}
+                {/* CAPA 3: Pizza que se desliza cocinando */}
                 {pizzaImage && isCooking && (
                     <div className={styles.pizzaSliding}>
                         <img
@@ -81,8 +120,17 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     </div>
                 )}
 
-                {/* CAPA 4: Marco del horno (encima de todo) */}
-                <div className={styles.ovenFrame}>
+                {/* CAPA 4: Marco del horno (encima de todo) - MÁS GRANDE */}
+                <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '110%',
+                    height: '110%',
+                    zIndex: 4,
+                    pointerEvents: 'none'
+                }}>
                     <Image
                         src="/imagesFondos/HornoCocina.png"
                         alt="Marco Horno"
@@ -92,20 +140,30 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     />
                 </div>
 
-                {/* Botón para iniciar la cocción */}
+                {/* Botón para iniciar la cocción - MÁS ABAJO */}
                 <button
                     onClick={startCooking}
                     className={styles.toggleButton}
                     disabled={isCooking}
+                    style={{
+                        bottom: '5px'
+                    }}
                 >
                     {isCooking ? 'Cocinando...' : 'Cocinar'}
                 </button>
 
-                {/* Botón para pasar a cortar*/}
-                <div className={styles.btns}>
-                    <button className={styles.bake} onClick={handleGoToCut}>Cortar</button>
-                </div>
+                {/* Botón para pasar a cortar - MÁS ABAJO */}
+                <button 
+                    className={styles.toggleButton} 
+                    onClick={handleGoToCut}
+                    style={{
+                        bottom: '-50px'
+                    }}
+                >
+                    Cortar
+                </button>
             </div>
         </div>
     );
+    
 }
