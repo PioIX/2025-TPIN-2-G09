@@ -6,11 +6,13 @@ import Kitchen from "@/components/Kitchen";
 import Order from "@/components/Order";
 import Oven from "@/components/Oven";
 import Cut from "@/components/Cut";
+import Deliver from '@/components/Deliver';
 
-export default function Game(){
+export default function Game() {
     const [showKitchen, setShowKitchen] = useState(false);
     const [showOven, setShowOven] = useState(false);
     const [showCut, setShowCut] = useState(false);
+    const [showDeliver, setShowDeliver] = useState(false);
     const [pizzaImage, setPizzaImage] = useState(null);
 
     const handleGoToKitchen = () => {
@@ -18,77 +20,64 @@ export default function Game(){
         setShowKitchen(true);
     };
 
-    const handleBackToKitchen = () => {
-        console.log("Volviendo a Kitchen");
-        setShowKitchen(false);
-    };
-
     const handleGoToOven = (imageData) => {
         console.log("Cambiando a Oven con imagen:", imageData);
         setPizzaImage(imageData);
+        setShowKitchen(false);
         setShowOven(true);
-    };
-
-    const handleBackToOven = () => {
-        console.log("Volviendo a Oven");
-        setShowOven(false);
     };
 
     const handleGoToCut = () => {
         console.log("Cambiando a Cut");
         setShowCut(true);
+        setShowOven(false);
     };
 
-    const handleBackToCut = () => {
-        console.log("Volviendo a Cut");
+     const handleGoToDeliver = () => {
+        console.log("Cambiando a Deliver");
+        setShowDeliver(true);
         setShowCut(false);
     };
 
     return (
         <>
             <div className={styles.container1}>
-                {!showKitchen ? (
-                    <>
+                {
+                    (!showDeliver) ? (
+                    (!showCut ) ? (
+                    (!showOven) ? (
+                        (!showKitchen) ? (
+                            <>
+                                <div className={styles.section}>
+                                    <Order key={Date.now()} onGoToKitchen={handleGoToKitchen} />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className={styles.section}>
+                                    <Kitchen onGoToOven={handleGoToOven} />
+                                </div>
+                            </>
+                        )
+                    ) : (
                         <div className={styles.section}>
-                            <Order key={Date.now()} onGoToKitchen={handleGoToKitchen}/>
+                            <Oven
+                                pizzaImage={pizzaImage}
+                                onGoToCut={handleGoToCut}
+                            />
                         </div>
-                    </>
-                ) : (
-                    <>
-                        <div className={styles.section}>
-                            <Kitchen onGoToOven={handleGoToOven} />
-                        </div>
-                    </>
-                )}
-            </div>
-            <div className={styles.container2}>
-                {!showOven ? (
-                    <div className={styles.section}>
-                        <Kitchen onGoToOven={handleGoToOven} />
-                    </div>
-                ) : (
-                    <div className={styles.section}>
-                        <Oven 
-                            pizzaImage={pizzaImage} 
-                            onBack={handleBackToKitchen}
-                        />
-                    </div>
-                )}
-            </div>
-            <div className={styles.container3}>
-                {!showCut ? (
-                    <div className={styles.section}>
-                        <Oven onGoToCut={handleGoToCut} />
-                    </div>
-                ) : (
-                    <div className={styles.section}>
-                        <Cut onGoToCut={handleGoToDeliver} />
-                    </div>
-                )}
-                <Cut pizzaImage={pizzaImage}></Cut>
+                    )
+                    ) : 
+                    (
+                        <Cut />
+                    )
+                    ) : 
+                    (
+                        <Deliver></Deliver>
+                    )
+                }
             </div>
         </>
-        
+
     );
 }
-

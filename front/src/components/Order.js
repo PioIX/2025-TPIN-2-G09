@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 
-export default function Order({customerId=1, onOkClick}) {
+export default function Order({customerId=1, onOkClick, onGoToKitchen}) {
   /*{ characterImage = '/imagesCustomers/Personaje1.png',
   onOkClick}*/
   const [orderText, setOrderText] = useState('');
@@ -164,6 +164,23 @@ export default function Order({customerId=1, onOkClick}) {
     }
   }, [loading, orderText, showDialog]);
 
+  const handleGoToKitchen = () => {
+        const canvas = canvasRef.current;
+        if(!canvas) {
+            console.log("No hay canvas");
+            return;
+        }
+        try{
+            if(onGoToKitchen) {
+                onGoToKitchen();
+            } else {
+                console.error("onGoToKitchen no está definida");
+            }
+        } catch(error){
+            console.error("Error al guardar la pizza: ", error);
+        }
+    };
+
   // Resize handler - SEPARADO Y MEJORADO
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -211,12 +228,9 @@ export default function Order({customerId=1, onOkClick}) {
             </p>
           </div>
           
-          <button
-            onClick={handleOkClick}
-            className={styles.okButton}
-          >
-            OK
-          </button>
+         <div className={styles.btns}>
+                        <button className={styles.bake} onClick={handleGoToKitchen}>OK</button>
+                    </div>
         </div>
       )}
     </div>
