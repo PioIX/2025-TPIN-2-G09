@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 
-export default function Order({customerId=1, onOkClick, onGoToKitchen}) {
+export default function Order({customerId=1,onGoToKitchen}) {
   /*{ characterImage = '/imagesCustomers/Personaje1.png',
   onOkClick}*/
   const [orderText, setOrderText] = useState('');
@@ -206,7 +206,19 @@ export default function Order({customerId=1, onOkClick, onGoToKitchen}) {
   }, [imagesLoaded]);
   
   return (
+    
     <div className={styles.orderContainer}>
+      <div className={styles.header}>
+                    <div className={styles.percent}>
+                
+                    </div>
+                    <div className={styles.order}>
+                
+                    </div>
+                    <div className={styles.time}>
+                
+                    </div>
+      </div>
       <canvas
         ref={canvasRef}
         className={styles.canvas}

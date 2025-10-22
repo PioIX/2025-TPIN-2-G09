@@ -4,11 +4,11 @@ import styles from "./Deliver.module.css"
 import { useEffect, useState } from "react";
 
 export default function Deliver(props) {
-    const [customerId, setCustomerId] = useState("");
+    const [customer, setCustomer] = useState("");
 
     useEffect(() => {
-        const savedId = localStorage.getItem("customerId");
-        setCustomerId(savedId);
+        const savedCustomer = localStorage.getItem("customerId");
+        setCustomer(savedCustomer);
     }, []);
 
     useEffect(() => {
@@ -26,8 +26,22 @@ export default function Deliver(props) {
 
     return (
         <>
+        <div className={styles.orderContainer}>
+            <div className={styles.header}>
+                    <div className={styles.percent}>
+                
+                    </div>
+                    <div className={styles.order}>
+                
+                    </div>
+                    <div className={styles.time}>
+                
+                    </div>
+            </div>
+
+        </div>
         <div>
-            {customerId ? `Customer ID: ${customerId}`:"Cargando..."}
+            {customer ? `Customer ID: ${customer}`:"Cargando..."}
         </div>
 
         </>
