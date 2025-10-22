@@ -29,7 +29,6 @@ export default function Oven({ pizzaImage, onGoToCut }) {
 
     return (
         <div className={styles.container}>
-            
             <div className={styles.ovenWrapper}>
 
                 {/* CAPA 1: Fondo de la cocina */}
