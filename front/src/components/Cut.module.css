@@ -211,6 +211,35 @@
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
+.doneButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(200px, -280px);
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    border: 3px solid #1e8449;
+    border-radius: 12px;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+    pointer-events: all;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.doneButton:hover {
+    transform: translate(200px, -280px) scale(1.1);
+    box-shadow: 0 6px 18px rgba(39, 174, 96, 0.4);
+}
+
+.doneButton:active {
+    transform: translate(200px, -280px) scale(0.95);
+}
+
 /* EFECTOS Y ANIMACIONES */
 @keyframes pulse {
     0%, 100% {
