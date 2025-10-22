@@ -34,3 +34,12 @@
   margin: 0 20px;
   max-width: 500px;
 }
+
+.orderContainer{
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
