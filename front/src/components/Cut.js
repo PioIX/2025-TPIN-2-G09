@@ -2,19 +2,21 @@
 
 import { useState } from "react"
 import styles from "./Cut.module.css"
+import clsx from "clsx"
 
 //SECCIÓN DE CORTAR
 export default function Cut({pizzaImage}){
-    const [cursorStyle, setCursorStyle] = useState('auto')
+    const [cursorStyle, setCursorStyle] = useState(false)
 
     const knifeCursor = () => {
-        setCursorStyle("url,('/imagesElements/knife.png'), auto")
+        setCursorStyle(true)
+        
     }
 
 
     return(
         <>
-            <div className={styles.container}>
+            <div  className={clsx(styles.container, {[styles.cursorKnife]: cursorStyle == true})}>
                 <div className={styles.header}>
                     <div className={styles.percent}>
                 
@@ -27,10 +29,10 @@ export default function Cut({pizzaImage}){
                     </div>
                 </div>
                 <div className={styles.table}>
-                    <div className={styles.pizzaCanvas}>
+                    <div className={styles.pizzaCanvas} >
                         <img className={pizzaImage} src={pizzaImage}></img>
                     </div>
-                    <button className={styles.knifeCursor}>
+                    <button className={styles.knifeCursor} onClick={knifeCursor}>
                         <img className={styles.knife} src="/imagesElements/knife.png"></img>
                     </button>
                 </div>
