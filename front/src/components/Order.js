@@ -204,15 +204,7 @@ export default function Order({customerId=1, onOkClick, onGoToKitchen}) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [imagesLoaded]);
-
-  const handleOkClick = () => {
-    if (onOkClick) {
-      onOkClick();
-    } else {
-      window.location.href = '/kitchen';
-    }
-  };
-
+  
   return (
     <div className={styles.orderContainer}>
       <canvas
