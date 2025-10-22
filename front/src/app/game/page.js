@@ -33,7 +33,7 @@ export default function Game() {
         setShowOven(false);
     };
 
-     const handleGoToDeliver = () => {
+    const handleGoToDeliver = () => {
         console.log("Cambiando a Deliver");
         setShowDeliver(true);
         setShowCut(false);
@@ -70,11 +70,11 @@ export default function Game() {
                     )
                     ) : 
                     (
-                        <Cut />
+                        <Cut pizzaImage={pizzaImage} onGoToDeliver={handleGoToDeliver}></Cut>
                     )
                     ) : 
                     (
-                        <Deliver></Deliver>
+                        <Deliver ></Deliver>
                     )
                 }
             </div>
