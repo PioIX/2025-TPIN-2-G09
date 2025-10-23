@@ -9,10 +9,6 @@ export default function Order({customerId=1, onGoToKitchen}) {
   const [characterImage, setCharacterImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
-  
-  // NUEVO: Estado para guardar el filtro de la pizza
-  const [pizzaFilter, setPizzaFilter] = useState('');
-  const [currentPhase, setCurrentPhase] = useState('order'); // order, kitchen, oven, cut, deliver
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -158,11 +154,6 @@ export default function Order({customerId=1, onGoToKitchen}) {
   }, [loading, orderText, showDialog]);
 
   const handleGoToKitchen = () => {
-    const canvas = canvasRef.current;
-    if(!canvas) {
-      console.log("No hay canvas");
-      return;
-    }
     try{
       if(onGoToKitchen) {
         onGoToKitchen();
@@ -174,11 +165,6 @@ export default function Order({customerId=1, onGoToKitchen}) {
     }
   };
 
-  // NUEVO: Handler para cuando termina el horno
-  const handleGoToCut = (cookingState, filter) => {
-    setPizzaFilter(filter); // Guardamos el filtro
-    setCurrentPhase('cut');
-  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
