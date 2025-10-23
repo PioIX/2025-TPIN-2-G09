@@ -14,6 +14,7 @@ export default function Game() {
     const [showCut, setShowCut] = useState(false);
     const [showDeliver, setShowDeliver] = useState(false);
     const [pizzaImage, setPizzaImage] = useState(null);
+    const [pizzaFilter, setPizzaFilter] = useState('');
 
     const handleGoToKitchen = () => {
         console.log("Cambiando a Kitchen");
@@ -27,8 +28,11 @@ export default function Game() {
         setShowOven(true);
     };
 
-    const handleGoToCut = () => {
+    const handleGoToCut = (cookingState, filter) => {
         console.log("Cambiando a Cut");
+        console.log("Estado de cocción:", cookingState);
+        console.log("Filtro recibido:", filter);
+        setPizzaFilter(filter);
         setShowCut(true);
         setShowOven(false);
     };
@@ -41,7 +45,6 @@ export default function Game() {
 
     return (
         <>
-            
             <div className={styles.container1}>
                 {
                     (!showDeliver) ? (
@@ -70,15 +73,18 @@ export default function Game() {
                     )
                     ) : 
                     (
-                        <Cut pizzaImage={pizzaImage} onGoToDeliver={handleGoToDeliver}></Cut>
+                        <Cut 
+                            pizzaImage={pizzaImage} 
+                            pizzaFilter={pizzaFilter}
+                            onGoToDeliver={handleGoToDeliver}
+                        />
                     )
                     ) : 
                     (
-                        <Deliver ></Deliver>
+                        <Deliver />
                     )
                 }
             </div>
         </>
-
     );
 }

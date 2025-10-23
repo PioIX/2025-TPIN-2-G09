@@ -19,7 +19,47 @@
     margin: 0 auto;
 }
 
-/* CAPA 1: Fondo */
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(180deg, #c73e1d 0%, #e74c3c 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
+              inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  z-index: 100;
+}
+
+.percent,
+.order,
+.time {
+  width: 180px;
+  height: 50px;
+  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
+  border: 2px solid #d4a574;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #c73e1d;
+  font-size: 14px;
+}
+
+.order {
+  width: auto;
+  flex-grow: 1;
+  margin: 0 20px;
+  max-width: 500px;
+}
+
 .backgroundLayer {
     position: fixed;
     top: 0;
@@ -34,13 +74,12 @@
     object-fit: cover;
 }
 
-/* CAPA 2: Varillas - MÁS GRANDES */
 .grillLayer {
     position: absolute;
     top: 50%;
     left: 0;
     width: 100%;
-    height: 35%;  /* Aumentado de 28% a 35% */
+    height: 35%;
     transform: translateY(-50%);
     z-index: 2;
 }
@@ -50,17 +89,6 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    display: flex;
-    gap: 0;
-}
-
-.grillContainer::before,
-.grillContainer::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    width: 200%;
     height: 100%;
     display: flex;
     gap: 0;
@@ -77,7 +105,7 @@
 
 .grillBar {
     position: relative;
-    width: 45px;  /* Aumentado de 35px a 45px */
+    width: 45px;
     height: 100%;
     flex-shrink: 0;
     animation: moveGrill 3s linear infinite;
@@ -89,7 +117,6 @@
     height: 100%;
 }
 
-/* CAPA 3: Pizza deslizante */
 .pizzaSliding {
     position: absolute;
     top: 50%;
@@ -98,7 +125,7 @@
     height: 150px;
     transform: translateY(-50%);
     z-index: 3;
-    animation: slideThrough 7s ease-in-out;
+    animation: slideThrough ease-in-out forwards;
 }
 
 @keyframes slideThrough {
@@ -110,24 +137,12 @@
     }
 }
 
-
 .pizzaImage {
     width: 100%;
     height: 100%;
     object-fit: contain;
     filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
-}
-
-/* CAPA 4: Marco del horno - MÁS GRANDE */
-.ovenFrame {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 98%;  /* Aumentado de 92% a 98% */
-    height: 98%;  /* Aumentado de 92% a 98% */
-    z-index: 4;
-    pointer-events: none;
+    transition: filter 0.5s ease;
 }
 
 .image {
@@ -136,12 +151,64 @@
     height: 100%;
 }
 
-/* Botón */
-.toggleButton {
+.controlPanel {
     position: absolute;
-    bottom: 20px;
+    bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 5;
+}
+
+.timeSelector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 15px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border: 2px solid #e8dcc8;
+}
+
+.timeButton {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8dcc8 0%, #d4a574 100%);
+    color: #4a4a4a;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeButton:hover {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, #d4a574 0%, #c09060 100%);
+}
+
+.timeButton:active {
+    transform: scale(0.95);
+}
+
+.timeDisplay {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    min-width: 50px;
+    text-align: center;
+}
+
+.toggleButton {
     padding: 12px 35px;
     font-size: 1.1rem;
     font-weight: 600;
@@ -149,139 +216,69 @@
     background: linear-gradient(180deg, #f5f0e8 0%, #e8dcc8 100%);
     border: 2px solid #b8a88a;
     border-radius: 12px;
-    cursor: pointer;
     box-shadow: 
         0 4px 8px rgba(0, 0, 0, 0.15),
         inset 0 1px 2px rgba(255, 255, 255, 0.5);
     transition: all 0.2s ease;
-    z-index: 5;
     text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+    cursor: pointer;
 }
 
-.toggleButton:hover:not(:disabled) {
-    transform: translateX(-50%) translateY(-2px);
+.toggleButton:hover {
+    transform: translateY(-2px);
     box-shadow: 
         0 6px 12px rgba(0, 0, 0, 0.2),
         inset 0 1px 2px rgba(255, 255, 255, 0.5);
     background: linear-gradient(180deg, #f8f3eb 0%, #ebe0ca 100%);
 }
 
-.toggleButton:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    background: linear-gradient(180deg, #e8e3db 0%, #d8cdb8 100%);
-}
-
-.toggleButton:active:not(:disabled) {
-    transform: translateX(-50%) translateY(1px);
+.toggleButton:active {
+    transform: translateY(1px);
     box-shadow: 
         0 2px 4px rgba(0, 0, 0, 0.15),
         inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.cut{
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 700;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    position: relative;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.cut::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s ease;
-}
-
-.cut:hover::before {
-  left: 100%;
-}
-
-.cut {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: white;
-}
-
-.cut:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.cut:active {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-/* Pizza moviéndose desde la mesita */
-.pizzaMoving {
+.timerDisplay {
     position: absolute;
-    left: 6%;
-    top: 43%;
-    transform: translateY(-50%);
-    width: 100px;
-    height: 100px;
-    z-index: 6;
-    animation: movePizzaToOven 2s ease-in-out forwards;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
 }
 
-@keyframes movePizzaToOven {
-    0% {
-        left: 6%;
-        top: 43%;
-    }
-    100% {
-        left: 100%;  /* Cambiado de -150px a 100% para que vaya a la derecha */
-        top: 50%;
-    }
+.timerNumber {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #2c3e50;
+    background: rgba(255, 255, 255, 0.9);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border: 3px solid #e8dcc8;
 }
 
-
-.header {
-  width: 100%;
-  height: 80px;
-  background: linear-gradient(180deg, #c73e1d 0%, #e74c3c 100%);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 40px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  z-index: 10;
+.progressBar {
+    width: 250px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    border: 2px solid #e8dcc8;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.percent,
-.order,
-.time {
-  width: 180px;
-  height: 50px;
-  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
-  border: 2px solid #d4a574;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  color: #c73e1d;
-  font-size: 14px;
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #e8dcc8 0%, #d4a574 100%);
+    transition: width 1s linear;
+    border-radius: 4px;
 }
-
-.order {
-  width: auto;
-  flex-grow: 1;
-  margin: 0 20px;
-  max-width: 500px;
-}
-
