@@ -1,37 +1,110 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Oven.module.css';
 
 export default function Oven({ pizzaImage, onGoToCut }) {
     const [isCooking, setIsCooking] = useState(false);
-    const [pizzaMoving, setPizzaMoving] = useState(false);
+    const [cookingTime, setCookingTime] = useState(10);
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [cookingState, setCookingState] = useState('raw');
+    const [finalPizzaFilter, setFinalPizzaFilter] = useState('');
+    const [pizzaPassedOven, setPizzaPassedOven] = useState(false);
+    const [hasTransitioned, setHasTransitioned] = useState(false);
 
     const startCooking = () => {
-        // Directamente comienza la cocción sin movimiento previo
         setIsCooking(true);
+        setTimeLeft(cookingTime);
+        setPizzaPassedOven(false);
         
-        // La animación de cocción dura 7 segundos
         setTimeout(() => {
-            setIsCooking(false);
-            handleGoToCut()
-        }, 7000);
+            setPizzaPassedOven(true);
+        }, (cookingTime / 2) * 1000);
     };
 
-    const handleGoToCut = () => {
-        if(onGoToCut) {
-            onGoToCut();
-        } else {
-            console.error("onGoToCut no está definida");
+    const decreaseTime = () => {
+        if (cookingTime > 5) {
+            setCookingTime(prev => prev - 1);
         }
     };
 
+    const increaseTime = () => {
+        if (cookingTime < 20) {
+            setCookingTime(prev => prev + 1);
+        }
+    };
+
+    const getFilterStyle = (time) => {
+        if (time < 8) {
+            return 'brightness(1.1) saturate(0.8)';
+        } else if (time >= 8 && time <= 12) {
+            return 'brightness(0.85) saturate(1.3) contrast(1.1)';
+        } else {
+            const burnLevel = (time - 12) / 8;
+            const brightness = 0.5 - (burnLevel * 0.2);
+            return `brightness(${brightness}) saturate(0.6) sepia(0.4)`;
+        }
+    };
+
+    const getCurrentFilterStyle = () => {
+        if (!pizzaPassedOven) {
+            return 'brightness(1) saturate(1)';
+        }
+        return getFilterStyle(cookingTime);
+    };
+
+    useEffect(() => {
+        if (isCooking && timeLeft > 0) {
+            const timer = setTimeout(() => {
+                setTimeLeft(timeLeft - 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+        } else if (isCooking && timeLeft === 0 && !hasTransitioned) {
+            console.log("⏰ COCCIÓN TERMINADA");
+            setIsCooking(false);
+            setHasTransitioned(true);
+            
+            let finalState = 'raw';
+            if (cookingTime < 8) {
+                finalState = 'raw';
+            } else if (cookingTime >= 8 && cookingTime <= 12) {
+                finalState = 'perfect';
+            } else {
+                finalState = 'burnt';
+            }
+            
+            const finalFilter = getFilterStyle(cookingTime);
+            console.log("🎨 Filtro calculado:", finalFilter);
+            console.log("📊 Estado final:", finalState);
+            
+            setCookingState(finalState);
+            setFinalPizzaFilter(finalFilter);
+
+            console.log("⏳ Esperando 500ms antes de ir a Cut...");
+            setTimeout(() => {
+                console.log("🚀 Llamando a onGoToCut");
+                console.log("onGoToCut existe?", !!onGoToCut);
+                if (onGoToCut) {
+                    console.log("✅ Ejecutando onGoToCut con:", finalState, finalFilter);
+                    onGoToCut(finalState, finalFilter);
+                    console.log("✅ onGoToCut ejecutado");
+                } else {
+                    console.error("❌ onGoToCut NO EXISTE!");
+                }
+            }, 500);
+        }
+    }, [isCooking, timeLeft, cookingTime, onGoToCut]);
+
     return (
         <div className={styles.container}>
-            <div className={styles.ovenWrapper}>
+            <div className={styles.header}>
+                <div className={styles.percent}></div>
+                <div className={styles.order}></div>
+                <div className={styles.time}></div>
+            </div>
 
-                {/* CAPA 1: Fondo de la cocina */}
+            <div className={styles.ovenWrapper}>
                 <div className={styles.backgroundLayer}>
                     <Image
                         src="/imagesFondos/FondoCocina.png"
@@ -42,37 +115,39 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     />
                 </div>
 
-                {/* Mesita de la izquierda - CASI EN LA PUNTA IZQUIERDA */}
-                <div style={{
-                    position: 'absolute',
-                    left: '-35%',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    width: '400px',
-                    height: '400px',
-                    zIndex: 1
-                }}>
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: '-35%',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '400px',
+                        height: '400px',
+                        zIndex: 1,
+                    }}
+                >
                     <img
                         src="/imagesFondos/TablaPizza.png"
                         alt="Mesita"
                         style={{
                             width: '100%',
                             height: '100%',
-                            objectFit: 'contain'
+                            objectFit: 'contain',
                         }}
                     />
                 </div>
 
-                {/* Pizza en la mesita (estado inicial) - CENTRADA EN LA TABLA */}
-                {pizzaImage && !isCooking && (
-                    <div style={{
-                        position: 'absolute',
-                        left: '-22%',
-                        top: '41%',
-                        width: '140px',
-                        height: '140px',
-                        zIndex: 2
-                    }}>
+                {pizzaImage && !isCooking && !finalPizzaFilter && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: '-22%',
+                            top: '41%',
+                            width: '140px',
+                            height: '140px',
+                            zIndex: 2,
+                        }}
+                    >
                         <img
                             src={pizzaImage}
                             alt="Pizza en la mesita"
@@ -80,21 +155,21 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'contain',
-                                filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4))'
+                                filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4))',
                             }}
                         />
                     </div>
                 )}
-                {/* CAPA 2: Varillas animadas (siempre en movimiento) */}
+
                 <div className={styles.grillLayer}>
                     <div className={styles.grillContainer}>
-                        {/* Aumentamos a 120 varillas para cubrir toda la pantalla */}
                         {[...Array(120)].map((_, i) => (
                             <div
                                 key={i}
                                 className={styles.grillBar}
                                 style={{
-                                    animationDelay: `${-i * 0.07}s`
+                                    animationDelay: `${-i * 0.07}s`,
+                                    animationPlayState: isCooking ? 'running' : 'paused'
                                 }}
                             >
                                 <Image
@@ -108,28 +183,36 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     </div>
                 </div>
 
-                {/* CAPA 3: Pizza que se desliza cocinando */}
                 {pizzaImage && isCooking && (
-                    <div className={styles.pizzaSliding}>
+                    <div 
+                        className={styles.pizzaSliding}
+                        style={{
+                            animationDuration: `${cookingTime}s`
+                        }}
+                    >
                         <img
                             src={pizzaImage}
-                            alt="Pizza cocinándose"
+                            alt="Pizza cocinandose"
                             className={styles.pizzaImage}
+                            style={{
+                                filter: getCurrentFilterStyle()
+                            }}
                         />
                     </div>
                 )}
 
-                {/* CAPA 4: Marco del horno (encima de todo) - MÁS GRANDE */}
-                <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '110%',
-                    height: '110%',
-                    zIndex: 4,
-                    pointerEvents: 'none'
-                }}>
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '110%',
+                        height: '110%',
+                        zIndex: 4,
+                        pointerEvents: 'none',
+                    }}
+                >
                     <Image
                         src="/imagesFondos/HornoCocina.png"
                         alt="Marco Horno"
@@ -139,30 +222,48 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     />
                 </div>
 
-                {/* Botón para iniciar la cocción - MÁS ABAJO */}
-                <button
-                    onClick={startCooking}
-                    className={styles.toggleButton}
-                    disabled={isCooking}
-                    style={{
-                        bottom: '5px'
-                    }}
-                >
-                    {isCooking ? 'Cocinando...' : 'Cocinar'}
-                </button>
+                {!isCooking && (
+                    <div className={styles.controlPanel}>
+                        <div className={styles.timeSelector}>
+                            <button
+                                className={styles.timeButton}
+                                onClick={decreaseTime}
+                            >
+                                -
+                            </button>
+                            <div className={styles.timeDisplay}>
+                                {cookingTime}s
+                            </div>
+                            <button
+                                className={styles.timeButton}
+                                onClick={increaseTime}
+                            >
+                                +
+                            </button>
+                        </div>
+                        <button
+                            onClick={startCooking}
+                            className={styles.toggleButton}
+                        >
+                            Cocinar
+                        </button>
+                    </div>
+                )}
 
-                {/* Botón para pasar a cortar - MÁS ABAJO */}
-                <button 
-                    className={styles.toggleButton} 
-                    onClick={handleGoToCut}
-                    style={{
-                        bottom: '-50px'
-                    }}
-                >
-                    Cortar
-                </button>
+                {isCooking && (
+                    <div className={styles.timerDisplay}>
+                        <div className={styles.timerNumber}>{timeLeft}</div>
+                        <div className={styles.progressBar}>
+                            <div 
+                                className={styles.progressFill}
+                                style={{ 
+                                    width: `${((cookingTime - timeLeft) / cookingTime) * 100}%`
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
-    
 }

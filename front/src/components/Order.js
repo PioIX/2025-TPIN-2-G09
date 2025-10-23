@@ -3,17 +3,18 @@
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 
-export default function Order({customerId=1,onGoToKitchen}) {
-  /*{ characterImage = '/imagesCustomers/Personaje1.png',
-  onOkClick}*/
+export default function Order({customerId=1, onGoToKitchen}) {
   const [orderText, setOrderText] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [characterImage, setCharacterImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
+  
+  // NUEVO: Estado para guardar el filtro de la pizza
+  const [pizzaFilter, setPizzaFilter] = useState('');
+  const [currentPhase, setCurrentPhase] = useState('order'); // order, kitchen, oven, cut, deliver
 
-  // Función para obtener el pedido desde la base de datos según la imagen
-   useEffect(() => {
+  useEffect(() => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
@@ -28,14 +29,9 @@ export default function Order({customerId=1,onGoToKitchen}) {
         }
 
         const data = await response.json();
-        
-        // Guardar el texto del pedido
         setOrderText(data.orderText || '');
-        
-        // Guardar el nombre del cliente
         setCustomerName(data.customerName || '');
         
-        // Construir la ruta de la imagen basándose en el nombre
         if (data.customerName) {
           setCharacterImage(`/imagesCustomers/${data.customerName}.png`);
         }
@@ -48,7 +44,7 @@ export default function Order({customerId=1,onGoToKitchen}) {
     };
 
     fetchOrder();
-  }, [customerId]);  // Aseguramos que la imagen sea la dependecia del efecto
+  }, [customerId]);
 
   const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({
@@ -85,13 +81,11 @@ export default function Order({customerId=1,onGoToKitchen}) {
       setImagesLoaded(prev => ({ ...prev, character: true }));
     };
     charImg.onerror = () => {
-      //console.error('Error cargando personaje');
       setImagesLoaded(prev => ({ ...prev, character: false }));
     };
     charImg.src = characterImage;
 
     return () => {
-      // Limpiar referencias de imagen
       imagesRef.current.background = null;
       imagesRef.current.character = null;
     };
@@ -119,7 +113,6 @@ export default function Order({customerId=1,onGoToKitchen}) {
     }
   };
 
-  // Animación principal
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -165,23 +158,28 @@ export default function Order({customerId=1,onGoToKitchen}) {
   }, [loading, orderText, showDialog]);
 
   const handleGoToKitchen = () => {
-        const canvas = canvasRef.current;
-        if(!canvas) {
-            console.log("No hay canvas");
-            return;
-        }
-        try{
-            if(onGoToKitchen) {
-                onGoToKitchen();
-            } else {
-                console.error("onGoToKitchen no está definida");
-            }
-        } catch(error){
-            console.error("Error al guardar la pizza: ", error);
-        }
-    };
+    const canvas = canvasRef.current;
+    if(!canvas) {
+      console.log("No hay canvas");
+      return;
+    }
+    try{
+      if(onGoToKitchen) {
+        onGoToKitchen();
+      } else {
+        console.error("onGoToKitchen no está definida");
+      }
+    } catch(error){
+      console.error("Error al guardar la pizza: ", error);
+    }
+  };
 
-  // Resize handler - SEPARADO Y MEJORADO
+  // NUEVO: Handler para cuando termina el horno
+  const handleGoToCut = (cookingState, filter) => {
+    setPizzaFilter(filter); // Guardamos el filtro
+    setCurrentPhase('cut');
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -198,7 +196,6 @@ export default function Order({customerId=1,onGoToKitchen}) {
       }
     };
 
-    // Set inicial
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -206,18 +203,11 @@ export default function Order({customerId=1,onGoToKitchen}) {
   }, [imagesLoaded]);
   
   return (
-    
     <div className={styles.orderContainer}>
       <div className={styles.header}>
-                    <div className={styles.percent}>
-                
-                    </div>
-                    <div className={styles.order}>
-                
-                    </div>
-                    <div className={styles.time}>
-                
-                    </div>
+        <div className={styles.percent}></div>
+        <div className={styles.order}></div>
+        <div className={styles.time}></div>
       </div>
       <canvas
         ref={canvasRef}
@@ -232,9 +222,9 @@ export default function Order({customerId=1,onGoToKitchen}) {
             </p>
           </div>
           
-         <div className={styles.btns}>
-                        <button className={styles.bake} onClick={handleGoToKitchen}>OK</button>
-                    </div>
+          <div className={styles.btns}>
+            <button className={styles.bake} onClick={handleGoToKitchen}>OK</button>
+          </div>
         </div>
       )}
     </div>
