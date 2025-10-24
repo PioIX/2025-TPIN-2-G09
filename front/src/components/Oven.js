@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Oven.module.css';
-
 
 export default function Oven({ pizzaImage, onGoToCut }) {
     const [isCooking, setIsCooking] = useState(false);
@@ -13,13 +12,12 @@ export default function Oven({ pizzaImage, onGoToCut }) {
     const [finalPizzaFilter, setFinalPizzaFilter] = useState('');
     const [pizzaPassedOven, setPizzaPassedOven] = useState(false);
     const [hasTransitioned, setHasTransitioned] = useState(false);
-    const canvasRef = useRef(null)
 
     const startCooking = () => {
         setIsCooking(true);
         setTimeLeft(cookingTime);
         setPizzaPassedOven(false);
-
+        
         setTimeout(() => {
             setPizzaPassedOven(true);
         }, (cookingTime / 2) * 1000);
@@ -56,7 +54,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
         return getFilterStyle(cookingTime);
     };
 
-    {/*useEffect(() => {
+    useEffect(() => {
         if (isCooking && timeLeft > 0) {
             const timer = setTimeout(() => {
                 setTimeLeft(timeLeft - 1);
@@ -66,7 +64,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
             console.log("⏰ COCCIÓN TERMINADA");
             setIsCooking(false);
             setHasTransitioned(true);
-
+            
             let finalState = 'raw';
             if (cookingTime < 8) {
                 finalState = 'raw';
@@ -75,11 +73,11 @@ export default function Oven({ pizzaImage, onGoToCut }) {
             } else {
                 finalState = 'burnt';
             }
-
+            
             const finalFilter = getFilterStyle(cookingTime);
             console.log("🎨 Filtro calculado:", finalFilter);
             console.log("📊 Estado final:", finalState);
-
+            
             setCookingState(finalState);
             setFinalPizzaFilter(finalFilter);
 
@@ -96,19 +94,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                 }
             }, 500);
         }
-    }, [isCooking, timeLeft, cookingTime]);*/}
-
-    const handleGoToCut = () => {
-        try{
-            if(onGoToCut) {
-                onGoToCut();
-            } else {
-                console.error("onGoToCut no está definida");
-            }
-        } catch(error){
-            console.error("Error al cocinar la pizza: ", error);
-        }
-    };
+    }, [isCooking, timeLeft, cookingTime, onGoToCut]);
 
     return (
         <div className={styles.container}>
@@ -172,7 +158,6 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                                 filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4))',
                             }}
                         />
-        
                     </div>
                 )}
 
@@ -199,7 +184,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                 </div>
 
                 {pizzaImage && isCooking && (
-                    <div
+                    <div 
                         className={styles.pizzaSliding}
                         style={{
                             animationDuration: `${cookingTime}s`
@@ -262,9 +247,6 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                         >
                             Cocinar
                         </button>
-                        <button className={styles.toggleButton} onClick={handleGoToCut}>
-                            Cortar
-                        </button>
                     </div>
                 )}
 
@@ -272,16 +254,13 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     <div className={styles.timerDisplay}>
                         <div className={styles.timerNumber}>{timeLeft}</div>
                         <div className={styles.progressBar}>
-                            <div
+                            <div 
                                 className={styles.progressFill}
-                                style={{
+                                style={{ 
                                     width: `${((cookingTime - timeLeft) / cookingTime) * 100}%`
                                 }}
                             />
                         </div>
-                        <button className={styles.toggleButton} onClick={handleGoToCut}>
-                            Cortar
-                        </button>
                     </div>
                 )}
             </div>
