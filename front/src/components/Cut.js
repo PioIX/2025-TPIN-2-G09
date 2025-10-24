@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import styles from "./Cut.module.css"
 import clsx from "clsx"
 
@@ -9,6 +9,8 @@ export default function Cut({pizzaImage, onGoToDeliver}){
     const [cursorStyle, setCursorStyle] = useState(false)
     const [visibleKnife, setVisibleKnife] = useState(true)
     const [showDoneButton, setShowDoneButton] = useState(false)
+    const canvasRef = useRef(null)
+    const containerRef = useRef(null)
 
     const knifeCursor = () => {
         setCursorStyle(true)
@@ -34,6 +36,65 @@ export default function Cut({pizzaImage, onGoToDeliver}){
         }
     };
 
+    useEffect(() => {
+        const canvas = canvasRef.current
+        const container = containerRef.current 
+        if (!canvas || !container) return
+        const ctx = canvas.getContext('2d')
+
+        const resizeCanvas = () => {
+            const rect = container.getBoundingClientRect() //esto obtiene las dimensiones y posición del contenedor
+            const extraSize = 80
+            canvas.width = rect.width + (extraSize * 2)
+            canvas.height = rect.height + (extraSize * 2)
+        }
+
+        resizeCanvas()
+        window.addEventListener('resize', resizeCanvas) //cambios en el tamaño de la pantalla para reajustar
+
+        const handleMouseMove = (e) => {
+            if (!cursorStyle) return
+
+            //obtener la posición del mouse
+            //el e.clientX y e.clientY es para la posición del mouse en toda la pantalla
+            //el rect.left y rect.top es para la posición del canvas en la pantalla
+            const rect = canvas.getBoundingClientRect()
+            const mouseX = e.clientX - rect.left
+            const mouseY = e.clientY - rect.top
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            //para calcular el centro y que quede el punto fijo
+            const centerX = canvas.width / 2
+            const centerY = canvas.height / 2
+
+            const angle = Math.atan2(mouseY - centerY, mouseX - centerX) //calcula el ángulo en radianes desde el origen hasta el punto x y
+
+            //calcula la distancia más larga posible en el canvas
+            //.sqrt es para raíz cuadrada
+            const maxLength = Math.sqrt(canvas.width ** 2 + canvas.height ** 2)
+
+            const endX = centerX + Math.cos(angle) * maxLength //cos es para lo horizontal
+            const endY = centerY + Math.sin(angle) * maxLength //sin es para lo vertical
+            const startX = centerX - Math.cos(angle) * maxLength //estas dos partes (start) crean el otro lado de la línea
+            const startY = centerY - Math.sin(angle) * maxLength
+
+            ctx.beginPath() //para iniciar un nuevo trazo
+            ctx.moveTo(startX, startY)
+            ctx.lineTo(endX, endY)
+            ctx.strokeStyle = 'black'
+            ctx.lineWidth = 3
+            ctx.stroke() //ejecuta el dibujo
+        }
+
+        canvas.addEventListener('mousemove', handleMouseMove)
+
+        return () => {
+            canvas.removeEventListener('mousemove', handleMouseMove)
+            window.removeEventListener('resize', resizeCanvas)
+        }
+    }, [cursorStyle])
+
     return(
         <>
             <div  className={clsx(styles.container, {[styles.cursorKnife]: cursorStyle == true})}>
@@ -49,8 +110,9 @@ export default function Cut({pizzaImage, onGoToDeliver}){
                     </div>
                 </div>
                 <div className={styles.table}>
-                    <div className={styles.pizzaCanvas} >
-                        <img className={pizzaImage} src={pizzaImage}></img>
+                    <div className={styles.pizzaCanvas} ref={containerRef} style={{position: 'relative'}}>
+                        <img className={pizzaImage} src={pizzaImage} style={{width: '100%', height: '100%', objectFit: 'contain', display: 'block'}}></img>
+                        <canvas ref={canvasRef} style={{position: 'absolute', top: '-80px', left: '-80px', width: 'calc(100% + 160px)', height: 'calc(100% + 160px)', pointerEvents: cursorStyle ? 'auto' : 'none'}}></canvas>
                     </div>
                     <button className={`${styles.knifeCursor} ${!visibleKnife ? styles.hidden : ''}`} onClick={knifeCursor} style={{ visibility: visibleKnife ? 'visible' : 'hidden'}}>
                         <img className={styles.knife} src="/imagesElements/knife.png"></img>
