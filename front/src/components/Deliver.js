@@ -4,43 +4,28 @@ import styles from "./Deliver.module.css"
 import {useRef, useEffect, useState } from "react";
 
 
-export default function Deliver({customerId = 1}) {
+export default function Deliver() {
+    localStorage.getItem('currentCustomerName');
     const [characterImage, setCharacterImage] = useState('');
     const [loading, setLoading] = useState(true);
-    const [customerName, setCustomerName] = useState('');
+    const customerName = localStorage.getItem('currentCustomerName');
     
     useEffect(() => {
         const fetchOrder = async () => {
             try {
                 setLoading(true);
-
-                const response = await fetch(
-                    `http://localhost:4000/customersOrder?id_customer=${customerId}`
-                );
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Error al obtener el pedido');
-                }
-
-                const data = await response.json();
-                
-                // Guardar el nombre del cliente
-                setCustomerName(data.customerName || '');
-                
-                // Construir la ruta de la imagen basándose en el nombre
-                if (data.customerName) {
-                    setCharacterImage(`/imagesCustomers/${data.customerName}.png`);
+                if (customerName) {
+                    setCharacterImage(`/imagesCustomers/${customerName}.png`);
                 }
             } catch (error) {
-                console.error('Error al cargar el pedido:', error);
+                console.error('Error al cargar el customer:', error);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchOrder();
-    }, [customerId]);
+    }, []);
 
     const canvasRef = useRef(null);
     const [imagesLoaded, setImagesLoaded] = useState({
@@ -50,13 +35,6 @@ export default function Deliver({customerId = 1}) {
     const imagesRef = useRef({
         background: null,
         character: null
-    });
-    const animationRef = useRef({
-        characterY: 400,
-        targetY: 91,
-        isAnimating: true,
-        animationSpeed: 2,
-        hasFinished: false
     });
 
     useEffect(() => {
@@ -104,7 +82,7 @@ export default function Deliver({customerId = 1}) {
             const scaleY = window.innerHeight / 400;
             
             const charX = 50 * scaleX;
-            const charY = animationRef.current.characterY * scaleY;
+            const charY = 91 * scaleY; // Posición final directa
             const charWidth = 150 * scaleX;
             const charHeight = 280 * scaleY;
             
@@ -112,7 +90,6 @@ export default function Deliver({customerId = 1}) {
         }
     };
 
-    // Animación principal
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -120,34 +97,9 @@ export default function Deliver({customerId = 1}) {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         
-        let animationFrameId;
-        const animate = () => {
-            if (animationRef.current.isAnimating) {
-                if (animationRef.current.characterY > animationRef.current.targetY) {
-                    animationRef.current.characterY -= animationRef.current.animationSpeed;
-                    
-                    if (animationRef.current.characterY <= animationRef.current.targetY) {
-                        animationRef.current.characterY = animationRef.current.targetY;
-                        animationRef.current.isAnimating = false;
-                        animationRef.current.hasFinished = true;
-                    }
-                }
-            }
-            
-            drawScene(ctx);
-            animationFrameId = requestAnimationFrame(animate);
-        };
-
-        animate();
-
-        return () => {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
-        };
+        drawScene(ctx);
     }, [imagesLoaded]);
 
-    // Resize handler
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -173,9 +125,15 @@ export default function Deliver({customerId = 1}) {
     return (
         <div className={styles.orderContainer}>
             <div className={styles.header}>
-                <div className={styles.percent}></div>
-                <div className={styles.order}></div>
-                <div className={styles.time}></div>
+                <div className={styles.percent}>
+                
+                </div>
+                <div className={styles.order}>
+                
+                </div>
+                <div className={styles.time}>
+                
+                </div>
             </div>
             <canvas
                 ref={canvasRef}

@@ -3,30 +3,34 @@
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 
-export default function Order({customerId=1, onGoToKitchen}) {
+export default function Order({onGoToKitchen}) {
   const [orderText, setOrderText] = useState('');
+  const [customerId, setCustomerId] = useState(null);
   const [customerName, setCustomerName] = useState('');
   const [characterImage, setCharacterImage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [showDialog, setShowDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(false)
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
 
         const response = await fetch(
-          `http://localhost:4000/customersOrder?id_customer=${customerId}`
+          `http://localhost:4000/customersOrder`
         );
 
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Error al obtener el pedido');
         }
-
         const data = await response.json();
+        setCustomerId(data.id_customer);
         setOrderText(data.orderText || '');
         setCustomerName(data.customerName || '');
+        
+        localStorage.setItem('currentCustomerName', data.customerName);
+        console.log('Order guardó:', data.customerName);
         
         if (data.customerName) {
           setCharacterImage(`/imagesCustomers/${data.customerName}.png`);
@@ -40,7 +44,7 @@ export default function Order({customerId=1, onGoToKitchen}) {
     };
 
     fetchOrder();
-  }, [customerId]);
+  }, []);
 
   const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({
