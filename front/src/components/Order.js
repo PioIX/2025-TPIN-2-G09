@@ -212,8 +212,8 @@ export default function Order({onGoToKitchen}) {
             </p>
           </div>
           
-          <div className={styles.btns}>
-            <button className={styles.bake} onClick={handleGoToKitchen}>OK</button>
+          <div className={styles.toggleButton}>
+            <button className={styles.toggleButton} onClick={handleGoToKitchen}>OK</button>
           </div>
         </div>
       )}
