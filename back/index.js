@@ -115,56 +115,175 @@ io.on("connection", (socket) => {
     const req = socket.request;
     console.log('Usuario conectado:', socket.id);
 
-    socket.on('joinRoom', data => {
-        console.log("🚀 ~ io.on ~ req.session.room:", req.session.room)
-        if (req.session.room != undefined && req.session.room.length > 0) {
-            socket.leave(req.session.room);
-        }
-        req.session.room = data.room;
-        socket.join(req.session.room);
+    // CREAR SALA
+    socket.on("createRoom", async (data) => {
+        try {
+            const { id_user } = data;
 
-        console.log("Usuario se unió a sala:", req.session.room);
+            // Generar código único (6 caracteres)
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-        // También unirse a la sala específica del chat
-        socket.join(data.room);
-        console.log("Usuario también en sala específica:", data.room);
+            // Crear la sala en la base
+            const queryRoom = `
+                INSERT INTO Games (code, idHost)
+                VALUES ('${code}', ${id_user})
+            `;
+            const result = await realizarQuery(queryRoom);
 
-        // Notificar a todos en la sala
-        io.to(req.session.room).emit('chat-messages', {
-            user: req.session.user,
-            room: req.session.room,
-            joined: true
-        });
-    });
+            // Obtener el id_game insertado
+            const id_game = result.insertId;
 
-    socket.on('pingAll', data => {
-        console.log("PING ALL: ", data);
-        io.emit('pingAll', { event: "Ping to all", message: data });
-    });
+            // Insertar al host en PlayersGame
+            const queryPlayer = `
+                INSERT INTO PlayersGame (id_player, id_game, id_result)
+                VALUES (${id_user}, ${id_game}, NULL)
+            `;
+            await realizarQuery(queryPlayer);
 
-    socket.on('sendMessage', (data) => {
-        io.to(req.session.room).emit("newMessage", {
-            room: req.session.room,
-            message: data
-        });
+            // Unir al socket a la sala
+            socket.join(code);
 
-        realizarQuery(`
-            INSERT INTO Messages (photo, date, id_user, content, id_chat) VALUES
-                (${data.photo != undefined ? "" : null},'${data.date}',${data.userId},'${data.content}', '${data.chatId}');
-        `);
-        const existingRelation = realizarQuery(`
-            SELECT * FROM UsersxChat WHERE id_user = ${data.userId} AND id_chat = ${data.chatId}
-        `);
-        if (existingRelation.length === 0) {
-            realizarQuery(`
-                INSERT INTO UsersxChat (id_user, id_chat) VALUES
-                (${data.userId}, ${data.chatId});
+            console.log(`✅ Sala creada: ${code} por host ${id_user}`);
+            socket.emit("roomCreated", { code, id_game });
+
+            // Obtener jugadores de la sala (por ahora solo el host)
+            const jugadores = await realizarQuery(`
+                SELECT 
+                    p.id_player AS id_user, 
+                    p.username, 
+                    p.avatar AS image,
+                    CASE WHEN p.id_player = g.idHost THEN 1 ELSE 0 END AS esHost
+                FROM PlayersGame pg
+                JOIN Players p ON pg.id_player = p.id_player
+                JOIN Games g ON pg.id_game = g.id_game
+                WHERE pg.id_game = ${id_game}
+                ORDER BY esHost DESC, p.id_player ASC
             `);
-        }
 
+            console.log("📤 Enviando jugadores:", JSON.stringify(jugadores, null, 2));
+
+            // Enviar a todos en la sala
+            io.to(code).emit("updatePlayers", jugadores);
+
+        } catch (err) {
+            console.error("❌ Error al crear sala:", err);
+            socket.emit("errorRoom", "No se pudo crear la sala");
+        }
     });
 
-    socket.on('disconnect', () => {
+    // UNIRSE A SALA
+    socket.on("joinRoom", async (data) => {
+        try {
+            const { code, id_user } = data;
+
+            // Verificar que la sala existe
+            const sala = await realizarQuery(`
+                SELECT id_game, idHost FROM Games WHERE code = '${code}'
+            `);
+
+            if (sala.length === 0) {
+                socket.emit("errorRoom", "La sala no existe");
+                return;
+            }
+
+            const id_game = sala[0].id_game;
+
+            // Verificar que no haya más de 2 jugadores
+            const jugadoresActuales = await realizarQuery(`
+                SELECT COUNT(*) as total FROM PlayersGame WHERE id_game = ${id_game}
+            `);
+
+            if (jugadoresActuales[0].total >= 2) {
+                socket.emit("errorRoom", "La sala está llena");
+                return;
+            }
+
+            // Verificar que el jugador no esté ya en la sala
+            const yaEnSala = await realizarQuery(`
+                SELECT * FROM PlayersGame 
+                WHERE id_game = ${id_game} AND id_player = ${id_user}
+            `);
+
+            if (yaEnSala.length > 0) {
+                socket.emit("errorRoom", "Ya estás en esta sala");
+                return;
+            }
+
+            // Insertar al jugador en la sala
+            const queryPlayer = `
+                INSERT INTO PlayersGame (id_player, id_game, id_result)
+                VALUES (${id_user}, ${id_game}, NULL)
+            `;
+            await realizarQuery(queryPlayer);
+
+            // Unir al socket a la sala
+            socket.join(code);
+
+            console.log(`✅ Jugador ${id_user} se unió a sala ${code}`);
+            socket.emit("roomJoined", { code, id_game });
+
+            // Obtener todos los jugadores actualizados
+            const jugadores = await realizarQuery(`
+                SELECT 
+                    p.id_player AS id_user, 
+                    p.username, 
+                    p.avatar AS image,
+                    CASE WHEN p.id_player = g.idHost THEN 1 ELSE 0 END AS esHost
+                FROM PlayersGame pg
+                JOIN Players p ON pg.id_player = p.id_player
+                JOIN Games g ON pg.id_game = g.id_game
+                WHERE pg.id_game = ${id_game}
+                ORDER BY esHost DESC, p.id_player ASC
+            `);
+
+            // Notificar a todos en la sala
+            io.to(code).emit("updatePlayers", jugadores);
+
+        } catch (err) {
+            console.error("❌ Error al unirse a sala:", err);
+            socket.emit("errorRoom", "No se pudo unir a la sala");
+        }
+    });
+
+    // INICIAR JUEGO
+    socket.on("startGame", async (data) => {
+        try {
+            const { code } = data;
+
+            console.log(`🎮 Iniciando juego en sala ${code}`);
+
+            // Verificar que hay 2 jugadores
+            const sala = await realizarQuery(`
+                SELECT id_game FROM Games WHERE code = '${code}'
+            `);
+
+            if (sala.length === 0) {
+                socket.emit("errorRoom", "Sala no encontrada");
+                return;
+            }
+
+            const id_game = sala[0].id_game;
+
+            const jugadores = await realizarQuery(`
+                SELECT COUNT(*) as total FROM PlayersGame WHERE id_game = ${id_game}
+            `);
+
+            if (jugadores[0].total < 2) {
+                socket.emit("errorRoom", "Se necesitan 2 jugadores para iniciar");
+                return;
+            }
+
+            // Notificar a todos en la sala que el juego comienza
+            io.to(code).emit("gameStart", { code });
+
+        } catch (err) {
+            console.error("❌ Error al iniciar juego:", err);
+            socket.emit("errorRoom", "No se pudo iniciar el juego");
+        }
+    });
+
+    // DESCONEXIÓN
+    socket.on("disconnect", () => {
         console.log("Usuario desconectado:", socket.id);
-    })
+    });
 });
