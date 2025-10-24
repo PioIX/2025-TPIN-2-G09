@@ -140,10 +140,10 @@
 /* CAJAS - DERECHA CON MESA */
 .boxes {
     position: absolute;
-    bottom: 0;
+    top: 35%;
     right: 0;
-    width: 300px;
-    height: 280px;
+    width: 400px;
+    height: 360px;
     background: linear-gradient(to bottom, #FFFFFF 0%, #F8F8F8 50%, #ECECEC 100%);
     border-top-left-radius: 10px;
     border-top: 5px solid #D5D5D5;
