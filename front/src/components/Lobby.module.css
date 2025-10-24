@@ -1,0 +1,309 @@
+.lobbyContainer {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 50%, #d4c4b0 100%);
+  padding: 40px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decoración de fondo */
+.lobbyContainer::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.lobbyContainer::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(139, 69, 19, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-30px); }
+}
+
+.roomCodeBox {
+  background: linear-gradient(135deg, #fff9f0 0%, #fef5eb 100%);
+  padding: 25px 50px;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(139, 69, 19, 0.15);
+  margin-bottom: 50px;
+  font-size: 1.3rem;
+  color: #6b5544;
+  font-weight: 600;
+  border: 3px solid #e8d5c4;
+  position: relative;
+  z-index: 10;
+  text-align: center;
+}
+
+.roomCodeBox span {
+  color: #b8860b;
+  font-weight: bold;
+  font-size: 1.8rem;
+  letter-spacing: 4px;
+  margin-left: 15px;
+  text-shadow: 2px 2px 4px rgba(184, 134, 11, 0.2);
+  font-family: 'Courier New', monospace;
+}
+
+.players {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 40px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 10;
+}
+
+.playerCard {
+  background: linear-gradient(145deg, #ffffff 0%, #fef9f3 100%);
+  border-radius: 25px;
+  padding: 30px;
+  width: 220px;
+  text-align: center;
+  box-shadow: 
+    0 10px 30px rgba(139, 69, 19, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  border: 2px solid #f5e6d3;
+}
+
+.playerCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 25px;
+  padding: 2px;
+  background: linear-gradient(135deg, #daa520, #cd853f, #daa520);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.playerCard:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 
+    0 20px 50px rgba(139, 69, 19, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.playerCard:hover::before {
+  opacity: 1;
+}
+
+.playerCard img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+  border: 5px solid #daa520;
+  box-shadow: 0 8px 20px rgba(218, 165, 32, 0.3);
+  transition: all 0.3s ease;
+}
+
+.playerCard:hover img {
+  transform: scale(1.05);
+  border-color: #cd853f;
+}
+
+.playerName {
+  font-size: 1.4rem;
+  color: #6b5544;
+  margin: 15px 0;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(107, 85, 68, 0.1);
+}
+
+.hostTag {
+  background: linear-gradient(135deg, #daa520 0%, #cd853f 100%);
+  color: #ffffff;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 12px;
+  box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4); }
+  50% { box-shadow: 0 6px 25px rgba(218, 165, 32, 0.6); }
+}
+
+.ready {
+  background: linear-gradient(135deg, #8fbc8f 0%, #6b8e6b 100%);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 12px;
+  box-shadow: 0 4px 15px rgba(143, 188, 143, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.emptySlot {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.5) 0%, rgba(245, 230, 211, 0.6) 100%);
+  border: 3px dashed #cd853f;
+  border-radius: 25px;
+  padding: 50px 30px;
+  width: 220px;
+  text-align: center;
+  color: #8b6f47;
+  font-size: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(139, 111, 71, 0.15);
+  animation: pulse-soft 3s ease-in-out infinite;
+  backdrop-filter: blur(5px);
+}
+
+@keyframes pulse-soft {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% { 
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+.emptySlot p {
+  margin: 8px 0;
+  font-weight: 600;
+}
+
+.codeHint {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #8b6f47;
+  line-height: 1.5;
+}
+
+.codeHint strong {
+  color: #6b5544;
+  font-size: 1.1rem;
+  background: rgba(218, 165, 32, 0.2);
+  padding: 4px 12px;
+  border-radius: 8px;
+  letter-spacing: 3px;
+  font-family: 'Courier New', monospace;
+  display: inline-block;
+  margin-top: 5px;
+  border: 1px solid #daa520;
+}
+
+.waitingMessage {
+  text-align: center;
+  color: #6b5544;
+  font-size: 1.2rem;
+  margin-top: 30px;
+  padding: 20px 40px;
+  background: linear-gradient(135deg, #fff9f0 0%, #fef5eb 100%);
+  border-radius: 15px;
+  animation: pulse 2s infinite;
+  box-shadow: 0 10px 25px rgba(139, 69, 19, 0.15);
+  border: 2px solid #e8d5c4;
+  font-weight: 600;
+  position: relative;
+  z-index: 10;
+}
+
+.connectionWarning {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  padding: 18px 30px;
+  border-radius: 15px;
+  font-weight: bold;
+  box-shadow: 0 10px 30px rgba(220, 53, 69, 0.4);
+  animation: shake 0.5s infinite;
+  z-index: 9999;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-5px) rotate(-1deg); }
+  75% { transform: translateX(5px) rotate(1deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lobbyContainer {
+    padding: 20px;
+  }
+
+  .players {
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .playerCard,
+  .emptySlot {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .roomCodeBox {
+    padding: 20px 30px;
+    font-size: 1.1rem;
+  }
+
+  .roomCodeBox span {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+}
