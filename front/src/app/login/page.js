@@ -40,7 +40,8 @@ export default function RegistroYLogin() {
   };
 
   const seleccionarAvatar = (rutaAvatar) => {
-    setAvatar(rutaAvatar);
+    const nombreAvatar = rutaAvatar.split('/').pop().split('.')[0]
+    setAvatar(nombreAvatar);
     closePopup();
     showModal("Avatar seleccionado", "Avatar elegido correctamente");
   };
@@ -107,8 +108,10 @@ export default function RegistroYLogin() {
         body: JSON.stringify(datosRegistro),
       });
 
+      console.log("Status de la respuesta:", response.status)
+
       const result = await response.json();
-      console.log(result);
+      console.log("Resultado completo:", result);
 
       if (result.res === true) {
         showModal("Éxito", "¡Usuario registrado correctamente!");
@@ -117,7 +120,7 @@ export default function RegistroYLogin() {
         showModal("Error", result.message || "No se pudo registrar el usuario");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error completo:", error);
       showModal("Error", "Hubo un problema con la conexión al servidor.");
     }
   }
