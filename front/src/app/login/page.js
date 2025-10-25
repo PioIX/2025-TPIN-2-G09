@@ -47,7 +47,7 @@ export default function RegistroYLogin() {
 
   async function ingresar() {
     if(!email || !password) {
-      showModal("Error. Debes completar todos los campos")
+      showModal("Error", "Debes completar todos los campos")
       return
     }
     const datosLogin = {
@@ -98,6 +98,8 @@ export default function RegistroYLogin() {
       avatar: avatar, 
     };
 
+    console.log("Datos a enviar:", datosRegistro)
+
     try {
       const response = await fetch("http://localhost:4000/registerUser", {
         method: "POST",
@@ -140,7 +142,7 @@ export default function RegistroYLogin() {
             <Input type="email" placeholder="Correo electrónico" value={email} onChange={(e) => setEmail(e.target.value)} page="login"></Input>
             <button className={styles.btnAvatar} onClick={abrirPopupAvatar}>{avatar ? "Avatar seleccionado" : "Seleccionar avatar"}</button>
             <Input type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} page="login"></Input>
-            <Input type="password" placeholder="Confirmar contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} page="login"cd></Input>
+            <Input type="password" placeholder="Confirmar contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} page="login"></Input>
             <Button onClick={registrar} text="Registrarse"></Button>
           </>
         )}
