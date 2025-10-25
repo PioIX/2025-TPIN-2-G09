@@ -318,7 +318,9 @@ font-weight: bold;
 cursor: pointer;
 transition: 0.3s ease;
 margin: 2px;
-}.modal {
+}
+
+.modal {
   background: linear-gradient(135deg, #F5E6D3 0%, #E8D4BC 100%);
   border-radius: 25px;
   padding: 2.5rem;
@@ -331,6 +333,7 @@ margin: 2px;
   position: relative;
 }
 
+.modal ::before{
   content: '';
   position: absolute;
   top: -3px;

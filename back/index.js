@@ -72,13 +72,17 @@ app.post('/registerUser', async function (req, res) {
             return;
         }
         const insertResult = await realizarQuery(`
-            INSERT INTO PLayers (username, email, password, avatar)
+            INSERT INTO Players (username, email, password, avatar)
             VALUES ("${req.body.username}", "${req.body.email}", "${req.body.password}", "${req.body.avatar}");
         `);
         console.log("Usuario registrado:", insertResult);
         res.send({ res: true, message: "Usuario registrado correctamente" });
     } catch (error) {
         console.log("Error al ingresar", error)
+        res.status(500).send({ 
+            res: false, 
+            message: "Error al registrar usuario: " + error.message 
+        })
     }
 })
 
