@@ -22,17 +22,17 @@ El juego consiste en gestionar una pizzería virtual, preparando pizzas según l
  <img width="1897" height="876" alt="image" src="https://github.com/user-attachments/assets/7068c306-5191-49a4-bdd1-e54ee5e30b42" />
 
 <ins> Juego principal (simulación de la pizzería)<ins>
-Los clientes entran al local y piden una pizza con determinados ingredientes.
+- Los clientes entran al local y piden una pizza con determinados ingredientes.
 <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/568172cc-5079-4304-96db-a7b20c16b0ee" />
 
-El jugador debe seleccionar la masa, la salsa, el queso y los toppings correctos.
+- El jugador debe seleccionar la masa, la salsa, el queso y los toppings correctos.
 <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/2d603782-da22-4700-b8d3-08b9ad17fd1c" />
 
-Luego hornea la pizza y la corta.
+- Luego hornea la pizza y la corta.
 <img width="1919" height="874" alt="image" src="https://github.com/user-attachments/assets/50524467-f175-4d4b-b46f-4018c1b59b83" />
 <img width="1919" height="875" alt="image" src="https://github.com/user-attachments/assets/ad16d1de-cfb7-4f37-a3bf-7ea665adb93f" />
 
-Entrega la pizza al cliente y si está correcta, recibe dinero y puntos de satisfacción, si está mal, gana menos dinero y baja de posición en el ranking.
+- Entrega la pizza al cliente y si está correcta, recibe dinero y puntos de satisfacción, si está mal, gana menos dinero y baja de posición en el ranking.
 <img width="1919" height="876" alt="image" src="https://github.com/user-attachments/assets/5ec0ed4f-851c-4d37-8499-f0bb3665eba7" />
 
 <ins>Sistema de progreso<ins>
