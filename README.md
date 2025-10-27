@@ -21,7 +21,7 @@ El juego consiste en gestionar una pizzería virtual, preparando pizzas según l
    - Reglas del juego
  <img width="1897" height="876" alt="image" src="https://github.com/user-attachments/assets/7068c306-5191-49a4-bdd1-e54ee5e30b42" />
 
-<ins> Juego principal (simulación de la pizzería) <ins>
+<ins> Juego principal (simulación de la pizzería)<ins>
 Los clientes entran al local y piden una pizza con determinados ingredientes.
 <img width="1919" height="877" alt="image" src="https://github.com/user-attachments/assets/568172cc-5079-4304-96db-a7b20c16b0ee" />
 
