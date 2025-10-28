@@ -5,10 +5,13 @@ import styles from "./Cut.module.css"
 import clsx from "clsx"
 
 //SECCIÓN DE CORTAR
-export default function Cut({pizzaImage, pizzaFilter, onGoToDeliver}){
+export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     const [cursorStyle, setCursorStyle] = useState(false)
     const [visibleKnife, setVisibleKnife] = useState(true)
     const [showDoneButton, setShowDoneButton] = useState(false)
+    const [pizzaClicked, setPizzaClicked] = useState(false)
+    const [mouseMoving, setMouseMoving] = useState(false)
+    const [cursorPosition, setCursorPosition] = useState({ pageX: 0, pageY: 0 })
     const canvasRef = useRef(null)
     const containerRef = useRef(null)
 
@@ -22,23 +25,24 @@ export default function Cut({pizzaImage, pizzaFilter, onGoToDeliver}){
         setCursorStyle(false)
         setVisibleKnife(false)
         setShowDoneButton(false)
+        setMouseMoving(true)
     }
 
     const handleGoToDeliver = () => {
-        try{
-            if(onGoToDeliver) {
+        try {
+            if (onGoToDeliver) {
                 onGoToDeliver();
             } else {
                 console.error("onGoToDeliver no está definida");
             }
-        } catch(error){
+        } catch (error) {
             console.error("Error al cambiar de página: ", error);
         }
     };
 
     useEffect(() => {
         const canvas = canvasRef.current
-        const container = containerRef.current 
+        const container = containerRef.current
         if (!canvas || !container) return
         const ctx = canvas.getContext('2d')
 
@@ -55,30 +59,32 @@ export default function Cut({pizzaImage, pizzaFilter, onGoToDeliver}){
         const handleMouseMove = (e) => {
             if (!cursorStyle) return
 
-            const rect = canvas.getBoundingClientRect()
-            const mouseX = e.clientX - rect.left
-            const mouseY = e.clientY - rect.top
+            if (!pizzaClicked) {
+                const rect = canvas.getBoundingClientRect()
+                const mouseX = e.clientX - rect.left
+                const mouseY = e.clientY - rect.top
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-            const centerX = canvas.width / 2
-            const centerY = canvas.height / 2
+                const centerX = canvas.width / 2
+                const centerY = canvas.height / 2
 
-            const angle = Math.atan2(mouseY - centerY, mouseX - centerX)
+                const angle = Math.atan2(mouseY - centerY, mouseX - centerX)
 
-            const maxLength = Math.sqrt(canvas.width ** 2 + canvas.height ** 2)
+                const maxLength = Math.sqrt(canvas.width ** 2 + canvas.height ** 2)
 
-            const endX = centerX + Math.cos(angle) * maxLength
-            const endY = centerY + Math.sin(angle) * maxLength
-            const startX = centerX - Math.cos(angle) * maxLength
-            const startY = centerY - Math.sin(angle) * maxLength
+                const endX = centerX + Math.cos(angle) * maxLength
+                const endY = centerY + Math.sin(angle) * maxLength
+                const startX = centerX - Math.cos(angle) * maxLength
+                const startY = centerY - Math.sin(angle) * maxLength
 
-            ctx.beginPath()
-            ctx.moveTo(startX, startY)
-            ctx.lineTo(endX, endY)
-            ctx.strokeStyle = 'black'
-            ctx.lineWidth = 3
-            ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(startX, startY)
+                ctx.lineTo(endX, endY)
+                ctx.strokeStyle = 'black'
+                ctx.lineWidth = 3
+                ctx.stroke()
+            }
         }
 
         canvas.addEventListener('mousemove', handleMouseMove)
@@ -87,64 +93,102 @@ export default function Cut({pizzaImage, pizzaFilter, onGoToDeliver}){
             canvas.removeEventListener('mousemove', handleMouseMove)
             window.removeEventListener('resize', resizeCanvas)
         }
-    }, [cursorStyle])
+    }, [cursorStyle, pizzaClicked, mouseMoving])
 
-    return(
+    function handlePizzaClick(e) {
+        let obj = {
+            pageX: e.pageX,
+            pageY: e.pageY
+        }
+        console.log("(", e.pageX, " ; ", e.pageY, ")")
+        setPizzaClicked(true)
+        setCursorPosition(obj)
+        
+        const canvas = canvasRef.current
+        const ctx = canvas.getContext('2d')
+        const rect = canvas.getBoundingClientRect()
+        const mouseX = e.pageX - rect.left
+        const mouseY = e.pageY - rect.top
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+        const centerX = canvas.width / 2
+        const centerY = canvas.height / 2
+
+        const angle = Math.atan2(mouseY - centerY, mouseX - centerX)
+
+        const maxLength = Math.sqrt(canvas.width ** 2 + canvas.height ** 2)
+
+        const endX = centerX + Math.cos(angle) * maxLength
+        const endY = centerY + Math.sin(angle) * maxLength
+        const startX = centerX - Math.cos(angle) * maxLength
+        const startY = centerY - Math.sin(angle) * maxLength
+
+        ctx.beginPath()
+        ctx.moveTo(startX, startY)
+        ctx.lineTo(endX, endY)
+        ctx.strokeStyle = 'black'
+        ctx.lineWidth = 3
+        ctx.stroke()
+
+    }
+
+    return (
         <>
-            <div className={clsx(styles.container, {[styles.cursorKnife]: cursorStyle == true})}>
+            <div className={clsx(styles.container, { [styles.cursorKnife]: cursorStyle == true })}>
                 <div className={styles.header}>
                     <div className={styles.percent}>
-                
+
                     </div>
                     <div className={styles.order}>
-                
+
                     </div>
                     <div className={styles.time}>
 
                     </div>
                 </div>
                 <div className={styles.table}>
-                    <div className={styles.pizzaCanvas} ref={containerRef} style={{position: 'relative'}}>
-                        <img 
-                            className={pizzaImage} 
-                            src={pizzaImage} 
+                    <div className={styles.pizzaCanvas} ref={containerRef} style={{ position: 'relative' }} onClick={handlePizzaClick}>
+                        <img
+                            className={pizzaImage}
+                            src={pizzaImage}
                             style={{
-                                width: '100%', 
-                                height: '100%', 
-                                objectFit: 'contain', 
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
                                 display: 'block',
                                 filter: pizzaFilter || 'none'
                             }}
                         />
-                        <canvas 
-                            ref={canvasRef} 
+                        <canvas
+                            ref={canvasRef}
                             style={{
-                                position: 'absolute', 
-                                top: '-80px', 
-                                left: '-80px', 
-                                width: 'calc(100% + 160px)', 
-                                height: 'calc(100% + 160px)', 
+                                position: 'absolute',
+                                top: '-80px',
+                                left: '-80px',
+                                width: 'calc(100% + 160px)',
+                                height: 'calc(100% + 160px)',
                                 pointerEvents: cursorStyle ? 'auto' : 'none'
                             }}
                         />
                     </div>
-                    <button 
-                        className={`${styles.knifeCursor} ${!visibleKnife ? styles.hidden : ''}`} 
-                        onClick={knifeCursor} 
-                        style={{ visibility: visibleKnife ? 'visible' : 'hidden'}}
+                    <button
+                        className={`${styles.knifeCursor} ${!visibleKnife ? styles.hidden : ''}`}
+                        onClick={knifeCursor}
+                        style={{ visibility: visibleKnife ? 'visible' : 'hidden' }}
                     >
-                        <img className={styles.knife} src="/imagesElements/knife.png"/>
+                        <img className={styles.knife} src="/imagesElements/knife.png" />
                     </button>
-                    <button 
-                        className={styles.doneButton} 
-                        onClick={resetCursor} 
-                        style={{ visibility: showDoneButton ? 'visible' : 'hidden'}}
+                    <button
+                        className={styles.doneButton}
+                        onClick={resetCursor}
+                        style={{ visibility: showDoneButton ? 'visible' : 'hidden' }}
                     >
                         Listo
                     </button>
                 </div>
                 <div className={styles.boxes}>
-                    <img className={styles.box} src="/imagesElements/boxes.png"/>
+                    <img className={styles.box} src="/imagesElements/boxes.png" />
                 </div>
                 <div className={styles.btns}>
                     <button className={styles.deliver} onClick={handleGoToDeliver}>Entregar</button>
