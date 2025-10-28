@@ -61,7 +61,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
             }, 1000);
             return () => clearTimeout(timer);
         } else if (isCooking && timeLeft === 0 && !hasTransitioned) {
-            console.log("⏰ COCCIÓN TERMINADA");
+            console.log("COCCIÓN TERMINADA");
             setIsCooking(false);
             setHasTransitioned(true);
             
@@ -75,22 +75,22 @@ export default function Oven({ pizzaImage, onGoToCut }) {
             }
             
             const finalFilter = getFilterStyle(cookingTime);
-            console.log("🎨 Filtro calculado:", finalFilter);
-            console.log("📊 Estado final:", finalState);
+            console.log("Filtro calculado:", finalFilter);
+            console.log("Estado final:", finalState);
             
             setCookingState(finalState);
             setFinalPizzaFilter(finalFilter);
 
-            console.log("⏳ Esperando 500ms antes de ir a Cut...");
+            console.log("Esperando 500ms antes de ir a Cut...");
             setTimeout(() => {
-                console.log("🚀 Llamando a onGoToCut");
+                console.log("Llamando a onGoToCut");
                 console.log("onGoToCut existe?", !!onGoToCut);
                 if (onGoToCut) {
-                    console.log("✅ Ejecutando onGoToCut con:", finalState, finalFilter);
+                    console.log("Ejecutando onGoToCut con:", finalState, finalFilter);
                     onGoToCut(finalState, finalFilter);
-                    console.log("✅ onGoToCut ejecutado");
+                    console.log("onGoToCut ejecutado");
                 } else {
-                    console.error("❌ onGoToCut NO EXISTE!");
+                    console.error("onGoToCut NO EXISTE!");
                 }
             }, 500);
         }
