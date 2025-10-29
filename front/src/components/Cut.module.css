@@ -99,6 +99,22 @@
     border-radius: 50%;
 }
 
+/* Animación de deslizamiento para el canvas con las líneas */
+.pizzaCanvas.slideOut {
+    animation: slideToRight 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes slideToRight {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(150vw);
+        opacity: 0;
+    }
+}
+
 /* CUCHILLO - ARRIBA A LA DERECHA DEL PLATO */
 .knifeCursor {
     position: absolute;

@@ -11,6 +11,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     const [showDoneButton, setShowDoneButton] = useState(false)
     const [pizzaClicked, setPizzaClicked] = useState(false)
     const [savedLines, setSavedLines] = useState([])
+    const [isSliding, setIsSliding] = useState(false)
     const canvasRef = useRef(null)
     const containerRef = useRef(null)
 
@@ -22,8 +23,14 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
 
     const resetCursor = () => {
         setCursorStyle(false)
-        setVisibleKnife(false)
-        setShowDoneButton(false)
+        setIsSliding(true)
+
+        setTimeout(() =>{
+            setIsSliding(false)
+            setCursorStyle(false)
+            setVisibleKnife(false)
+            setShowDoneButton(false)
+        }, 1200) // es la duracion de la animación
     }
 
     const handleGoToDeliver = () => {
@@ -188,7 +195,8 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
                     </div>
                 </div>
                 <div className={styles.table}>
-                    <div className={styles.pizzaCanvas} ref={containerRef} style={{ position: 'relative' }} onClick={handlePizzaClick}>
+                    <div className={clsx(styles.pizzaCanvas, { [styles.slideOut]: isSliding })}
+                        ref={containerRef} style={{ position: 'relative' }} onClick={handlePizzaClick}>
                         <img
                             className={pizzaImage}
                             src={pizzaImage}
