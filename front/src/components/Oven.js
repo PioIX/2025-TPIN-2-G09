@@ -121,10 +121,11 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                         left: '-35%',
                         top: '50%',
                         transform: 'translateY(-50%)',
-                        width: '400px',
-                        height: '400px',
+                        width: '300px',
+                        height: '350px',
                         zIndex: 1,
                     }}
+                    className={styles.tableLayer}
                 >
                     <img
                         src="/imagesFondos/TablaPizza.png"
@@ -146,6 +147,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                             width: '140px',
                             height: '140px',
                             zIndex: 2,
+                            transform: 'translate(-41px, 0px)'
                         }}
                     >
                         <img
@@ -163,12 +165,12 @@ export default function Oven({ pizzaImage, onGoToCut }) {
 
                 <div className={styles.grillLayer}>
                     <div className={styles.grillContainer}>
-                        {[...Array(120)].map((_, i) => (
+                        {[...Array(200)].map((_, i) => (
                             <div
                                 key={i}
                                 className={styles.grillBar}
                                 style={{
-                                    animationDelay: `${-i * 0.07}s`,
+                                    animationDelay: `${-i * 0.02}s`,
                                     animationPlayState: isCooking ? 'running' : 'paused'
                                 }}
                             >
@@ -207,8 +209,8 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '110%',
-                        height: '110%',
+                        width: '120%',
+                        height: '120%',
                         zIndex: 4,
                         pointerEvents: 'none',
                     }}
