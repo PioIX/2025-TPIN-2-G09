@@ -10,8 +10,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     const [visibleKnife, setVisibleKnife] = useState(true)
     const [showDoneButton, setShowDoneButton] = useState(false)
     const [pizzaClicked, setPizzaClicked] = useState(false)
-    const [mouseMoving, setMouseMoving] = useState(false)
-    const [cursorPosition, setCursorPosition] = useState({ pageX: 0, pageY: 0 })
+    const [savedLines, setSavedLines] = useState([])
     const canvasRef = useRef(null)
     const containerRef = useRef(null)
 
@@ -25,7 +24,6 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
         setCursorStyle(false)
         setVisibleKnife(false)
         setShowDoneButton(false)
-        setMouseMoving(true)
     }
 
     const handleGoToDeliver = () => {
@@ -42,22 +40,51 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
 
     useEffect(() => {
         const canvas = canvasRef.current
+        if (!canvas) return
+        const ctx = canvas.getContext('2d')
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+        savedLines.forEach(line => {
+            ctx.beginPath()
+            ctx.moveTo(line.startX, line.startY)
+            ctx.lineTo(line.endX, line.endY)
+            ctx.strokeStyle = '#c29b61'
+            ctx.lineWidth = 3
+            ctx.stroke()
+        })
+    }, [savedLines])
+
+    useEffect(() => {
+        const canvas = canvasRef.current
         const container = containerRef.current
         if (!canvas || !container) return
         const ctx = canvas.getContext('2d')
 
         const resizeCanvas = () => {
-            const rect = container.getBoundingClientRect()
+            const rect = container.getBoundingClientRect()  //esto obtiene las dimensiones y posición del contenedor
             const extraSize = 80
             canvas.width = rect.width + (extraSize * 2)
             canvas.height = rect.height + (extraSize * 2)
+
+            savedLines.forEach(line => {
+                ctx.beginPath()
+                ctx.moveTo(line.startX, line.startY)
+                ctx.lineTo(line.endX, line.endY)
+                ctx.strokeStyle = '#c29b61'
+                ctx.lineWidth = 3
+                ctx.stroke()
+            })
         }
 
         resizeCanvas()
-        window.addEventListener('resize', resizeCanvas)
+        window.addEventListener('resize', resizeCanvas) //cambios en el tamaño de la pantalla para reajustar
 
         const handleMouseMove = (e) => {
             if (!cursorStyle) return
+            //obtener la posición del mouse
+            //el e.clientX y e.clientY es para la posición del mouse en toda la pantalla
+            //el rect.left y rect.top es para la posición del canvas en la pantalla
 
             if (!pizzaClicked) {
                 const rect = canvas.getBoundingClientRect()
@@ -65,25 +92,37 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
                 const mouseY = e.clientY - rect.top
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height)
+                //para calcular el centro y que quede el punto fijo
+
+                savedLines.forEach(line => {
+                    ctx.beginPath()
+                    ctx.moveTo(line.startX, line.startY)
+                    ctx.lineTo(line.endX, line.endY)
+                    ctx.strokeStyle = '#c29b61'
+                    ctx.lineWidth = 3
+                    ctx.stroke()
+                })
 
                 const centerX = canvas.width / 2
                 const centerY = canvas.height / 2
 
-                const angle = Math.atan2(mouseY - centerY, mouseX - centerX)
+                const angle = Math.atan2(mouseY - centerY, mouseX - centerX) //calcula el ángulo en radianes desde el origen hasta el punto x y
 
+                //calcula la distancia más larga posible en el canvas
+                //.sqrt es para raíz cuadrada
                 const maxLength = Math.sqrt(canvas.width ** 2 + canvas.height ** 2)
 
-                const endX = centerX + Math.cos(angle) * maxLength
-                const endY = centerY + Math.sin(angle) * maxLength
-                const startX = centerX - Math.cos(angle) * maxLength
+                const endX = centerX + Math.cos(angle) * maxLength //cos es para lo horizontal
+                const endY = centerY + Math.sin(angle) * maxLength //sin es para lo vertical
+                const startX = centerX - Math.cos(angle) * maxLength //estas dos partes (start) crean el otro lado de la línea
                 const startY = centerY - Math.sin(angle) * maxLength
 
-                ctx.beginPath()
+                ctx.beginPath() //para iniciar un nuevo trazo
                 ctx.moveTo(startX, startY)
                 ctx.lineTo(endX, endY)
                 ctx.strokeStyle = 'black'
                 ctx.lineWidth = 3
-                ctx.stroke()
+                ctx.stroke() //ejecuta el dibujo
             }
         }
 
@@ -93,44 +132,45 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
             canvas.removeEventListener('mousemove', handleMouseMove)
             window.removeEventListener('resize', resizeCanvas)
         }
-    }, [cursorStyle, pizzaClicked, mouseMoving])
+    }, [cursorStyle, savedLines])
 
     function handlePizzaClick(e) {
-        let obj = {
-            pageX: e.pageX,
-            pageY: e.pageY
-        }
-        console.log("(", e.pageX, " ; ", e.pageY, ")")
-        setPizzaClicked(true)
-        setCursorPosition(obj)
-        
+        if(!cursorStyle) return
+    
         const canvas = canvasRef.current
         const ctx = canvas.getContext('2d')
         const rect = canvas.getBoundingClientRect()
-        const mouseX = e.pageX - rect.left
-        const mouseY = e.pageY - rect.top
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        const mouseX = e.clientX - rect.left
+        const mouseY = e.clientY - rect.top
 
         const centerX = canvas.width / 2
         const centerY = canvas.height / 2
 
         const angle = Math.atan2(mouseY - centerY, mouseX - centerX)
 
-        const maxLength = Math.sqrt(canvas.width ** 2 + canvas.height ** 2)
+        const maxLength = Math.sqrt(canvas.width*25 + canvas.height*25)
 
-        const endX = centerX + Math.cos(angle) * maxLength
+        const endX = (centerX + Math.cos(angle) * maxLength)
         const endY = centerY + Math.sin(angle) * maxLength
         const startX = centerX - Math.cos(angle) * maxLength
         const startY = centerY - Math.sin(angle) * maxLength
 
-        ctx.beginPath()
+        ctx.beginPath() //para iniciar un nuevo trazo
         ctx.moveTo(startX, startY)
         ctx.lineTo(endX, endY)
-        ctx.strokeStyle = 'black'
+        ctx.strokeStyle = '#c29b61'
         ctx.lineWidth = 3
         ctx.stroke()
 
+        setSavedLines(prev => [...prev, {
+            startX,
+            startY,
+            endX,
+            endY
+        }])
+        
+        console.log("Línea guardada en posición:", { startX, startY, endX, endY })
+        console.log("Total de líneas:", savedLines.length + 1)
     }
 
     return (
