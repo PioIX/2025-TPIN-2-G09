@@ -17,8 +17,7 @@
   background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
   border: 2px solid #d4a574;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15),
-              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,6 +49,17 @@
   max-width: 500px;
 }
 
+.orderContainer {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column; /* Agregar esto */
+}
+
 .canvas {
   display: block;
   width: 100%;
@@ -57,4 +67,83 @@
   margin: 0;
   padding: 0;
   flex: 1; /* Agregar esto */
+}
+
+
+.dialogContainer {
+  position: absolute;
+  top: 35%;
+  left: 40%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.dialogBubble {
+  background-color: #F5E6D3;
+  padding: 25px 30px;
+  border-radius: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  max-width: 350px;
+  font-family: Arial, sans-serif;
+  border: 3px solid #D4B896;
+}
+
+.dialogText {
+  margin: 0;
+  font-size: 20px;
+  color: #2C2416;
+  line-height: 1.4;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Contenedor de botones */
+.btns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+/* Estilo del botón */
+.bake {
+  background-color: #E8DCC8;
+  color: #5C5C5C;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 40px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Efecto hover */
+.bake:hover {
+  background-color: #DED0B6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Efecto al presionar */
+.bake:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }

@@ -167,8 +167,8 @@ export default function Deliver() {
         const scaleX = window.innerWidth / 550;
         const scaleY = window.innerHeight / 400;
         
-        const boxX = 300 * scaleX;
-        const boxY = 200 * scaleY;
+        const boxX = 210 * scaleX;
+        const boxY = 295 * scaleY;
         const boxWidth = 120 * scaleX;
         const boxHeight = 120 * scaleY;
 
