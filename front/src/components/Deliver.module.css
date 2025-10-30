@@ -137,6 +137,37 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
+.nextButtonContainer {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.nextButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.nextButton:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+}
+
+.nextButton:active {
+    transform: scale(0.98);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from "./page.module.css";
 import Kitchen from "@/components/Kitchen";
 import Order from "@/components/Order";
@@ -17,6 +16,38 @@ export default function Game() {
     const [showDeliver, setShowDeliver] = useState(false);
     const [pizzaImage, setPizzaImage] = useState(null);
     const [pizzaFilter, setPizzaFilter] = useState('');
+
+    // Sistema de personajes
+    const [customers, setCustomers] = useState([]);
+    const [currentCustomerIndex, setCurrentCustomerIndex] = useState(0);
+    const [gameFinished, setGameFinished] = useState(false);
+
+    const allCustomers = [
+        { id: 1, name: 'Personaje 1' },
+        { id: 2, name: 'Personaje 2' },
+        { id: 3, name: 'Personaje 3' },
+        { id: 4, name: 'Personaje 4' },
+        { id: 5, name: 'Personaje 5' },
+        { id: 6, name: 'Personaje 6' },
+        { id: 7, name: 'Personaje 7' },
+        { id: 8, name: 'Personaje 8' }
+    ];
+
+    // Función para barajar el array
+    const shuffleArray = (array) => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
+
+    // Inicializar personajes barajados al montar el componente
+    useEffect(() => {
+        const shuffled = shuffleArray(allCustomers);
+        setCustomers(shuffled);
+    }, []);
 
     const handleGoToKitchen = () => {
         console.log("Cambiando a Kitchen");
@@ -45,48 +76,99 @@ export default function Game() {
         setShowCut(false);
     };
 
-    return (
-        <TimerProvider>
+    // Función para pasar al siguiente personaje o terminar el juego
+    const handleNextCustomer = () => {
+        const nextIndex = currentCustomerIndex + 1;
+
+        if (nextIndex >= customers.length) {
+            // Ya pasaron los 8 personajes, terminar el juego
+            console.log("¡Juego terminado! Han pasado todos los personajes");
+            setGameFinished(true);
+        } else {
+            // Resetear estados y pasar al siguiente personaje
+            console.log(`Pasando al personaje ${nextIndex + 1} de ${customers.length}`);
+            setCurrentCustomerIndex(nextIndex);
+            setShowKitchen(false);
+            setShowOven(false);
+            setShowCut(false);
+            setShowDeliver(false);
+            setPizzaImage(null);
+            setPizzaFilter('');
+        }
+    };
+
+    // Si no hay personajes cargados aún, mostrar loading
+    if (customers.length === 0) {
+        return <div className={styles.container1}>Cargando...</div>;
+    }
+
+    // Si el juego terminó, mostrar pantalla final
+    if (gameFinished) {
+        return (
             <div className={styles.container1}>
-                {
-                    (!showDeliver) ? (
-                    (!showCut ) ? (
-                    (!showOven) ? (
-                        (!showKitchen) ? (
-                            <>
-                                <div className={styles.section}>
-                                    <Order key={Date.now()} onGoToKitchen={handleGoToKitchen} />
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className={styles.section}>
-                                    <Kitchen onGoToOven={handleGoToOven} />
-                                </div>
-                            </>
-                        )
-                    ) : (
-                        <div className={styles.section}>
-                            <Oven
-                                pizzaImage={pizzaImage}
-                                onGoToCut={handleGoToCut}
-                            />
-                        </div>
-                    )
-                    ) : 
-                    (
-                        <Cut 
-                            pizzaImage={pizzaImage} 
-                            pizzaFilter={pizzaFilter}
-                            onGoToDeliver={handleGoToDeliver}
-                        />
-                    )
-                    ) : 
-                    (
-                        <Deliver />
-                    )
-                }
+                <div className={styles.section}>
+                    <h1>¡Juego Terminado!</h1>
+                    <p>Han pasado los 8 personajes</p>
+                    <button onClick={() => window.location.reload()}>
+                        Jugar de nuevo
+                    </button>
+                </div>
             </div>
-        </TimerProvider>
+        );
+    }
+
+    const currentCustomer = customers[currentCustomerIndex];
+
+    return (
+            <TimerProvider>
+                <div className={styles.container1}>
+                    {
+                        (!showDeliver) ? (
+                            (!showCut) ? (
+                                (!showOven) ? (
+                                    (!showKitchen) ? (
+                                        <>
+                                            <div className={styles.section}>
+                                                <Order
+                                                    key={currentCustomer.id}
+                                                    character={currentCustomer}
+                                                    onGoToKitchen={handleGoToKitchen}
+                                                />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className={styles.section}>
+                                                <Kitchen onGoToOven={handleGoToOven} />
+                                            </div>
+                                        </>
+                                    )
+                                ) : (
+                                    <div className={styles.section}>
+                                        <Oven
+                                            pizzaImage={pizzaImage}
+                                            onGoToCut={handleGoToCut}
+                                        />
+                                    </div>
+                                )
+                            ) :
+                                (
+                                    <Cut
+                                        pizzaImage={pizzaImage}
+                                        pizzaFilter={pizzaFilter}
+                                        onGoToDeliver={handleGoToDeliver}
+                                    />
+                                )
+                        ) :
+                            (
+                                <Deliver
+                                    onNextCustomer={handleNextCustomer}
+                                    currentCustomer={currentCustomerIndex + 1}
+                                    totalCustomers={customers.length}
+                                />
+                            )
+                    }
+                </div>
+            </TimerProvider>
     );
 }
