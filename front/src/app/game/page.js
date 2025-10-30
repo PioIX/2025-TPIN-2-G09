@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -7,6 +8,7 @@ import Order from "@/components/Order";
 import Oven from "@/components/Oven";
 import Cut from "@/components/Cut";
 import Deliver from '@/components/Deliver';
+import { TimerProvider } from '@/components/TimerContext';
 
 export default function Game() {
     const [showKitchen, setShowKitchen] = useState(false);
@@ -44,7 +46,7 @@ export default function Game() {
     };
 
     return (
-        <>
+        <TimerProvider>
             <div className={styles.container1}>
                 {
                     (!showDeliver) ? (
@@ -85,6 +87,6 @@ export default function Game() {
                     )
                 }
             </div>
-        </>
+        </TimerProvider>
     );
 }

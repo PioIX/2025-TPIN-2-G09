@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './Oven.module.css';
+import { useTimer } from './TimerContext';
 
 export default function Oven({ pizzaImage, onGoToCut }) {
+    const { percentage } = useTimer();
+    
     const [isCooking, setIsCooking] = useState(false);
     const [cookingTime, setCookingTime] = useState(10);
     const [timeLeft, setTimeLeft] = useState(0);
@@ -99,7 +102,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <div className={styles.percent}></div>
+                <div className={styles.percent}>{percentage}%</div>
                 <div className={styles.order}></div>
                 <div className={styles.time}></div>
             </div>
@@ -115,50 +118,20 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     />
                 </div>
 
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: '-35%',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        width: '300px',
-                        height: '350px',
-                        zIndex: 1,
-                    }}
-                    className={styles.tableLayer}
-                >
+                <div className={styles.tableLayer}>
                     <img
                         src="/imagesFondos/TablaPizza.png"
                         alt="Mesita"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'contain',
-                        }}
+                        className={styles.tableImage}
                     />
                 </div>
 
                 {pizzaImage && !isCooking && !finalPizzaFilter && (
-                    <div
-                        style={{
-                            position: 'absolute',
-                            left: '-22%',
-                            top: '41%',
-                            width: '140px',
-                            height: '140px',
-                            zIndex: 2,
-                            transform: 'translate(-41px, 0px)'
-                        }}
-                    >
+                    <div className={styles.pizzaOnTable}>
                         <img
                             src={pizzaImage}
                             alt="Pizza en la mesita"
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'contain',
-                                filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4))',
-                            }}
+                            className={styles.pizzaTableImage}
                         />
                     </div>
                 )}
@@ -203,18 +176,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                     </div>
                 )}
 
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '120%',
-                        height: '120%',
-                        zIndex: 4,
-                        pointerEvents: 'none',
-                    }}
-                >
+                <div className={styles.ovenFrame}>
                     <Image
                         src="/imagesFondos/HornoCocina.png"
                         alt="Marco Horno"

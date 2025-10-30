@@ -3,9 +3,11 @@
 import { useState, useRef, useEffect} from "react"
 import styles from "./Kitchen.module.css"
 import { useRouter } from "next/navigation"
+import { useTimer } from "./TimerContext"
 
 //SECCIÓN DE LA COCINA
 export default function Kitchen({onGoToOven}) {
+    const { percentage } = useTimer();
     const ingredientsBox = [
         {id:1, name:"Salsa", image:"/imagesIngredients/tomato.png", drawMode: "image", size: 160},
         {id:2, name:"Queso", image:"/imagesIngredients/cheese.png", drawMode: "image", size: 140},
@@ -167,6 +169,7 @@ export default function Kitchen({onGoToOven}) {
             <div className={styles.container}>
                 <div className={styles.header}>
                     <div className={styles.percent}>
+                        {percentage}%
                 
                     </div>
                     <div className={styles.order}>
