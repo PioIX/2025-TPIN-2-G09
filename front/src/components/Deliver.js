@@ -4,13 +4,14 @@ import styles from "./Deliver.module.css"
 import {useRef, useEffect, useState } from "react";
 import { useTimer } from './TimerContext';
 
-export default function Deliver() {
-    const { percentage } = useTimer();
+export default function Deliver({ onNextCustomer, currentCustomer, totalCustomers }) {
+    const { percentage, resetTimer } = useTimer();
     
     const [characterImage, setCharacterImage] = useState('');
     const [loading, setLoading] = useState(true);
     const [showBox, setShowBox] = useState(true);
     const [showThanks, setShowThanks] = useState(false);
+    const [showNextButton, setShowNextButton] = useState(false);
     const customerName = localStorage.getItem('currentCustomerName');
     
     useEffect(() => {
@@ -113,7 +114,7 @@ export default function Deliver() {
             const scaleY = window.innerHeight / 400;
             
             const boxX = 210 * scaleX; // Posición X de la caja
-            const boxY = 295 * scaleY; // Posición Y de la caja
+            const boxY = 305 * scaleY; // Posición Y de la caja
             const boxWidth = 120 * scaleX; // Ancho de la caja
             const boxHeight = 120 * scaleY; // Alto de la caja
             
@@ -177,7 +178,18 @@ export default function Deliver() {
             setShowBox(false);
             setTimeout(() => {
                 setShowThanks(true);
+                // Mostrar el botón después del mensaje de gracias
+                setTimeout(() => {
+                    setShowNextButton(true);
+                }, 1000);
             }, 300);
+        }
+    };
+
+    const handleNextCustomer = () => {
+        resetTimer();
+        if (onNextCustomer) {
+            onNextCustomer();
         }
     };
 
@@ -208,6 +220,20 @@ export default function Deliver() {
                             ¡Gracias!
                         </p>
                     </div>
+                </div>
+            )}
+
+            {showNextButton && (
+                <div className={styles.nextButtonContainer}>
+                    <button 
+                        className={styles.nextButton}
+                        onClick={handleNextCustomer}
+                    >
+                        {currentCustomer < totalCustomers 
+                            ? `Siguiente cliente`
+                            : '¡Terminar juego!'
+                        }
+                    </button>
                 </div>
             )}
         </div>
