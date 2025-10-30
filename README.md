@@ -35,9 +35,6 @@ El juego consiste en gestionar una pizzería virtual, preparando pizzas según l
 - Entrega la pizza al cliente y si está correcta, recibe dinero y puntos de satisfacción, si está mal, gana menos dinero y baja de posición en el ranking.
 <img width="1919" height="876" alt="image" src="https://github.com/user-attachments/assets/5ec0ed4f-851c-4d37-8499-f0bb3665eba7" />
 
-<ins>Sistema de progreso<ins>
-- Con el dinero obtenido, el jugador puede desbloquear más ingredientes (aceitunas, champiñones, pepperoni, etc.) y cada vez que pasa de día va a tener más clientes y, por lo tanto, menos tiempo para realizar las pizzas. 
-
 <ins>Ranking (al finalizar cada partida)<ins>
 - Al terminar una sesión de juego (cuando cierra el día en la pizzería), aparece una pantalla con el puntaje del jugador.
 - Ese puntaje se compara con el de otros usuarios en línea.
