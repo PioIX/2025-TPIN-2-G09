@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
+import { useTimer } from './TimerContext';
 
 export default function Order({onGoToKitchen}) {
   const [orderText, setOrderText] = useState('');
@@ -10,6 +11,8 @@ export default function Order({onGoToKitchen}) {
   const [characterImage, setCharacterImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false)
+
+  const { percentage, startTimer } = useTimer();
 
  useEffect(() => {
     const fetchOrder = async () => {
@@ -158,7 +161,9 @@ export default function Order({onGoToKitchen}) {
   }, [loading, orderText, showDialog]);
 
   const handleGoToKitchen = () => {
-    try{
+      try{
+      //INICIAR EL TIMER AL PRESIONAR OK
+      startTimer();
       if(onGoToKitchen) {
         onGoToKitchen();
       } else {
@@ -195,7 +200,7 @@ export default function Order({onGoToKitchen}) {
   return (
     <div className={styles.orderContainer}>
       <div className={styles.header}>
-        <div className={styles.percent}></div>
+        <div className={styles.percent}>{percentage}%</div>
         <div className={styles.order}></div>
         <div className={styles.time}></div>
       </div>

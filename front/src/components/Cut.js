@@ -3,9 +3,11 @@
 import { useEffect, useState, useRef } from "react"
 import styles from "./Cut.module.css"
 import clsx from "clsx"
+import { useTimer } from './TimerContext'
 
 //SECCIÓN DE CORTAR
 export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
+    const { percentage, stopTimer } = useTimer();
     const [cursorStyle, setCursorStyle] = useState(false)
     const [visibleKnife, setVisibleKnife] = useState(true)
     const [showDoneButton, setShowDoneButton] = useState(false)
@@ -25,7 +27,8 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
         setCursorStyle(false)
         setIsSliding(true)
 
-        setTimeout(() =>{
+        stopTimer(); //Detiene el temporizador al apretar el boton verde Listo!!!!
+        setTimeout(() => {
             setIsSliding(false)
             setCursorStyle(false)
             setVisibleKnife(false)
@@ -142,8 +145,8 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     }, [cursorStyle, savedLines])
 
     function handlePizzaClick(e) {
-        if(!cursorStyle) return
-    
+        if (!cursorStyle) return
+
         const canvas = canvasRef.current
         const ctx = canvas.getContext('2d')
         const rect = canvas.getBoundingClientRect()
@@ -155,7 +158,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
 
         const angle = Math.atan2(mouseY - centerY, mouseX - centerX)
 
-        const maxLength = Math.sqrt(canvas.width*25 + canvas.height*25)
+        const maxLength = Math.sqrt(canvas.width * 25 + canvas.height * 25)
 
         const endX = (centerX + Math.cos(angle) * maxLength)
         const endY = centerY + Math.sin(angle) * maxLength
@@ -175,7 +178,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
             endX,
             endY
         }])
-        
+
         console.log("Línea guardada en posición:", { startX, startY, endX, endY })
         console.log("Total de líneas:", savedLines.length + 1)
     }
@@ -185,6 +188,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
             <div className={clsx(styles.container, { [styles.cursorKnife]: cursorStyle == true })}>
                 <div className={styles.header}>
                     <div className={styles.percent}>
+                        {percentage}%
 
                     </div>
                     <div className={styles.order}>

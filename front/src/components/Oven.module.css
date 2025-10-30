@@ -35,7 +35,22 @@
   z-index: 100;
 }
 
-.percent,
+.percent {
+  width: 180px;
+  height: 50px;
+  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
+  border: 2px solid #d4a574;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #c73e1d;
+  font-size: 1.5rem;
+}
+
 .order,
 .time {
   width: 180px;
@@ -60,23 +75,6 @@
   max-width: 500px;
 }
 
-.tableLayer {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 100%;
-    height: auto;
-    transform: translateX(-50%);
-    z-index: 4;
-    background: linear-gradient(to bottom, #FFFFFF 0%, #F8F8F8 50%, #ECECEC 100%);
-    border-radius: 10px;
-    border: 5px solid #D5D5D5;
-    box-shadow: 
-        inset 0 3px 10px rgba(0, 0, 0, 0.08),
-        -5px 0 20px rgba(0, 0, 0, 0.15);
-    z-index: 2;
-}
-
 .backgroundLayer {
     position: fixed;
     top: 0;
@@ -89,6 +87,45 @@
 
 .backgroundLayer .image {
     object-fit: cover;
+}
+
+.tableLayer {
+    position: absolute;
+    left: -35%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 300px;
+    height: 350px;
+    z-index: 1;
+    background: linear-gradient(to bottom, #FFFFFF 0%, #F8F8F8 50%, #ECECEC 100%);
+    border-radius: 10px;
+    border: 5px solid #D5D5D5;
+    box-shadow: 
+        inset 0 3px 10px rgba(0, 0, 0, 0.08),
+        -5px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.tableImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.pizzaOnTable {
+    position: absolute;
+    left: -22%;
+    top: 41%;
+    width: 140px;
+    height: 140px;
+    z-index: 2;
+    transform: translate(-41px, 0px);
+}
+
+.pizzaTableImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
 }
 
 .grillLayer {
@@ -122,6 +159,7 @@
     background: #807b7b;
     z-index: 10;
 }
+
 .grillContainer {
     position: absolute;
     top: 0;
@@ -183,12 +221,22 @@
     transition: filter 0.5s ease;
 }
 
+.ovenFrame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    z-index: 4;
+    pointer-events: none;
+}
+
 .image {
     object-fit: contain;
     width: 100%;
     height: 100%;
 }
-
 
 .controlPanel {
     position: absolute;
@@ -323,4 +371,3 @@
     transition: width 1s linear;
     border-radius: 4px;
 }
-

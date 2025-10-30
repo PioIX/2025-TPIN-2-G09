@@ -2,9 +2,11 @@
 
 import styles from "./Deliver.module.css"
 import {useRef, useEffect, useState } from "react";
-
+import { useTimer } from './TimerContext';
 
 export default function Deliver() {
+    const { percentage } = useTimer();
+    
     localStorage.getItem('currentCustomerName');
     const [characterImage, setCharacterImage] = useState('');
     const [loading, setLoading] = useState(true);
@@ -126,7 +128,7 @@ export default function Deliver() {
         <div className={styles.orderContainer}>
             <div className={styles.header}>
                 <div className={styles.percent}>
-                
+                    {percentage}%
                 </div>
                 <div className={styles.order}>
                 
