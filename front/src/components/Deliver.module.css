@@ -50,11 +50,11 @@
   max-width: 500px;
 }
 
-.orderContainer{
-  position: relative;
+.canvas {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 80px); /* Restar la altura del header */
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  flex: 1; /* Agregar esto */
 }
