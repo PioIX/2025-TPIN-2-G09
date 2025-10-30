@@ -11,7 +11,6 @@ export default function Order({onGoToKitchen}) {
   const [characterImage, setCharacterImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false)
-
   const { percentage, startTimer } = useTimer();
 
  useEffect(() => {
