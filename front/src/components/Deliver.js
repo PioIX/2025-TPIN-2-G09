@@ -5,8 +5,7 @@ import {useRef, useEffect, useState } from "react";
 import { useTimer } from './TimerContext';
 
 export default function Deliver({ onNextCustomer, currentCustomer, totalCustomers }) {
-    const { percentage, resetTimer } = useTimer();
-    
+    const { percentage, formatTime, resetTimer } = useTimer();
     const [characterImage, setCharacterImage] = useState('');
     const [loading, setLoading] = useState(true);
     const [showBox, setShowBox] = useState(true);
@@ -202,9 +201,7 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
                 <div className={styles.order}>
                 
                 </div>
-                <div className={styles.time}>
-                
-                </div>
+                 <div className={styles.time}>{formatTime()}</div>
             </div>
             <canvas
                 ref={canvasRef}

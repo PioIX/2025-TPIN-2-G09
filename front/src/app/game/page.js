@@ -7,9 +7,9 @@ import Order from "@/components/Order";
 import Oven from "@/components/Oven";
 import Cut from "@/components/Cut";
 import Deliver from '@/components/Deliver';
-import { TimerProvider } from '@/components/TimerContext';
+import { TimerProvider, useTimer } from '@/components/TimerContext';
 
-export default function Game() {
+function GameContent() {
     const [showKitchen, setShowKitchen] = useState(false);
     const [showOven, setShowOven] = useState(false);
     const [showCut, setShowCut] = useState(false);
@@ -21,6 +21,8 @@ export default function Game() {
     const [customers, setCustomers] = useState([]);
     const [currentCustomerIndex, setCurrentCustomerIndex] = useState(0);
     const [gameFinished, setGameFinished] = useState(false);
+
+    const { stopTimer, resetTimer, formatTime } = useTimer();
 
     const allCustomers = [
         { id: 1, name: 'Personaje 1' },
@@ -81,8 +83,9 @@ export default function Game() {
         const nextIndex = currentCustomerIndex + 1;
 
         if (nextIndex >= customers.length) {
-            // Ya pasaron los 8 personajes, terminar el juego
+            // Ya pasaron los 8 personajes, terminar el juego y DETENER EL TIMER
             console.log("¡Juego terminado! Han pasado todos los personajes");
+            stopTimer();
             setGameFinished(true);
         } else {
             // Resetear estados y pasar al siguiente personaje
@@ -109,7 +112,11 @@ export default function Game() {
                 <div className={styles.section}>
                     <h1>¡Juego Terminado!</h1>
                     <p>Han pasado los 8 personajes</p>
-                    <button onClick={() => window.location.reload()}>
+                    <p>Tiempo total: {formatTime()}</p>
+                    <button onClick={() => {
+                        resetTimer();
+                        window.location.reload();
+                    }}>
                         Jugar de nuevo
                     </button>
                 </div>
@@ -120,55 +127,61 @@ export default function Game() {
     const currentCustomer = customers[currentCustomerIndex];
 
     return (
-            <TimerProvider>
-                <div className={styles.container1}>
-                    {
-                        (!showDeliver) ? (
-                            (!showCut) ? (
-                                (!showOven) ? (
-                                    (!showKitchen) ? (
-                                        <>
-                                            <div className={styles.section}>
-                                                <Order
-                                                    key={currentCustomer.id}
-                                                    character={currentCustomer}
-                                                    onGoToKitchen={handleGoToKitchen}
-                                                />
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className={styles.section}>
-                                                <Kitchen onGoToOven={handleGoToOven} />
-                                            </div>
-                                        </>
-                                    )
-                                ) : (
+        <div className={styles.container1}>
+            {
+                (!showDeliver) ? (
+                    (!showCut) ? (
+                        (!showOven) ? (
+                            (!showKitchen) ? (
+                                <>
                                     <div className={styles.section}>
-                                        <Oven
-                                            pizzaImage={pizzaImage}
-                                            onGoToCut={handleGoToCut}
+                                        <Order
+                                            key={currentCustomer.id}
+                                            character={currentCustomer}
+                                            onGoToKitchen={handleGoToKitchen}
                                         />
                                     </div>
-                                )
-                            ) :
-                                (
-                                    <Cut
-                                        pizzaImage={pizzaImage}
-                                        pizzaFilter={pizzaFilter}
-                                        onGoToDeliver={handleGoToDeliver}
-                                    />
-                                )
-                        ) :
-                            (
-                                <Deliver
-                                    onNextCustomer={handleNextCustomer}
-                                    currentCustomer={currentCustomerIndex + 1}
-                                    totalCustomers={customers.length}
-                                />
+                                </>
+                            ) : (
+                                <>
+                                    <div className={styles.section}>
+                                        <Kitchen onGoToOven={handleGoToOven} />
+                                    </div>
+                                </>
                             )
-                    }
-                </div>
-            </TimerProvider>
+                        ) : (
+                            <div className={styles.section}>
+                                <Oven
+                                    pizzaImage={pizzaImage}
+                                    onGoToCut={handleGoToCut}
+                                />
+                            </div>
+                        )
+                    ) :
+                        (
+                            <Cut
+                                pizzaImage={pizzaImage}
+                                pizzaFilter={pizzaFilter}
+                                onGoToDeliver={handleGoToDeliver}
+                            />
+                        )
+                ) :
+                    (
+                        <Deliver
+                            onNextCustomer={handleNextCustomer}
+                            currentCustomer={currentCustomerIndex + 1}
+                            totalCustomers={customers.length}
+                        />
+                    )
+            }
+        </div>
+    );
+}
+
+export default function Game() {
+    return (
+        <TimerProvider>
+            <GameContent />
+        </TimerProvider>
     );
 }
