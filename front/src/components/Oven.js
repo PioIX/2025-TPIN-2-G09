@@ -6,8 +6,7 @@ import styles from './Oven.module.css';
 import { useTimer } from './TimerContext';
 
 export default function Oven({ pizzaImage, onGoToCut }) {
-    const { percentage } = useTimer();
-    
+    const { percentage, formatTime } = useTimer();
     const [isCooking, setIsCooking] = useState(false);
     const [cookingTime, setCookingTime] = useState(10);
     const [timeLeft, setTimeLeft] = useState(0);
@@ -104,7 +103,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
             <div className={styles.header}>
                 <div className={styles.percent}>{percentage}%</div>
                 <div className={styles.order}></div>
-                <div className={styles.time}></div>
+                 <div className={styles.time}>{formatTime()}</div>
             </div>
 
             <div className={styles.ovenWrapper}>
