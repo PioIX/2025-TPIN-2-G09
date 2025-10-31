@@ -14,6 +14,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     const [pizzaClicked, setPizzaClicked] = useState(false)
     const [savedLines, setSavedLines] = useState([])
     const [isSliding, setIsSliding] = useState(false)
+    const [hidePizza, setHidePizza] = useState(true)
     const canvasRef = useRef(null)
     const containerRef = useRef(null)
 
@@ -25,8 +26,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
 
     const resetCursor = () => {
         setCursorStyle(false)
-        setIsSliding(true)
-
+        setHidePizza(false)
         stopTimer(); //Detiene el temporizador al apretar el boton verde Listo!!!!
         setTimeout(() => {
             setIsSliding(false)
@@ -209,7 +209,8 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
                                 height: '100%',
                                 objectFit: 'contain',
                                 display: 'block',
-                                filter: pizzaFilter || 'none'
+                                display: hidePizza ? 'block' : 'none',
+                                filter: pizzaFilter || 'none',
                             }}
                         />
                         <canvas
@@ -220,7 +221,8 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
                                 left: '-80px',
                                 width: 'calc(100% + 160px)',
                                 height: 'calc(100% + 160px)',
-                                pointerEvents: cursorStyle ? 'auto' : 'none'
+                                pointerEvents: cursorStyle ? 'auto' : 'none',
+                                display: showDoneButton ? 'block' : 'none'
                             }}
                         />
                     </div>
@@ -240,9 +242,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
                     </button>
                 </div>
                 <div className={styles.boxes}>
-                    <img className={styles.box} src="/imagesElements/boxes.png" />
-                </div>
-                <div className={styles.btns}>
+                    <img className={styles.box} src={!hidePizza ? "/imagesElements/boxClose.jpeg" : "/imagesElements/boxes.png"}  />
                     <button className={styles.deliver} onClick={handleGoToDeliver}>Entregar</button>
                 </div>
             </div>
