@@ -6,7 +6,7 @@ import styles from './Oven.module.css';
 import { useTimer } from './TimerContext';
 
 export default function Oven({ pizzaImage, onGoToCut }) {
-    const { percentage, formatTime } = useTimer();
+    const { percentage} = useTimer();
     const [isCooking, setIsCooking] = useState(false);
     const [cookingTime, setCookingTime] = useState(10);
     const [timeLeft, setTimeLeft] = useState(0);
@@ -19,6 +19,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
         setIsCooking(true);
         setTimeLeft(cookingTime);
         setPizzaPassedOven(false);
+        setHasTransitioned(false);
         
         setTimeout(() => {
             setPizzaPassedOven(true);
@@ -57,12 +58,23 @@ export default function Oven({ pizzaImage, onGoToCut }) {
     };
 
     useEffect(() => {
-        if (isCooking && timeLeft > 0) {
-            const timer = setTimeout(() => {
-                setTimeLeft(timeLeft - 1);
-            }, 1000);
-            return () => clearTimeout(timer);
-        } else if (isCooking && timeLeft === 0 && !hasTransitioned) {
+        if (!isCooking || timeLeft <= 0) return;
+
+        const timer = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [isCooking]);
+
+    useEffect(() => {
+        if (timeLeft === 0 && isCooking && !hasTransitioned) {
             console.log("COCCIÓN TERMINADA");
             setIsCooking(false);
             setHasTransitioned(true);
@@ -86,7 +98,6 @@ export default function Oven({ pizzaImage, onGoToCut }) {
             console.log("Esperando 500ms antes de ir a Cut...");
             setTimeout(() => {
                 console.log("Llamando a onGoToCut");
-                console.log("onGoToCut existe?", !!onGoToCut);
                 if (onGoToCut) {
                     console.log("Ejecutando onGoToCut con:", finalState, finalFilter);
                     onGoToCut(finalState, finalFilter);
@@ -96,14 +107,14 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                 }
             }, 500);
         }
-    }, [isCooking, timeLeft, cookingTime, onGoToCut]);
+    }, [timeLeft, isCooking, hasTransitioned, cookingTime, onGoToCut]);
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <div className={styles.percent}>{percentage}%</div>
                 <div className={styles.order}></div>
-                 <div className={styles.time}>{formatTime()}</div>
+                 <div className={styles.time}></div>
             </div>
 
             <div className={styles.ovenWrapper}>

@@ -7,7 +7,7 @@ import { useTimer } from "./TimerContext"
 
 //SECCIÓN DE LA COCINA
 export default function Kitchen({onGoToOven}) {
-    const { percentage, formatTime } = useTimer();
+    const { percentage} = useTimer();
     const ingredientsBox = [
         {id:1, name:"Salsa", image:"/imagesIngredients/tomato.png", drawMode: "image", size: 160},
         {id:2, name:"Queso", image:"/imagesIngredients/cheese.png", drawMode: "image", size: 140},
@@ -175,7 +175,7 @@ export default function Kitchen({onGoToOven}) {
                     <div className={styles.order}>
                 
                     </div>
-                    <div className={styles.time}>{formatTime()}</div>
+                    <div className={styles.time}></div>
                 </div>
                 <div className={styles.ingredientsBox}>
                     {ingredientsBox.map((ingredientBox) => (
