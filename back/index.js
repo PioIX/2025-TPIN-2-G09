@@ -104,7 +104,8 @@ app.get('/customersOrder', async function (req, res) {
         res.json({
             id_customer: result[0].id_customer || '',
             customerName: result[0].name || '',
-            orderText: result[0].text || ''
+            orderText: result[0].text || '',
+            id_pizza: result[0].id_pizza || null
         });
     } catch (error) {
         console.error('Error al obtener pedido:', error);
@@ -113,6 +114,52 @@ app.get('/customersOrder', async function (req, res) {
         });
     }
 });
+
+app.get('/pizzaValidation/:id_pizza', async function (req,res) {
+    try {
+        const {id_pizza} = req.params
+
+        const pizzaResult = await realizarQuery(
+            `SELECT ing1, ing2, ing3 FROM Pizzas WHERE id_pizza = ?`,
+            [id_pizza]
+        )
+
+        if(pizzaResult.length === 0){
+            return res.status(404).json({
+                error: 'Pizza no encontrada'
+            })
+        }
+
+        const quantityResult = await realizarQuery(
+            `SELECT quantityIng1, quantityIng2, quantityIng3 FROM QualityPizza WHERE id_pizza = ?`,
+            [id_pizza]
+        )
+
+        if(quantityResult.length === 0){
+            return res.status(404).json({
+                error: 'Datos no encontrados'
+            })
+        }
+
+        res.json({
+            ingredientes: {
+                ing1: pizzaResult[0].ing1,
+                ing2: pizzaResult[0].ing2,
+                ing3: pizzaResult[0].ing3
+            },
+            quantities: {
+                quantityIng1: quantityResult[0].quantityIng1,
+                quantityIng2: quantityResult[0].quantityIng2,
+                quantityIng3: quantityResult[0].quantityIng3
+            },
+        })
+    } catch(error) {
+        console.error('Error al obtener validación de pizza:', error)
+        res.status(500).json({
+            error: 'Error al obtener datos de validación'
+        })
+    }
+})
 
 
 io.on("connection", (socket) => {

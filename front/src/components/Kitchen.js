@@ -9,13 +9,13 @@ import { useTimer } from "./TimerContext"
 export default function Kitchen({onGoToOven}) {
     const { percentage} = useTimer();
     const ingredientsBox = [
-        {id:1, name:"Salsa", image:"/imagesIngredients/tomato.png", drawMode: "image", size: 160},
-        {id:2, name:"Queso", image:"/imagesIngredients/cheese.png", drawMode: "image", size: 140},
-        {id:3, name:"Pepperoni", image:"/imagesIngredients/pepperoni.png", drawMode: "click", size: 50},
-        {id:4, name:"Champiñones", image:"/imagesIngredients/mushroom.png", drawMode: "click", size: 50},
-        {id:5, name:"Aceituna", image:"/imagesIngredients/olive.png", drawMode: "click", size: 50},
-        {id:6, name:"Albahaca", image:"/imagesIngredients/pepper.png", drawMode: "click", size: 70},
-        {id:7, name:"Cebolla", image:"/imagesIngredients/onion.png", drawMode: "click", size: 80}
+        {id:1, name:"tomato", image:"/imagesIngredients/tomato.png", drawMode: "image", size: 160},
+        {id:2, name:"cheese", image:"/imagesIngredients/cheese.png", drawMode: "image", size: 140},
+        {id:3, name:"pepperoni", image:"/imagesIngredients/pepperoni.png", drawMode: "click", size: 50},
+        {id:4, name:"mushroom", image:"/imagesIngredients/mushroom.png", drawMode: "click", size: 50},
+        {id:5, name:"olive", image:"/imagesIngredients/olive.png", drawMode: "click", size: 50},
+        {id:6, name:"pepper", image:"/imagesIngredients/pepper.png", drawMode: "click", size: 70},
+        {id:7, name:"onion", image:"/imagesIngredients/onion.png", drawMode: "click", size: 80}
     ]
 
     const [visibleBuns, setVisibleBuns] = useState([true, true, true, true, true, true, true, true])
@@ -23,6 +23,12 @@ export default function Kitchen({onGoToOven}) {
     const [paintingImage, setPaintingImage] = useState(false)
     const [selectedIngredient, setSelectedIngredient] = useState(null)
     const [savedPizzaImage, setSavedPizzaImage] = useState(null)
+
+    //para validar la pizza
+    const [pizzaValidation, setPizzaValidation] = useState(null)
+    const [ingredientClicks, setIngredientClicks] = useState({})
+    const [validationResult, setValidationResult] = useState(null)
+
     const router = useRouter()
 
     const canvasRef = useRef(null)
@@ -30,6 +36,31 @@ export default function Kitchen({onGoToOven}) {
     const pizzaBunImageRef = useRef(null)
     const pizzaCenterRef = useRef({ x: 0, y: 0})
     const pizzaRadiusRef = useRef(200)
+
+    useEffect(() => {
+        const fetchPizzaValidation = async () => {
+            try {
+                const pizzaId = localStorage.getItem('currentPizzaId')
+                if(!pizzaId) {
+                    console.error('No se encontró ID de pizza')
+                    return
+                }
+
+                const response = await fetch(`http://localhost:4000/pizzaValidation/${pizzaId}`)
+
+                if(!response.ok){
+                    throw new Error('Error al obtener datos de verificación')
+                }
+
+                const data = await response.json()
+                setPizzaValidation(data)
+                console.log('Datos de validación cargados:', data)
+            } catch(error){
+                console.error('Error al cargar validación:', error)
+            }
+        }
+        fetchPizzaValidation()
+    }, [])
 
     //Poner imagen al seleccionar ingrediente
     useEffect(() => {
@@ -133,11 +164,79 @@ export default function Kitchen({onGoToOven}) {
 
         if (isPointInCircle(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y, pizzaRadiusRef.current)) {
             ctx.drawImage(imageRef.current, x - size / 2, y - size / 2, size, size)
+
+            const ingredientName = selectedIngredient.name
+            setIngredientClicks(prev => ({
+                ...prev,
+                [ingredientName]: (prev[ingredientName] || 0) + 1
+            }))
         }
     }
 
     const finishPaintImage = () => {
         setPaintingImage(false)
+    }
+
+    const validatePizza = () => {
+        if(!pizzaValidation) {
+            console.error('No hay datos de validación')
+            return {
+                isValid: false,
+                message: 'No se pudieron cargar los datos de validación'
+            }
+        }
+
+        const {ingredients, quantities} = pizzaValidation
+        const error = []
+        let score = 100
+
+        const ing1Clicks = ingredientClicks[ingredients.ing1] || 0;
+        if (ing1Clicks === 0) {
+            errors.push(`Falta ${ingredients.ing1}`);
+            score -= 33;
+        } else if (Math.abs(ing1Clicks - quantities.quantityIng1) > 2) {
+            errors.push(`${ingredients.ing1}: cantidad incorrecta (esperado ~${quantities.quantityIng1}, obtenido ${ing1Clicks})`);
+            score -= 10;
+        }
+
+        const ing2Clicks = ingredientClicks[ingredients.ing2] || 0;
+        if (ing2Clicks === 0) {
+            errors.push(`Falta ${ingredients.ing2}`);
+            score -= 33;
+        } else if (Math.abs(ing2Clicks - quantities.quantityIng2) > 2) {
+            errors.push(`${ingredients.ing2}: cantidad incorrecta (esperado ~${quantities.quantityIng2}, obtenido ${ing2Clicks})`);
+            score -= 10;
+        }
+
+        const ing3Clicks = ingredientClicks[ingredients.ing3] || 0;
+        if (ing3Clicks === 0) {
+            errors.push(`Falta ${ingredients.ing3}`);
+            score -= 33;
+        } else if (Math.abs(ing1Clicks - quantities.quantityIng3) > 2) {
+            errors.push(`${ingredients.ing3}: cantidad incorrecta (esperado ~${quantities.quantityIng3}, obtenido ${ing3Clicks})`);
+            score -= 10;
+        }
+
+        Object.keys(ingredientClicks).forEach(ingredientName => {
+            if (ingredientName !== ingredients.ing1 && 
+                ingredientName !== ingredients.ing2 && 
+                ingredientName !== ingredients.ing3 &&
+                ingredientClicks[ingredientName] > 0) {
+                errors.push(`Ingrediente extra: ${ingredientName}`)
+                score -= 15;
+            }
+        });
+
+        score = Math.max(0, score) 
+
+        return {
+            isValid: errors.length === 0,
+            score: score,
+            errors: errors,
+            message: errors.length === 0 
+                ? '¡Pizza perfecta! 🍕' 
+                : `Pizza con errores: ${errors.join(', ')}`
+        }
     }
 
     const handleGoToOven = () => {
@@ -148,14 +247,19 @@ export default function Kitchen({onGoToOven}) {
         }
 
         try{
+            const validation = validatePizza();
+            setValidationResult(validation);
+            
+            console.log('Resultado de validación:', validation);
+            console.log('Clicks de ingredientes:', ingredientClicks);
+
             const pngData = canvas.toDataURL('image/png');
             setSavedPizzaImage(pngData);
             console.log("Pizza guardada exitosamente");
             console.log("Llamando a onGoToOven con la imagen");
 
-            // Llamar a la función del padre para cambiar a Oven
             if(onGoToOven) {
-                onGoToOven(pngData);
+                onGoToOven(pngData, validation);
             } else {
                 console.error("onGoToOven no está definida");
             }
@@ -202,6 +306,29 @@ export default function Kitchen({onGoToOven}) {
                     </div>
                 </div>
             </div>
+            {validationResult && (
+                <div style={{ 
+                    position: 'fixed', 
+                    bottom: '20px', 
+                    right: '20px', 
+                    padding: '20px', 
+                    backgroundColor: validationResult.isValid ? '#4caf50' : '#ff9800',
+                    color: 'white',
+                    borderRadius: '10px',
+                    maxWidth: '300px',
+                    zIndex: 1000
+                }}>
+                    <h3>Resultado: {validationResult.score}%</h3>
+                    <p>{validationResult.message}</p>
+                    {validationResult.errors.length > 0 && (
+                        <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
+                            {validationResult.errors.map((error, idx) => (
+                                <li key={idx}>{error}</li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            )}
             {savedPizzaImage && (
                 <div style={{ marginTop: '20px', padding: '10px', border: '1px solid green' }}>
                     <h3>Pizza guardada:</h3>
