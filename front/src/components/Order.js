@@ -32,7 +32,7 @@ export default function Order({onGoToKitchen}) {
         setCustomerName(data.customerName || '');
         
         localStorage.setItem('currentCustomerName', data.customerName);
-        localStorage.setItem('currentCPizzaId', data.id_pizza);
+        localStorage.setItem('currentPizzaId', data.id_pizza);
         console.log('Order guardó:', data.customerName, 'Pizza ID:', data.id_pizza);
         
         if (data.customerName) {

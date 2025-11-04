@@ -90,7 +90,7 @@ app.get('/customersOrder', async function (req, res) {
     try {
         // Obtener un cliente aleatorio de la base de datos
         const result = await realizarQuery(
-            `SELECT name, text FROM Customers ORDER BY RAND() LIMIT 1`
+            `SELECT * FROM Customers ORDER BY RAND() LIMIT 1`
         );
 
         // Si no hay clientes en la base de datos
@@ -120,8 +120,7 @@ app.get('/pizzaValidation/:id_pizza', async function (req,res) {
         const {id_pizza} = req.params
 
         const pizzaResult = await realizarQuery(
-            `SELECT ing1, ing2, ing3 FROM Pizzas WHERE id_pizza = ?`,
-            [id_pizza]
+            `SELECT ing1, ing2, ing3 FROM Pizzas WHERE id_pizza = "${req.body.id_pizza}"`,
         )
 
         if(pizzaResult.length === 0){
@@ -142,7 +141,7 @@ app.get('/pizzaValidation/:id_pizza', async function (req,res) {
         }
 
         res.json({
-            ingredientes: {
+            ingredients: {
                 ing1: pizzaResult[0].ing1,
                 ing2: pizzaResult[0].ing2,
                 ing3: pizzaResult[0].ing3
