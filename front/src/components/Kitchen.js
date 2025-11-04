@@ -222,7 +222,7 @@ export default function Kitchen({onGoToOven}) {
         if (ing3Clicks === 0) {
             errors.push(`Falta ${ingredients.ing3}`);
             score -= 33;
-        } else if (Math.abs(ing1Clicks - quantities.quantityIng3) > 2) {
+        } else if (Math.abs(ing3Clicks - quantities.quantityIng3) > 2) {
             errors.push(`${ingredients.ing3}: cantidad incorrecta (esperado ~${quantities.quantityIng3}, obtenido ${ing3Clicks})`);
             score -= 10;
         }

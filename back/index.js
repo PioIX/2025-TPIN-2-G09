@@ -120,7 +120,8 @@ app.get('/pizzaValidation/:id_pizza', async function (req, res) {
         const { id_pizza } = req.params
 
         const pizzaResult = await realizarQuery(
-            `SELECT ing1, ing2, ing3 FROM Pizzas WHERE id_pizza = "${req.body.id_pizza}"`,
+            `SELECT ing1, ing2, ing3 FROM Pizzas WHERE id_pizza = ?`,
+            [id_pizza]
         )
 
         if (pizzaResult.length === 0) {
