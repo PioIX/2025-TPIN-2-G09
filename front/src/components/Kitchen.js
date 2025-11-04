@@ -41,15 +41,23 @@ export default function Kitchen({onGoToOven}) {
         const fetchPizzaValidation = async () => {
             try {
                 const pizzaId = localStorage.getItem('currentPizzaId')
+                console.log('Pizza ID desde localStorage:', pizzaId)
+
                 if(!pizzaId) {
                     console.error('No se encontró ID de pizza')
                     return
                 }
 
+                console.log('Haciendo fetch a:', `http://localhost:4000/pizzaValidation/${pizzaId}`)
                 const response = await fetch(`http://localhost:4000/pizzaValidation/${pizzaId}`)
 
+                console.log('Status de respuesta:', response.status)
+                console.log('Response OK?:', response.ok)
+
                 if(!response.ok){
-                    throw new Error('Error al obtener datos de verificación')
+                    //const errorData = await response.json()
+                    console.log('Error del servidor:')
+                    //throw new Error('Error al obtener datos de verificación')
                 }
 
                 const data = await response.json()
@@ -57,6 +65,8 @@ export default function Kitchen({onGoToOven}) {
                 console.log('Datos de validación cargados:', data)
             } catch(error){
                 console.error('Error al cargar validación:', error)
+                console.error('Tipo de error:', error.name)
+                //console.error('Mensaje:', error.message)
             }
         }
         fetchPizzaValidation()
@@ -187,7 +197,7 @@ export default function Kitchen({onGoToOven}) {
         }
 
         const {ingredients, quantities} = pizzaValidation
-        const error = []
+        const errors = []
         let score = 100
 
         const ing1Clicks = ingredientClicks[ingredients.ing1] || 0;
@@ -234,7 +244,7 @@ export default function Kitchen({onGoToOven}) {
             score: score,
             errors: errors,
             message: errors.length === 0 
-                ? '¡Pizza perfecta! 🍕' 
+                ? '¡Pizza perfecta!' 
                 : `Pizza con errores: ${errors.join(', ')}`
         }
     }
