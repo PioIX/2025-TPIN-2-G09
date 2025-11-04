@@ -35,14 +35,14 @@ function GameContent() {
     const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes } = useTimer();
 
     const allCustomers = [
-        { id: 1, name: 'Personaje 1' },
-        { id: 2, name: 'Personaje 2' },
-        { id: 3, name: 'Personaje 3' },
-        { id: 4, name: 'Personaje 4' },
-        { id: 5, name: 'Personaje 5' },
-        { id: 6, name: 'Personaje 6' },
-        { id: 7, name: 'Personaje 7' },
-        { id: 8, name: 'Personaje 8' }
+        { id: 1, name: 'Personaje1' },
+        { id: 2, name: 'Personaje2' },
+        { id: 3, name: 'Personaje3' },
+        { id: 4, name: 'Personaje4' },
+        { id: 5, name: 'Personaje5' },
+        { id: 6, name: 'Personaje6' },
+        { id: 7, name: 'Personaje7' },
+        { id: 8, name: 'Personaje8' }
     ];
 
     // Función para barajar el array

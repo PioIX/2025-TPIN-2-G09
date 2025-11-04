@@ -115,16 +115,16 @@ app.get('/customersOrder', async function (req, res) {
     }
 });
 
-app.get('/pizzaValidation/:id_pizza', async function (req,res) {
+app.get('/pizzaValidation/:id_pizza', async function (req, res) {
     try {
-        const {id_pizza} = req.params
+        const { id_pizza } = req.params
 
         const pizzaResult = await realizarQuery(
             `SELECT ing1, ing2, ing3 FROM Pizzas WHERE id_pizza = ?`,
             [id_pizza]
         )
 
-        if(pizzaResult.length === 0){
+        if (pizzaResult.length === 0) {
             return res.status(404).json({
                 error: 'Pizza no encontrada'
             })
@@ -135,7 +135,7 @@ app.get('/pizzaValidation/:id_pizza', async function (req,res) {
             [id_pizza]
         )
 
-        if(quantityResult.length === 0){
+        if (quantityResult.length === 0) {
             return res.status(404).json({
                 error: 'Datos no encontrados'
             })
@@ -153,7 +153,7 @@ app.get('/pizzaValidation/:id_pizza', async function (req,res) {
                 quantityIng3: quantityResult[0].quantityIng3
             },
         })
-    } catch(error) {
+    } catch (error) {
         console.error('Error al obtener validación de pizza:', error)
         res.status(500).json({
             error: 'Error al obtener datos de validación'
@@ -210,6 +210,7 @@ io.on("connection", (socket) => {
                 WHERE pg.id_game = ${id_game}
                 ORDER BY esHost DESC, p.id_player ASC
             `);
+
 
             console.log("📤 Enviando jugadores:", JSON.stringify(jugadores, null, 2));
 
