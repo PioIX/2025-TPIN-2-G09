@@ -23,6 +23,9 @@ function GameContent() {
     const [currentCustomerIndex, setCurrentCustomerIndex] = useState(0);
     const [gameFinished, setGameFinished] = useState(false);
 
+    // NUEVO: Estado para guardar el tiempo final
+    const [finalTotalTime, setFinalTotalTime] = useState(0);
+
     // NUEVO: Socket y datos del jugador
     const [socket, setSocket] = useState(null);
     const [playerId, setPlayerId] = useState(null);
@@ -99,6 +102,9 @@ function GameContent() {
             // CALCULAR tiempo total
             const totalTime = calculateTotalTime();
 
+            // ✅ GUARDAR en estado para usarlo en el render
+            setFinalTotalTime(totalTime);
+
             // CALCULAR money (misma lógica que el servidor)
             const timeInSeconds = Math.floor(totalTime / 1000);
             const money = Math.max(0, 1000 - timeInSeconds);
@@ -144,7 +150,8 @@ function GameContent() {
 
     // Si el juego terminó, mostrar pantalla final
     if (gameFinished) {
-        const myTotalTime = calculateTotalTime();
+        // ✅ Usar el estado guardado en lugar de calcular de nuevo
+        const myTotalTime = finalTotalTime;
 
         return (
             <div className={styles.container1}>
