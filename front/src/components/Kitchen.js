@@ -171,8 +171,9 @@ export default function Kitchen({onGoToOven}) {
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
         const size = selectedIngredient.size
-
+        
         if (isPointInCircle(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y, pizzaRadiusRef.current)) {
+            console.log(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y)
             ctx.drawImage(imageRef.current, x - size / 2, y - size / 2, size, size)
 
             const ingredientName = selectedIngredient.name
