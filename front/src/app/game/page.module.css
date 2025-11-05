@@ -19,3 +19,42 @@
   margin: 0;
   padding: 0;
 }
+
+.statsBox {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+.opponentBox {
+    margin: 20px 0;
+    padding: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+}
+
+.resultTitle {
+    font-size: 48px;
+    margin: 20px 0;
+}
+
+.waitingBox {
+    padding: 20px;
+    background: #fff3cd;
+    border-radius: 10px;
+}
+
+.detailsSection {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.detailsSummary {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.timesList {
+    margin-top: 10px;
+}
