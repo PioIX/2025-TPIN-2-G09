@@ -118,44 +118,45 @@ app.get('/customersOrder', async function (req, res) {
 app.get('/pizzaValidation/:id_pizza', async function (req, res) {
     try {
         const { id_pizza } = req.params
+        console.log('Buscando pizza con ID:', id_pizza)
 
-        const pizzaResult = await realizarQuery(
-            `SELECT ing1, ing2, ing3 FROM Pizzas WHERE id_pizza = "${req.body.id_pizza}"`,
+        const result = await realizarQuery(
+            `SELECT 
+                p.ing1, p.ing2, p.ing3,
+                q.quantityIng1, q.quantityIng2, q.quantityIng3
+            FROM Pizzas p
+            LEFT JOIN QualityPizza q ON p.id_pizza = q.id_pizza
+            WHERE p.id_pizza = ${id_pizza}`
         )
 
-        if (pizzaResult.length === 0) {
+        console.log('Resultado de la query:', result)
+
+        if (!result || !Array.isArray(result) || result.length === 0) {
             return res.status(404).json({
                 error: 'Pizza no encontrada'
             })
         }
 
-        const quantityResult = await realizarQuery(
-            `SELECT quantityIng1, quantityIng2, quantityIng3 FROM QualityPizza WHERE id_pizza = ?`,
-            [id_pizza]
-        )
-
-        if (quantityResult.length === 0) {
-            return res.status(404).json({
-                error: 'Datos no encontrados'
-            })
-        }
+        const data = result[0]
 
         res.json({
             ingredients: {
-                ing1: pizzaResult[0].ing1,
-                ing2: pizzaResult[0].ing2,
-                ing3: pizzaResult[0].ing3
+                ing1: data.ing1 || null,
+                ing2: data.ing2 || null,
+                ing3: data.ing3 || null
             },
             quantities: {
-                quantityIng1: quantityResult[0].quantityIng1,
-                quantityIng2: quantityResult[0].quantityIng2,
-                quantityIng3: quantityResult[0].quantityIng3
+                quantityIng1: data.quantityIng1 ?? null,
+                quantityIng2: data.quantityIng2 ?? null,
+                quantityIng3: data.quantityIng3 ?? null
             },
         })
     } catch (error) {
-        console.error('Error al obtener validación de pizza:', error)
+        console.error('Error completo:', error)
+        console.error('Stack trace:', error.stack)
         res.status(500).json({
-            error: 'Error al obtener datos de validación'
+            error: 'Error al obtener datos de validación',
+            detalles: error.message // Útil solo en desarrollo
         })
     }
 })

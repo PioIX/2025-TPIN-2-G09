@@ -171,8 +171,9 @@ export default function Kitchen({onGoToOven}) {
         const x = e.clientX - rect.left
         const y = e.clientY - rect.top
         const size = selectedIngredient.size
-
+        
         if (isPointInCircle(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y, pizzaRadiusRef.current)) {
+            console.log(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y)
             ctx.drawImage(imageRef.current, x - size / 2, y - size / 2, size, size)
 
             const ingredientName = selectedIngredient.name
@@ -222,7 +223,7 @@ export default function Kitchen({onGoToOven}) {
         if (ing3Clicks === 0) {
             errors.push(`Falta ${ingredients.ing3}`);
             score -= 33;
-        } else if (Math.abs(ing1Clicks - quantities.quantityIng3) > 2) {
+        } else if (Math.abs(ing3Clicks - quantities.quantityIng3) > 2) {
             errors.push(`${ingredients.ing3}: cantidad incorrecta (esperado ~${quantities.quantityIng3}, obtenido ${ing3Clicks})`);
             score -= 10;
         }
