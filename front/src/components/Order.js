@@ -12,10 +12,12 @@ export default function Order({onGoToKitchen}) {
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false)
   const { percentage, startTimer } = useTimer();
+  const [flag, setFlag] = useState(false);
 
  useEffect(() => {
     const fetchOrder = async () => {
       try {
+        
         setLoading(true);
 
         const response = await fetch(
@@ -30,6 +32,17 @@ export default function Order({onGoToKitchen}) {
         setCustomerId(data.id_customer);
         setOrderText(data.orderText || '');
         setCustomerName(data.customerName || '');
+        let previousCustomers = JSON.parse(localStorage.getItem('previousCustomers')) || [];
+        console.log(previousCustomers)
+        for (let i = 0; i < previousCustomers.length; i++) {
+          if (customerName === previousCustomers[i]){ 
+             fetchOrder();
+              return;
+          } 
+        }
+
+        previousCustomers.push(data.customerName);
+        localStorage.setItem('previousCustomers', JSON.stringify(previousCustomers));
         
         localStorage.setItem('currentCustomerName', data.customerName);
         localStorage.setItem('currentPizzaId', data.id_pizza);
@@ -45,8 +58,10 @@ export default function Order({onGoToKitchen}) {
         setLoading(false);
       }
     };
-
-    fetchOrder();
+    if (flag == false){ 
+      setFlag(true)
+      fetchOrder();
+    }
   }, []);
 
   const canvasRef = useRef(null);

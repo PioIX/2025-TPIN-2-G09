@@ -34,7 +34,7 @@ export default function Lobby({ code, jugadores = [], userId }) {
 
   function onStartGame() {
     if (!socket || !isConnected) {
-      console.error("❌ Socket no conectado");
+      console.error("Socket no conectado");
       alert("Error: No hay conexión con el servidor");
       return;
     }
@@ -44,7 +44,7 @@ export default function Lobby({ code, jugadores = [], userId }) {
       return;
     }
 
-    console.log("🚀 Iniciando juego...");
+    console.log("Iniciando juego...");
     socket.emit("startGame", { code });
   }
 
@@ -100,7 +100,7 @@ export default function Lobby({ code, jugadores = [], userId }) {
         )}
       </div>
 
-      {/* 🔥 Botón visible solo para el host cuando hay 2 jugadores */}
+      {/*Botón visible solo para el host cuando hay 2 jugadores */}
       {soyHost && jugadores.length === 2 && (
         <Button page="lobby" onClick={onStartGame} text="Iniciar Juego" />
       )}
@@ -115,7 +115,7 @@ export default function Lobby({ code, jugadores = [], userId }) {
       {/* Indicador de conexión */}
       {!isConnected && (
         <div className={styles.connectionWarning}>
-          ⚠️ Reconectando al servidor...
+          Reconectando al servidor...
         </div>
       )}
     </div>
