@@ -27,6 +27,7 @@ export default function Kitchen({onGoToOven}) {
     //para validar la pizza
     const [pizzaValidation, setPizzaValidation] = useState(null)
     const [ingredientClicks, setIngredientClicks] = useState({})
+    const [ingredientsUsed, setIngredientsUsed] = useState({})
     const [validationResult, setValidationResult] = useState(null)
 
     const router = useRouter()
@@ -55,9 +56,7 @@ export default function Kitchen({onGoToOven}) {
                 console.log('Response OK?:', response.ok)
 
                 if(!response.ok){
-                    //const errorData = await response.json()
-                    console.log('Error del servidor:')
-                    //throw new Error('Error al obtener datos de verificación')
+                    console.log('Error del servidor')
                 }
 
                 const data = await response.json()
@@ -66,7 +65,6 @@ export default function Kitchen({onGoToOven}) {
             } catch(error){
                 console.error('Error al cargar validación:', error)
                 console.error('Tipo de error:', error.name)
-                //console.error('Mensaje:', error.message)
             }
         }
         fetchPizzaValidation()
@@ -128,6 +126,13 @@ export default function Kitchen({onGoToOven}) {
         return (dx * dx + dy * dy) <= (radius * radius)
     }
 
+    const registerIngredientUsage = (ingredientName) => {
+        setIngredientsUsed(prev => ({
+            ...prev,
+            [ingredientName] : true
+        }))
+    }
+
     const paintImage = (e, isDrawing) => {
         if (isDrawing === false) return
         
@@ -142,6 +147,7 @@ export default function Kitchen({onGoToOven}) {
 
         if (isPointInCircle(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y, pizzaRadiusRef.current)) {
             ctx.drawImage(imageRef.current, x - size / 2, y - size / 2, size, size)
+            registerIngredientUsage(selectedIngredient.name)
         }
     }
 
@@ -177,6 +183,9 @@ export default function Kitchen({onGoToOven}) {
             ctx.drawImage(imageRef.current, x - size / 2, y - size / 2, size, size)
 
             const ingredientName = selectedIngredient.name
+
+            registerIngredientUsage(ingredientName)
+
             setIngredientClicks(prev => ({
                 ...prev,
                 [ingredientName]: (prev[ingredientName] || 0) + 1
@@ -201,31 +210,58 @@ export default function Kitchen({onGoToOven}) {
         const errors = []
         let score = 100
 
-        const ing1Clicks = ingredientClicks[ingredients.ing1] || 0;
-        if (ing1Clicks === 0) {
-            errors.push(`Falta ${ingredients.ing1}`);
-            score -= 33;
-        } else if (Math.abs(ing1Clicks - quantities.quantityIng1) > 2) {
-            errors.push(`${ingredients.ing1}: cantidad incorrecta (esperado ~${quantities.quantityIng1}, obtenido ${ing1Clicks})`);
-            score -= 10;
+        console.log('Ingredientes esperados:', ingredients)
+        console.log('Cantidades esperadas:', quantities)
+        console.log('Ingredientes usados:', ingredientsUsed)
+        console.log('Clicks registrados:', ingredientClicks)
+
+        if (!ingredientsUsed[ingredients.ing1]) {
+            errors.push(`Falta el ingrediente: ${ingredients.ing1}`)
+            score -= 33
+        } else {
+            // para validar la cantidad solo para ingredientes
+            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing1)
+            if (ingredient?.drawMode === "click") {
+                const clicks = ingredientClicks[ingredients.ing1] || 0
+                const expectedQuantity = quantities.quantityIng1
+                
+                if (Math.abs(clicks - expectedQuantity) > 2) {
+                    errors.push(`${ingredients.ing1}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
+                    score -= 10
+                }
+            }
         }
 
-        const ing2Clicks = ingredientClicks[ingredients.ing2] || 0;
-        if (ing2Clicks === 0) {
-            errors.push(`Falta ${ingredients.ing2}`);
-            score -= 33;
-        } else if (Math.abs(ing2Clicks - quantities.quantityIng2) > 2) {
-            errors.push(`${ingredients.ing2}: cantidad incorrecta (esperado ~${quantities.quantityIng2}, obtenido ${ing2Clicks})`);
-            score -= 10;
+        if (!ingredientsUsed[ingredients.ing2]) {
+            errors.push(`Falta el ingrediente: ${ingredients.ing2}`)
+            score -= 33
+        } else {
+            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing2)
+            if (ingredient?.drawMode === "click") {
+                const clicks = ingredientClicks[ingredients.ing2] || 0
+                const expectedQuantity = quantities.quantityIng2
+                
+                if (Math.abs(clicks - expectedQuantity) > 2) {
+                    errors.push(`${ingredients.ing2}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
+                    score -= 10
+                }
+            }
         }
 
-        const ing3Clicks = ingredientClicks[ingredients.ing3] || 0;
-        if (ing3Clicks === 0) {
-            errors.push(`Falta ${ingredients.ing3}`);
-            score -= 33;
-        } else if (Math.abs(ing3Clicks - quantities.quantityIng3) > 2) {
-            errors.push(`${ingredients.ing3}: cantidad incorrecta (esperado ~${quantities.quantityIng3}, obtenido ${ing3Clicks})`);
-            score -= 10;
+        if (!ingredientsUsed[ingredients.ing3]) {
+            errors.push(`Falta el ingrediente: ${ingredients.ing3}`)
+            score -= 33
+        } else {
+            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing3)
+            if (ingredient?.drawMode === "click") {
+                const clicks = ingredientClicks[ingredients.ing3] || 0
+                const expectedQuantity = quantities.quantityIng3
+                
+                if (Math.abs(clicks - expectedQuantity) > 2) {
+                    errors.push(`${ingredients.ing3}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
+                    score -= 10
+                }
+            }
         }
 
         Object.keys(ingredientClicks).forEach(ingredientName => {
@@ -238,7 +274,9 @@ export default function Kitchen({onGoToOven}) {
             }
         });
 
+
         score = Math.max(0, score) 
+        console.log("Puntaje: ", score)
 
         return {
             isValid: errors.length === 0,
@@ -246,7 +284,7 @@ export default function Kitchen({onGoToOven}) {
             errors: errors,
             message: errors.length === 0 
                 ? '¡Pizza perfecta!' 
-                : `Pizza con errores: ${errors.join(', ')}`
+                : `Pizza con errores`
         }
     }
 
@@ -262,6 +300,7 @@ export default function Kitchen({onGoToOven}) {
             setValidationResult(validation);
             
             console.log('Resultado de validación:', validation);
+            console.log('Ingredientes usados:', ingredientsUsed);
             console.log('Clicks de ingredientes:', ingredientClicks);
 
             const pngData = canvas.toDataURL('image/png');
@@ -285,7 +324,7 @@ export default function Kitchen({onGoToOven}) {
                 <div className={styles.header}>
                     <div className={styles.percent}>
                         {percentage}%
-                
+
                     </div>
                     <div className={styles.order}>
                 
@@ -317,29 +356,6 @@ export default function Kitchen({onGoToOven}) {
                     </div>
                 </div>
             </div>
-            {validationResult && (
-                <div style={{ 
-                    position: 'fixed', 
-                    bottom: '20px', 
-                    right: '20px', 
-                    padding: '20px', 
-                    backgroundColor: validationResult.isValid ? '#4caf50' : '#ff9800',
-                    color: 'white',
-                    borderRadius: '10px',
-                    maxWidth: '300px',
-                    zIndex: 1000
-                }}>
-                    <h3>Resultado: {validationResult.score}%</h3>
-                    <p>{validationResult.message}</p>
-                    {validationResult.errors.length > 0 && (
-                        <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
-                            {validationResult.errors.map((error, idx) => (
-                                <li key={idx}>{error}</li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            )}
             {savedPizzaImage && (
                 <div style={{ marginTop: '20px', padding: '10px', border: '1px solid green' }}>
                     <h3>Pizza guardada:</h3>
