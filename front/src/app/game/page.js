@@ -23,10 +23,9 @@ function GameContent() {
     const [currentCustomerIndex, setCurrentCustomerIndex] = useState(0);
     const [gameFinished, setGameFinished] = useState(false);
 
-    // NUEVO: Estado para guardar el tiempo final
     const [finalTotalTime, setFinalTotalTime] = useState(0);
 
-    // NUEVO: Socket y datos del jugador
+    // Socket y datos del jugador
     const [socket, setSocket] = useState(null);
     const [playerId, setPlayerId] = useState(null);
     const [roomCode, setRoomCode] = useState(null);
@@ -37,36 +36,10 @@ function GameContent() {
 
     const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes } = useTimer();
 
-
-    // Hacer esto con un pedido en el back queme traiga el array aleatorio
-
-    const allCustomers = [
-        { id: 1, name: 'Personaje1' },
-        { id: 2, name: 'Personaje2' },
-        { id: 3, name: 'Personaje3' },
-        { id: 4, name: 'Personaje4' },
-        { id: 5, name: 'Personaje5' },
-        { id: 6, name: 'Personaje6' },
-        { id: 7, name: 'Personaje7' },
-        { id: 8, name: 'Personaje8' }
-    ];
-
-    // Función para barajar el array
-    const shuffleArray = (array) => {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    };
-
+    // ✅ FETCH ÚNICO al inicio para obtener los 8 clientes
     useEffect(() => {
-        const shuffled = shuffleArray(allCustomers);
-
         const fetchOrder = async () => {
             try {
-                //setLoading(true);
                 const response = await fetch(
                     `http://localhost:4000/customersOrder`
                 );
@@ -77,19 +50,18 @@ function GameContent() {
                 }
                 const data = await response.json();
 
-                console.log("clientes data array: ",data)
+                console.log("Clientes obtenidos del servidor:", data);
+                console.log("Total de clientes:", data.length);
+                
+                // ✅ Guardar directamente el array que viene del servidor (ya viene aleatorio con RAND())
                 setCustomers(data);
 
             } catch (error) {
                 console.error('Error al cargar el pedido:', error);
-                setOrderText('No se pudo cargar el pedido');
-            } finally {
-                //setLoading(false);
             }
         };
 
         fetchOrder();
-
     }, []);
 
     const handleGoToKitchen = () => {
@@ -119,24 +91,19 @@ function GameContent() {
         setShowCut(false);
     };
 
-    // MODIFICADO: Función para pasar al siguiente personaje o terminar el juego
     const handleNextCustomer = () => {
-        // GUARDAR el tiempo del cliente actual
+        // Guardar el tiempo del cliente actual
         const customerTime = saveCustomerTime();
         console.log(`⏱️ Cliente ${currentCustomerIndex + 1} completado en: ${formatTime(customerTime)}`);
 
         const nextIndex = currentCustomerIndex + 1;
 
-
-
         if (nextIndex >= customers.length) {
-            // CALCULAR tiempo total
+            // Calcular tiempo total
             const totalTime = calculateTotalTime();
-
-            // ✅ GUARDAR en estado para usarlo en el render
             setFinalTotalTime(totalTime);
 
-            // CALCULAR money (misma lógica que el servidor)
+            // Calcular money
             const timeInSeconds = Math.floor(totalTime / 1000);
             const money = Math.max(0, 1000 - timeInSeconds);
             setMyMoney(money);
@@ -146,10 +113,10 @@ function GameContent() {
             console.log("Dinero ganado:", money);
             console.log("Tiempos por cliente:", customerTimes.map((t, i) => `Cliente ${i + 1}: ${formatTime(t)}`));
 
-            // DETENER el timer
+            // Detener el timer
             stopTimer();
 
-            // EMITIR evento socket
+            // Emitir evento socket
             if (socket && roomCode && playerId) {
                 socket.emit('gameFinished', {
                     playerId: playerId,
@@ -163,7 +130,7 @@ function GameContent() {
             setGameFinished(true);
         } else {
             // Resetear estados y pasar al siguiente personaje
-            console.log(`Pasando al personaje ${nextIndex + 1} de ${customers.length}`);
+            console.log(`✅ Pasando al cliente ${nextIndex + 1} de ${customers.length}`);
             setCurrentCustomerIndex(nextIndex);
             setShowKitchen(false);
             setShowOven(false);
@@ -176,19 +143,18 @@ function GameContent() {
 
     // Si no hay personajes cargados aún, mostrar loading
     if (customers.length === 0) {
-        return <div className={styles.container1}>Cargando...</div>;
+        return <div className={styles.container1}>Cargando clientes...</div>;
     }
 
     // Si el juego terminó, mostrar pantalla final
     if (gameFinished) {
-        // ✅ Usar el estado guardado en lugar de calcular de nuevo
         const myTotalTime = finalTotalTime;
 
         return (
             <div className={styles.container1}>
                 <div className={styles.section}>
                     <h1>¡Juego Terminado!</h1>
-                    <p>Has completado los 8 clientes</p>
+                    <p>Has completado los {customers.length} clientes</p>
 
                     <div className={styles.statsBox}>
                         <h2>Tu tiempo: {formatTime(myTotalTime)}</h2>
@@ -219,7 +185,7 @@ function GameContent() {
                         <ul className={styles.timesList}>
                             {customerTimes.map((time, index) => (
                                 <li key={index}>
-                                    Cliente {index + 1}: {formatTime(time)}
+                                    Cliente {index + 1} ({customers[index]?.name}): {formatTime(time)}
                                 </li>
                             ))}
                         </ul>
@@ -241,8 +207,8 @@ function GameContent() {
                                 <>
                                     <div className={styles.section}>
                                         <Order
-                                            key={currentCustomer.id}
-                                            character={currentCustomer}
+                                            key={currentCustomer.id_customer}
+                                            customer={currentCustomer}
                                             onGoToKitchen={handleGoToKitchen}
                                         />
                                     </div>
