@@ -69,7 +69,6 @@ function GameContent() {
     };
 
     const handleGoToOven = (imageData) => {
-        console.log("Cambiando a Oven con imagen:", imageData);
         setPizzaImage(imageData);
         setShowKitchen(false);
         setShowOven(true);
