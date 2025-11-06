@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 import { useTimer } from './TimerContext';
 
-export default function Order({onGoToKitchen}) {
+export default function Order({ customer, onGoToKitchen }) {
   const [orderText, setOrderText] = useState('');
   const [customerId, setCustomerId] = useState(null);
   const [customerName, setCustomerName] = useState('');
@@ -13,46 +13,26 @@ export default function Order({onGoToKitchen}) {
   const [showDialog, setShowDialog] = useState(false)
   const { percentage, startTimer } = useTimer();
 
- useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `http://localhost:4000/customersOrder`
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Error al obtener el pedido');
-        }
-        const data = await response.json();
-
-        console.log("Data en Order: ", data)
-        console.log("Data[0]: ", data[0])
-
-        // Traigo todos  y seteo la posicion 1 del array en setCustomerId, setOrderText,setCustomerName
-
-        setCustomerId(data[0].id_customer);
-        setOrderText(data[0].text || '');
-        setCustomerName(data[0].avatar || '');
-        
-        localStorage.setItem('currentCustomerName', data.avatar);
-        localStorage.setItem('currentPizzaId', data.id_pizza);
-        console.log('Order guardó:', data.customerName, 'Pizza ID:', data.id_pizza);
-        
-        if (data.customerName) {
-          setCharacterImage(`/imagesCustomers/${data[0].avatar}.png`);
-        }
-      } catch (error) {
-        console.error('Error al cargar el pedido:', error);
-        setOrderText('No se pudo cargar el pedido');
-      } finally {
-        setLoading(false);
+  // ✅ USAR LA PROP customer en lugar de hacer fetch
+  useEffect(() => {
+    if (customer) {
+      console.log("Customer recibido en Order:", customer);
+      
+      setCustomerId(customer.id_customer);
+      setOrderText(customer.text || '');
+      setCustomerName(customer.name || '');
+      
+      localStorage.setItem('currentCustomerName', customer.name);
+      localStorage.setItem('currentPizzaId', customer.id_pizza);
+      console.log('Order guardó:', customer.name, 'Pizza ID:', customer.id_pizza);
+      
+      if (customer.name) {
+        setCharacterImage(`/imagesCustomers/${customer.name}.png`);
       }
-    };
-    
-      fetchOrder();
-  }, []);
+      
+      setLoading(false);
+    }
+  }, [customer]);
 
   const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState({
@@ -83,15 +63,18 @@ export default function Order({onGoToKitchen}) {
     };
     bgImg.src = '/imagesFondos/FondoPizzeria.png';
 
-    const charImg = new Image();
-    charImg.onload = () => {
-      imagesRef.current.character = charImg;
-      setImagesLoaded(prev => ({ ...prev, character: true }));
-    };
-    charImg.onerror = () => {
-      setImagesLoaded(prev => ({ ...prev, character: false }));
-    };
-    charImg.src = characterImage;
+    if (characterImage) {
+      const charImg = new Image();
+      charImg.onload = () => {
+        imagesRef.current.character = charImg;
+        setImagesLoaded(prev => ({ ...prev, character: true }));
+      };
+      charImg.onerror = () => {
+        console.error('Error cargando personaje:', characterImage);
+        setImagesLoaded(prev => ({ ...prev, character: false }));
+      };
+      charImg.src = characterImage;
+    }
 
     return () => {
       imagesRef.current.background = null;
@@ -101,7 +84,7 @@ export default function Order({onGoToKitchen}) {
 
   const drawScene = (ctx) => {
     if (!ctx) return;
-    
+
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     if (imagesRef.current.background && imagesLoaded.background) {
@@ -111,12 +94,12 @@ export default function Order({onGoToKitchen}) {
     if (imagesRef.current.character && imagesLoaded.character) {
       const scaleX = window.innerWidth / 550;
       const scaleY = window.innerHeight / 400;
-      
+
       const charX = 50 * scaleX;
       const charY = animationRef.current.characterY * scaleY;
       const charWidth = 150 * scaleX;
       const charHeight = 280 * scaleY;
-      
+
       ctx.drawImage(imagesRef.current.character, charX, charY, charWidth, charHeight);
     }
   };
@@ -127,25 +110,25 @@ export default function Order({onGoToKitchen}) {
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     let animationFrameId;
     const animate = () => {
       if (animationRef.current.isAnimating) {
         if (animationRef.current.characterY > animationRef.current.targetY) {
           animationRef.current.characterY -= animationRef.current.animationSpeed;
-          
+
           if (animationRef.current.characterY <= animationRef.current.targetY) {
             animationRef.current.characterY = animationRef.current.targetY;
             animationRef.current.isAnimating = false;
             animationRef.current.hasFinished = true;
-            
+
             if (!loading && orderText) {
               setShowDialog(true);
             }
           }
         }
       }
-      
+
       drawScene(ctx);
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -166,19 +149,18 @@ export default function Order({onGoToKitchen}) {
   }, [loading, orderText, showDialog]);
 
   const handleGoToKitchen = () => {
-      try{
+    try {
       //INICIAR EL TIMER AL PRESIONAR OK
       startTimer();
-      if(onGoToKitchen) {
+      if (onGoToKitchen) {
         onGoToKitchen();
       } else {
         console.error("onGoToKitchen no está definida");
       }
-    } catch(error){
+    } catch (error) {
       console.error("Error al guardar la pizza: ", error);
     }
   };
-
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -186,10 +168,10 @@ export default function Order({onGoToKitchen}) {
 
     const handleResize = () => {
       if (!canvas) return;
-      
+
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      
+
       const ctx = canvas.getContext('2d');
       if (ctx) {
         drawScene(ctx);
@@ -201,7 +183,7 @@ export default function Order({onGoToKitchen}) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [imagesLoaded]);
-  
+
   return (
     <div className={styles.orderContainer}>
       <div className={styles.header}>
@@ -213,7 +195,7 @@ export default function Order({onGoToKitchen}) {
         ref={canvasRef}
         className={styles.canvas}
       />
-      
+
       {showDialog && !loading && (
         <div className={styles.dialogContainer}>
           <div className={styles.dialogBubble}>
@@ -221,7 +203,7 @@ export default function Order({onGoToKitchen}) {
               {orderText}
             </p>
           </div>
-          
+
           <div className={styles.btns}>
             <button className={styles.bake} onClick={handleGoToKitchen}>OK</button>
           </div>
