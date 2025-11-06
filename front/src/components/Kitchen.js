@@ -49,11 +49,7 @@ export default function Kitchen({onGoToOven}) {
                     return
                 }
 
-                console.log('Haciendo fetch a:', `http://localhost:4000/pizzaValidation/${pizzaId}`)
                 const response = await fetch(`http://localhost:4000/pizzaValidation/${pizzaId}`)
-
-                console.log('Status de respuesta:', response.status)
-                console.log('Response OK?:', response.ok)
 
                 if(!response.ok){
                     console.log('Error del servidor')
@@ -106,14 +102,11 @@ export default function Kitchen({onGoToOven}) {
 
 
     const handleIngredientClick = (ingredient) => {
-        console.log(`Ingrediente ${ingredient.name} clickeado`)
         setSelectedIngredient(ingredient)
         setPaintingImage(false)
     }
 
     const handleBunClick = (index) => {
-        console.log(`Bollo ${index + 1} clickeado`)
-        
         const newVisibleBuns = [...visibleBuns]
         newVisibleBuns[index] = false
         setVisibleBuns(newVisibleBuns)
@@ -179,7 +172,7 @@ export default function Kitchen({onGoToOven}) {
         const size = selectedIngredient.size
         
         if (isPointInCircle(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y, pizzaRadiusRef.current)) {
-            console.log(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y)
+            //console.log(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y)
             ctx.drawImage(imageRef.current, x - size / 2, y - size / 2, size, size)
 
             const ingredientName = selectedIngredient.name
@@ -210,70 +203,63 @@ export default function Kitchen({onGoToOven}) {
         const errors = []
         let score = 100
 
-        console.log('Ingredientes esperados:', ingredients)
-        console.log('Cantidades esperadas:', quantities)
-        console.log('Ingredientes usados:', ingredientsUsed)
-        console.log('Clicks registrados:', ingredientClicks)
 
-        if (!ingredientsUsed[ingredients.ing1]) {
-            errors.push(`Falta el ingrediente: ${ingredients.ing1}`)
-            score -= 33
-        } else {
-            // para validar la cantidad solo para ingredientes
-            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing1)
-            if (ingredient?.drawMode === "click") {
-                const clicks = ingredientClicks[ingredients.ing1] || 0
-                const expectedQuantity = quantities.quantityIng1
-                
-                if (Math.abs(clicks - expectedQuantity) > 2) {
-                    errors.push(`${ingredients.ing1}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
-                    score -= 10
-                }
-            }
+        if(!ingredientsUsed['tomato']){
+            errors.push('Falta el ingrediente obligatorio: tomato')
+            score -= 30
         }
 
-        if (!ingredientsUsed[ingredients.ing2]) {
-            errors.push(`Falta el ingrediente: ${ingredients.ing2}`)
-            score -= 33
-        } else {
-            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing2)
-            if (ingredient?.drawMode === "click") {
-                const clicks = ingredientClicks[ingredients.ing2] || 0
-                const expectedQuantity = quantities.quantityIng2
-                
-                if (Math.abs(clicks - expectedQuantity) > 2) {
-                    errors.push(`${ingredients.ing2}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
-                    score -= 10
-                }
-            }
+        if(!ingredientsUsed['cheese']){
+            errors.push('Falta el ingrediente obligatorio: cheese')
+            score -= 30
         }
 
-        if (!ingredientsUsed[ingredients.ing3]) {
-            errors.push(`Falta el ingrediente: ${ingredients.ing3}`)
-            score -= 33
-        } else {
-            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing3)
-            if (ingredient?.drawMode === "click") {
-                const clicks = ingredientClicks[ingredients.ing3] || 0
-                const expectedQuantity = quantities.quantityIng3
-                
-                if (Math.abs(clicks - expectedQuantity) > 2) {
-                    errors.push(`${ingredients.ing3}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
-                    score -= 10
+        const validIngredients = []
+        const validQuantities = []
+
+        if(ingredients.ing1 !== null){
+            validIngredients.push(ingredients.ing1)
+            validQuantities.push(quantities.quantityIng1)
+        }
+
+        if(ingredients.ing2 !== null){
+            validIngredients.push(ingredients.ing2)
+            validQuantities.push(quantities.quantityIng2)
+        }
+
+        if(ingredients.ing3 !== null){
+            validIngredients.push(ingredients.ing3)
+            validQuantities.push(quantities.quantityIng3)
+        }
+
+
+        validIngredients.forEach((ingredientName, index) => {
+            if (!ingredientsUsed[ingredientName]) {
+                errors.push(`Falta el ingrediente: ${ingredientName}`)
+                score -= 20
+            } else {
+                const ingredient = ingredientsBox.find(ing => ing.name === ingredientName)
+                if (ingredient?.drawMode === "click") {
+                    const clicks = ingredientClicks[ingredientName] || 0
+                    const expectedQuantity = validQuantities[index]
+                    
+                    if (expectedQuantity !== null && Math.abs(clicks - expectedQuantity) > 2) {
+                        errors.push(`${ingredientName}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
+                        score -= 10
+                    }
                 }
             }
-        }
+        })
 
         Object.keys(ingredientClicks).forEach(ingredientName => {
-            if (ingredientName !== ingredients.ing1 && 
-                ingredientName !== ingredients.ing2 && 
-                ingredientName !== ingredients.ing3 &&
+            if (!validIngredients.includes(ingredientName) && 
+                ingredientName !== 'tomato' && 
+                ingredientName !== 'cheese' &&
                 ingredientClicks[ingredientName] > 0) {
-                errors.push(`Ingrediente extra: ${ingredientName}`)
-                score -= 15;
+                errors.push(`Ingrediente extra no solicitado: ${ingredientName}`)
+                score -= 15
             }
-        });
-
+        })
 
         score = Math.max(0, score) 
         console.log("Puntaje: ", score)
