@@ -90,23 +90,22 @@ app.get('/customersOrder', async function (req, res) {
     try {
         // Obtener un cliente aleatorio de la base de datos
         const result = await realizarQuery(
-            `SELECT * FROM Customers ORDER BY RAND() LIMIT 1`
+            `SELECT * FROM Customers ORDER BY RAND()`
         );
-
         // Si no hay clientes en la base de datos
         if (result.length === 0) {
             return res.status(404).json({
                 error: 'No hay clientes disponibles'
             });
         }
-
         // Enviar la respuesta con el texto
-        res.json({
+        res.json(result)
+       /*  res.json({
             id_customer: result[0].id_customer || '',
             customerName: result[0].name || '',
             orderText: result[0].text || '',
             id_pizza: result[0].id_pizza || null
-        });
+        }); */
     } catch (error) {
         console.error('Error al obtener pedido:', error);
         res.status(500).json({

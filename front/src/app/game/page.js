@@ -37,6 +37,9 @@ function GameContent() {
 
     const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes } = useTimer();
 
+
+    // Hacer esto con un pedido en el back queme traiga el array aleatorio
+
     const allCustomers = [
         { id: 1, name: 'Personaje1' },
         { id: 2, name: 'Personaje2' },
@@ -60,7 +63,33 @@ function GameContent() {
 
     useEffect(() => {
         const shuffled = shuffleArray(allCustomers);
-        setCustomers(shuffled);
+
+        const fetchOrder = async () => {
+            try {
+                //setLoading(true);
+                const response = await fetch(
+                    `http://localhost:4000/customersOrder`
+                );
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al obtener el pedido');
+                }
+                const data = await response.json();
+
+                console.log("clientes data array: ",data)
+                setCustomers(data);
+
+            } catch (error) {
+                console.error('Error al cargar el pedido:', error);
+                setOrderText('No se pudo cargar el pedido');
+            } finally {
+                //setLoading(false);
+            }
+        };
+
+        fetchOrder();
+
     }, []);
 
     const handleGoToKitchen = () => {
@@ -97,6 +126,8 @@ function GameContent() {
         console.log(`⏱️ Cliente ${currentCustomerIndex + 1} completado en: ${formatTime(customerTime)}`);
 
         const nextIndex = currentCustomerIndex + 1;
+
+
 
         if (nextIndex >= customers.length) {
             // CALCULAR tiempo total
