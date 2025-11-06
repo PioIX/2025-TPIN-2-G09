@@ -100,6 +100,16 @@ export default function Kitchen({onGoToOven}) {
         }
     }, [activePizza])
 
+    /*const idealCoords = [
+        { x: 380, y: 250 },
+        { x: 342, y: 170 },
+        { x: 250, y: 130 },
+        { x: 158, y: 170 },
+        { x: 120, y: 250 },
+        { x: 158, y: 330 },
+        { x: 250, y: 370 },
+        { x: 342, y: 330 },
+    ];*/
 
     const handleIngredientClick = (ingredient) => {
         setSelectedIngredient(ingredient)
