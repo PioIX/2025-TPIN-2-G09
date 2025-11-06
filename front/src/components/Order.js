@@ -12,14 +12,11 @@ export default function Order({onGoToKitchen}) {
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false)
   const { percentage, startTimer } = useTimer();
-  const [flag, setFlag] = useState(false);
 
  useEffect(() => {
     const fetchOrder = async () => {
       try {
-        
         setLoading(true);
-
         const response = await fetch(
           `http://localhost:4000/customersOrder`
         );
@@ -29,27 +26,22 @@ export default function Order({onGoToKitchen}) {
           throw new Error(errorData.error || 'Error al obtener el pedido');
         }
         const data = await response.json();
-        setCustomerId(data.id_customer);
-        setOrderText(data.orderText || '');
-        setCustomerName(data.customerName || '');
-        let previousCustomers = JSON.parse(localStorage.getItem('previousCustomers')) || [];
-        console.log(previousCustomers)
-        for (let i = 0; i < previousCustomers.length; i++) {
-          if (customerName === previousCustomers[i]){ 
-             fetchOrder();
-              return;
-          } 
-        }
 
-        previousCustomers.push(data.customerName);
-        localStorage.setItem('previousCustomers', JSON.stringify(previousCustomers));
+        console.log("Data en Order: ", data)
+        console.log("Data[0]: ", data[0])
+
+        // Traigo todos  y seteo la posicion 1 del array en setCustomerId, setOrderText,setCustomerName
+
+        setCustomerId(data[0].id_customer);
+        setOrderText(data[0].text || '');
+        setCustomerName(data[0].avatar || '');
         
-        localStorage.setItem('currentCustomerName', data.customerName);
+        localStorage.setItem('currentCustomerName', data.avatar);
         localStorage.setItem('currentPizzaId', data.id_pizza);
         console.log('Order guardó:', data.customerName, 'Pizza ID:', data.id_pizza);
         
         if (data.customerName) {
-          setCharacterImage(`/imagesCustomers/${data.customerName}.png`);
+          setCharacterImage(`/imagesCustomers/${data[0].avatar}.png`);
         }
       } catch (error) {
         console.error('Error al cargar el pedido:', error);
@@ -58,10 +50,8 @@ export default function Order({onGoToKitchen}) {
         setLoading(false);
       }
     };
-    if (flag == false){ 
-      setFlag(true)
+    
       fetchOrder();
-    }
   }, []);
 
   const canvasRef = useRef(null);
