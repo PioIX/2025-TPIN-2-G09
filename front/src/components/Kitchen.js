@@ -29,6 +29,7 @@ export default function Kitchen({onGoToOven}) {
     const [ingredientClicks, setIngredientClicks] = useState({})
     const [ingredientsUsed, setIngredientsUsed] = useState({})
     const [validationResult, setValidationResult] = useState(null)
+    const [ingredientCoordinates, setIngredientCoordinates] = useState([])
 
     const router = useRouter()
 
@@ -37,6 +38,17 @@ export default function Kitchen({onGoToOven}) {
     const pizzaBunImageRef = useRef(null)
     const pizzaCenterRef = useRef({ x: 0, y: 0})
     const pizzaRadiusRef = useRef(200)
+    
+    const idealCoords = [
+        { x: 380, y: 250 },
+        { x: 342, y: 170 },
+        { x: 250, y: 130 },
+        { x: 158, y: 170 },
+        { x: 120, y: 250 },
+        { x: 158, y: 330 },
+        { x: 250, y: 370 },
+        { x: 342, y: 330 },
+    ]
 
     useEffect(() => {
         const fetchPizzaValidation = async () => {
@@ -49,11 +61,7 @@ export default function Kitchen({onGoToOven}) {
                     return
                 }
 
-                console.log('Haciendo fetch a:', `http://localhost:4000/pizzaValidation/${pizzaId}`)
                 const response = await fetch(`http://localhost:4000/pizzaValidation/${pizzaId}`)
-
-                console.log('Status de respuesta:', response.status)
-                console.log('Response OK?:', response.ok)
 
                 if(!response.ok){
                     console.log('Error del servidor')
@@ -70,7 +78,7 @@ export default function Kitchen({onGoToOven}) {
         fetchPizzaValidation()
     }, [])
 
-    //Poner imagen al seleccionar ingrediente
+    //poner imagen al seleccionar ingrediente
     useEffect(() => {
         if (selectedIngredient) {
             const img = new Image()
@@ -85,7 +93,7 @@ export default function Kitchen({onGoToOven}) {
     }, [selectedIngredient])
 
 
-    //Configurar canva cuando aparece la pizza
+    //configurar canva cuando aparece la pizza
     useEffect(() => {
         if (activePizza && canvasRef.current) {
             const canvas = canvasRef.current
@@ -104,16 +112,71 @@ export default function Kitchen({onGoToOven}) {
         }
     }, [activePizza])
 
+    const calculateDistance = (x1, y1, x2, y2) => {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
+    }
+
+    const findClosestIdealCoord = (x, y, usedIndices) => {
+        let minDistance = Infinity
+        let closestIndex = -1
+
+        idealCoords.forEach((coord, index) => {
+            if(!usedIndices.has(index)){
+                const distance = calculateDistance(x, y, coord.x, coord.y)
+                if (distance < minDistance){
+                    minDistance = distance
+                    closestIndex = index
+                }
+            }
+        })
+
+        return {index: closestIndex, distance: minDistance}
+    }
+
+    const calculateLocationScore = (placedCoords) => {
+        if (placedCoords.length === 0) return 100 // Si no hay ingredientes para validar posición
+        
+        const usedIdealIndices = new Set()
+        let totalScore = 0
+        const maxPointsPerIngredient = 100 / placedCoords.length
+
+        placedCoords.forEach((placed) => {
+            const { distance, index } = findClosestIdealCoord(
+                placed.x,
+                placed.y,
+                usedIdealIndices
+            )
+
+            if (index !== -1) {
+                usedIdealIndices.add(index)
+
+                // Sistema de puntuación por distancia:
+                // 0-20px: 100% | 20-50px: 70-100% | 50-100px: 30-70% | >100px: 0-30%
+                let scorePercentage
+                if (distance <= 20) {
+                    scorePercentage = 1.0
+                } else if (distance <= 50) {
+                    scorePercentage = 0.7 + (0.3 * (50 - distance) / 30)
+                } else if (distance <= 100) {
+                    scorePercentage = 0.3 + (0.4 * (100 - distance) / 50)
+                } else {
+                    scorePercentage = Math.max(0, 0.3 * (150 - distance) / 50)
+                }
+
+                totalScore += maxPointsPerIngredient * scorePercentage
+            }
+        })
+
+        return Math.round(totalScore)
+    }
+    
 
     const handleIngredientClick = (ingredient) => {
-        console.log(`Ingrediente ${ingredient.name} clickeado`)
         setSelectedIngredient(ingredient)
         setPaintingImage(false)
     }
 
     const handleBunClick = (index) => {
-        console.log(`Bollo ${index + 1} clickeado`)
-        
         const newVisibleBuns = [...visibleBuns]
         newVisibleBuns[index] = false
         setVisibleBuns(newVisibleBuns)
@@ -179,7 +242,7 @@ export default function Kitchen({onGoToOven}) {
         const size = selectedIngredient.size
         
         if (isPointInCircle(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y, pizzaRadiusRef.current)) {
-            console.log(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y)
+            //console.log(x, y, pizzaCenterRef.current.x, pizzaCenterRef.current.y)
             ctx.drawImage(imageRef.current, x - size / 2, y - size / 2, size, size)
 
             const ingredientName = selectedIngredient.name
@@ -190,6 +253,14 @@ export default function Kitchen({onGoToOven}) {
                 ...prev,
                 [ingredientName]: (prev[ingredientName] || 0) + 1
             }))
+
+            if(selectedIngredient.drawMode === "click"){
+                setIngredientCoordinates(prev => [...prev, {
+                    x,
+                    y,
+                    ingredient: ingredientName
+                }])
+            }
         }
     }
 
@@ -210,77 +281,81 @@ export default function Kitchen({onGoToOven}) {
         const errors = []
         let score = 100
 
-        console.log('Ingredientes esperados:', ingredients)
-        console.log('Cantidades esperadas:', quantities)
-        console.log('Ingredientes usados:', ingredientsUsed)
-        console.log('Clicks registrados:', ingredientClicks)
 
-        if (!ingredientsUsed[ingredients.ing1]) {
-            errors.push(`Falta el ingrediente: ${ingredients.ing1}`)
-            score -= 33
-        } else {
-            // para validar la cantidad solo para ingredientes
-            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing1)
-            if (ingredient?.drawMode === "click") {
-                const clicks = ingredientClicks[ingredients.ing1] || 0
-                const expectedQuantity = quantities.quantityIng1
-                
-                if (Math.abs(clicks - expectedQuantity) > 2) {
-                    errors.push(`${ingredients.ing1}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
-                    score -= 10
-                }
-            }
+        if(!ingredientsUsed['tomato']){
+            errors.push('Falta el ingrediente obligatorio: tomato')
+            score -= 30
         }
 
-        if (!ingredientsUsed[ingredients.ing2]) {
-            errors.push(`Falta el ingrediente: ${ingredients.ing2}`)
-            score -= 33
-        } else {
-            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing2)
-            if (ingredient?.drawMode === "click") {
-                const clicks = ingredientClicks[ingredients.ing2] || 0
-                const expectedQuantity = quantities.quantityIng2
-                
-                if (Math.abs(clicks - expectedQuantity) > 2) {
-                    errors.push(`${ingredients.ing2}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
-                    score -= 10
-                }
-            }
+        if(!ingredientsUsed['cheese']){
+            errors.push('Falta el ingrediente obligatorio: cheese')
+            score -= 30
         }
 
-        if (!ingredientsUsed[ingredients.ing3]) {
-            errors.push(`Falta el ingrediente: ${ingredients.ing3}`)
-            score -= 33
-        } else {
-            const ingredient = ingredientsBox.find(ing => ing.name === ingredients.ing3)
-            if (ingredient?.drawMode === "click") {
-                const clicks = ingredientClicks[ingredients.ing3] || 0
-                const expectedQuantity = quantities.quantityIng3
-                
-                if (Math.abs(clicks - expectedQuantity) > 2) {
-                    errors.push(`${ingredients.ing3}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
-                    score -= 10
+        const validIngredients = []
+        const validQuantities = []
+
+        if(ingredients.ing1 !== null){
+            validIngredients.push(ingredients.ing1)
+            validQuantities.push(quantities.quantityIng1)
+        }
+
+        if(ingredients.ing2 !== null){
+            validIngredients.push(ingredients.ing2)
+            validQuantities.push(quantities.quantityIng2)
+        }
+
+        if(ingredients.ing3 !== null){
+            validIngredients.push(ingredients.ing3)
+            validQuantities.push(quantities.quantityIng3)
+        }
+
+
+        validIngredients.forEach((ingredientName, index) => {
+            if (!ingredientsUsed[ingredientName]) {
+                errors.push(`Falta el ingrediente: ${ingredientName}`)
+                score -= 20
+            } else {
+                const ingredient = ingredientsBox.find(ing => ing.name === ingredientName)
+                if (ingredient?.drawMode === "click") {
+                    const clicks = ingredientClicks[ingredientName] || 0
+                    const expectedQuantity = validQuantities[index]
+                    
+                    if (expectedQuantity !== null && Math.abs(clicks - expectedQuantity) > 2) {
+                        errors.push(`${ingredientName}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
+                        score -= 10
+                    }
                 }
             }
-        }
+        })
 
         Object.keys(ingredientClicks).forEach(ingredientName => {
-            if (ingredientName !== ingredients.ing1 && 
-                ingredientName !== ingredients.ing2 && 
-                ingredientName !== ingredients.ing3 &&
+            if (!validIngredients.includes(ingredientName) && 
+                ingredientName !== 'tomato' && 
+                ingredientName !== 'cheese' &&
                 ingredientClicks[ingredientName] > 0) {
-                errors.push(`Ingrediente extra: ${ingredientName}`)
-                score -= 15;
+                errors.push(`Ingrediente extra no solicitado: ${ingredientName}`)
+                score -= 15
             }
-        });
-
+        })
 
         score = Math.max(0, score) 
-        console.log("Puntaje: ", score)
+
+        const locationScore = calculateLocationScore(ingredientCoordinates)
+        console.log("Puntaje de ubicación:", locationScore)
+        console.log("Coordenadas colocadas:", ingredientCoordinates)
+
+        const finalScore = Math.round(score * 0.7 + locationScore * 0.3)
+
+        console.log("Puntaje ingredientes:", score)
+        console.log("Puntaje ubicación:", locationScore)
+        console.log("Puntaje final:", finalScore)
 
         return {
             isValid: errors.length === 0,
             score: score,
+            ingredienScore: score,
+            locationScore: locationScore,
             errors: errors,
             message: errors.length === 0 
                 ? '¡Pizza perfecta!' 
