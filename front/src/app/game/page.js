@@ -53,7 +53,6 @@ function GameContent() {
                 console.log("Clientes obtenidos del servidor:", data);
                 console.log("Total de clientes:", data.length);
                 
-                // ✅ Guardar directamente el array que viene del servidor (ya viene aleatorio con RAND())
                 setCustomers(data);
 
             } catch (error) {
@@ -91,18 +90,15 @@ function GameContent() {
     };
 
     const handleNextCustomer = () => {
-        // Guardar el tiempo del cliente actual
         const customerTime = saveCustomerTime();
         console.log(`⏱️ Cliente ${currentCustomerIndex + 1} completado en: ${formatTime(customerTime)}`);
 
         const nextIndex = currentCustomerIndex + 1;
 
         if (nextIndex >= customers.length) {
-            // Calcular tiempo total
             const totalTime = calculateTotalTime();
             setFinalTotalTime(totalTime);
 
-            // Calcular money
             const timeInSeconds = Math.floor(totalTime / 1000);
             const money = Math.max(0, 1000 - timeInSeconds);
             setMyMoney(money);
@@ -112,10 +108,8 @@ function GameContent() {
             console.log("Dinero ganado:", money);
             console.log("Tiempos por cliente:", customerTimes.map((t, i) => `Cliente ${i + 1}: ${formatTime(t)}`));
 
-            // Detener el timer
             stopTimer();
 
-            // Emitir evento socket
             if (socket && roomCode && playerId) {
                 socket.emit('gameFinished', {
                     playerId: playerId,
@@ -128,7 +122,6 @@ function GameContent() {
 
             setGameFinished(true);
         } else {
-            // Resetear estados y pasar al siguiente personaje
             console.log(`✅ Pasando al cliente ${nextIndex + 1} de ${customers.length}`);
             setCurrentCustomerIndex(nextIndex);
             setShowKitchen(false);
@@ -142,36 +135,45 @@ function GameContent() {
 
     // Si no hay personajes cargados aún, mostrar loading
     if (customers.length === 0) {
-        return <div className={styles.container1}>Cargando clientes...</div>;
+        return <div>Cargando clientes...</div>;
     }
 
-    // Si el juego terminó, mostrar pantalla final
+    // ✅ SI EL JUEGO TERMINÓ, MOSTRAR SOLO LA PANTALLA FINAL
     if (gameFinished) {
-        const myTotalTime = finalTotalTime;
-
         return (
-            <div className={styles.container1}>
-                <div className={styles.section}>
-                    <h1>¡Juego Terminado!</h1>
+            <div className={styles.resultsContainer}>
+                <div className={styles.resultsSection}>
+                    <div className={styles.emoji}>🍕</div>
+                    <h1 className={styles.resultTitle}>
+                        {opponentFinished ? (
+                            finalTotalTime < opponentTime ? '¡GANASTE!' :
+                            finalTotalTime > opponentTime ? 'PERDISTE' :
+                            '¡EMPATE!'
+                        ) : 'JUEGO TERMINADO'}
+                    </h1>
                     <p>Has completado los {customers.length} clientes</p>
 
                     <div className={styles.statsBox}>
-                        <h2>Tu tiempo: {formatTime(myTotalTime)}</h2>
-                        <h2>Dinero ganado: ${myMoney}</h2>
+                        <div className={`${styles.rankingItem} ${styles.winner}`}>
+                            <div className={styles.playerInfo}>
+                                <span className={styles.playerName}>Tú</span>
+                            </div>
+                            <span className={styles.playerTime}>{formatTime(finalTotalTime)}</span>
+                            <span className={styles.playerMoney}>${myMoney}</span>
+                        </div>
+
+                        {opponentFinished && (
+                            <div className={styles.rankingItem}>
+                                <div className={styles.playerInfo}>
+                                    <span className={styles.playerName}>Oponente</span>
+                                </div>
+                                <span className={styles.playerTime}>{formatTime(opponentTime)}</span>
+                                <span className={styles.playerMoney}>${opponentMoney}</span>
+                            </div>
+                        )}
                     </div>
 
-                    {opponentFinished ? (
-                        <div className={styles.opponentBox}>
-                            <h3>Resultado del oponente:</h3>
-                            <p>Tiempo: {formatTime(opponentTime)}</p>
-                            <p>Dinero: ${opponentMoney}</p>
-                            <h1 className={styles.resultTitle}>
-                                {myTotalTime < opponentTime ? '¡GANASTE!' :
-                                    myTotalTime > opponentTime ? 'Perdiste' :
-                                        '¡EMPATE!'}
-                            </h1>
-                        </div>
-                    ) : (
+                    {!opponentFinished && (
                         <div className={styles.waitingBox}>
                             <p>Esperando a que el otro jugador termine...</p>
                         </div>
@@ -194,30 +196,27 @@ function GameContent() {
         );
     }
 
+    // ✅ JUEGO NORMAL (solo se ejecuta si gameFinished es false)
     const currentCustomer = customers[currentCustomerIndex];
 
     return (
-        <div className={styles.container1}>
+        <div className={styles.container}>
             {
                 (!showDeliver) ? (
                     (!showCut) ? (
                         (!showOven) ? (
                             (!showKitchen) ? (
-                                <>
-                                    <div className={styles.section}>
-                                        <Order
-                                            key={currentCustomer.id_customer}
-                                            customer={currentCustomer}
-                                            onGoToKitchen={handleGoToKitchen}
-                                        />
-                                    </div>
-                                </>
+                                <div className={styles.section}>
+                                    <Order
+                                        key={currentCustomer.id_customer}
+                                        customer={currentCustomer}
+                                        onGoToKitchen={handleGoToKitchen}
+                                    />
+                                </div>
                             ) : (
-                                <>
-                                    <div className={styles.section}>
-                                        <Kitchen onGoToOven={handleGoToOven} />
-                                    </div>
-                                </>
+                                <div className={styles.section}>
+                                    <Kitchen onGoToOven={handleGoToOven} />
+                                </div>
                             )
                         ) : (
                             <div className={styles.section}>
@@ -227,22 +226,20 @@ function GameContent() {
                                 />
                             </div>
                         )
-                    ) :
-                        (
-                            <Cut
-                                pizzaImage={pizzaImage}
-                                pizzaFilter={pizzaFilter}
-                                onGoToDeliver={handleGoToDeliver}
-                            />
-                        )
-                ) :
-                    (
-                        <Deliver
-                            onNextCustomer={handleNextCustomer}
-                            currentCustomer={currentCustomerIndex + 1}
-                            totalCustomers={customers.length}
+                    ) : (
+                        <Cut
+                            pizzaImage={pizzaImage}
+                            pizzaFilter={pizzaFilter}
+                            onGoToDeliver={handleGoToDeliver}
                         />
                     )
+                ) : (
+                    <Deliver
+                        onNextCustomer={handleNextCustomer}
+                        currentCustomer={currentCustomerIndex + 1}
+                        totalCustomers={customers.length}
+                    />
+                )
             }
         </div>
     );
