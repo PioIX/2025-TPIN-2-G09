@@ -20,41 +20,221 @@
   padding: 0;
 }
 
-.statsBox {
-    margin: 20px 0;
-    padding: 20px;
-    background: #f0f0f0;
-    border-radius: 10px;
+.resultsContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f4d5b8 0%, #e8b584 100%);
+  padding: 20px;
+  position: relative;
 }
 
-.opponentBox {
-    margin: 20px 0;
-    padding: 20px;
-    background: #e0e0e0;
-    border-radius: 10px;
+.resultsContainer::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: repeating-linear-gradient(
+    90deg,
+    #e89a6c 0px,
+    #e89a6c 50px,
+    #f4a97c 50px,
+    #f4a97c 100px
+  );
+  opacity: 0.6;
+}
+
+.resultsSection {
+  background: #fef8e8;
+  border-radius: 30px;
+  padding: 50px 40px;
+  max-width: 650px;
+  width: 100%;
+  box-shadow: 
+    0 10px 30px rgba(139, 69, 19, 0.2),
+    inset 0 0 0 8px #f9e9c1,
+    inset 0 0 0 12px #e8b584;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.emoji {
+  font-size: 80px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
 .resultTitle {
-    font-size: 48px;
-    margin: 20px 0;
+  font-size: 56px;
+  font-weight: 900;
+  margin: 20px 0 10px;
+  color: #d4724b;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow: 3px 3px 0px #f9e9c1;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.resultsSection > p {
+  color: #d4724b;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.statsBox {
+  margin: 30px 0;
+  padding: 25px;
+  background: #fff9e6;
+  border-radius: 20px;
+  border: 4px solid #e8b584;
+  box-shadow: 0 6px 15px rgba(139, 69, 19, 0.15);
+}
+
+.rankingItem {
+  display: grid;
+  grid-template-columns: 2fr 2fr 2fr;
+  align-items: center;
+  padding: 22px 30px;
+  margin: 12px 0;
+  background: #fef5e1;
+  border-radius: 15px;
+  border: 3px solid #f4d5b8;
+  transition: all 0.3s ease;
+  gap: 15px;
+}
+
+.rankingItem:hover {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(139, 69, 19, 0.2);
+}
+
+.winner {
+  background: linear-gradient(135deg, #f9e9c1 0%, #f4d5b8 100%);
+  border: 4px solid #d4724b;
+  box-shadow: 
+    0 8px 20px rgba(212, 114, 75, 0.3),
+    0 0 0 2px #fef8e8;
+  position: relative;
+  transform: scale(1.05);
+}
+
+.winner::before {
+  content: "🏆";
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 35px;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.playerInfo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.playerName {
+  font-weight: 800;
+  font-size: 26px;
+  color: #8b5a3c;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.winner .playerName {
+  color: #d4724b;
+}
+
+.playerTime {
+  font-size: 26px;
+  font-weight: 800;
+  color: #8b5a3c;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+
+.playerMoney {
+  font-size: 26px;
+  font-weight: 800;
+  color: #8b5a3c;
+  text-align: right;
+  font-family: 'Arial Black', sans-serif;
 }
 
 .waitingBox {
-    padding: 20px;
-    background: #fff3cd;
-    border-radius: 10px;
+  padding: 25px;
+  background: #fff3cd;
+  border-radius: 15px;
+  border: 3px solid #f9c74f;
+  margin: 20px 0;
+  animation: pulse 2s ease infinite;
+  box-shadow: 0 4px 10px rgba(249, 199, 79, 0.3);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(0.98); }
+}
+
+.waitingBox p {
+  margin: 0;
+  font-weight: 700;
+  color: #8b5a3c;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .detailsSection {
-    margin-top: 20px;
-    text-align: left;
+  margin-top: 30px;
+  text-align: left;
+  background: #fff9e6;
+  border-radius: 15px;
+  padding: 20px;
+  border: 3px solid #e8b584;
 }
 
 .detailsSummary {
-    cursor: pointer;
-    font-weight: bold;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 16px;
+  color: #d4724b;
+  padding: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+}
+
+.detailsSummary:hover {
+  color: #b85c3a;
 }
 
 .timesList {
-    margin-top: 10px;
+  margin-top: 15px;
+  list-style: none;
+  padding: 0;
+}
+
+.timesList li {
+  padding: 15px 20px;
+  margin: 10px 0;
+  background: #fef5e1;
+  border-radius: 12px;
+  border-left: 5px solid #d4724b;
+  font-weight: 600;
+  color: #8b5a3c;
+  transition: all 0.2s ease;
+}
+
+.timesList li:hover {
+  transform: translateX(5px);
+  background: #f9e9c1;
+  box-shadow: 0 3px 10px rgba(139, 69, 19, 0.15);
 }
