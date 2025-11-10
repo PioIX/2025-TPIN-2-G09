@@ -7,6 +7,7 @@ import Order from "@/components/Order";
 import Oven from "@/components/Oven";
 import Cut from "@/components/Cut";
 import Deliver from '@/components/Deliver';
+import { ScoreProvider, useScore } from '@/components/ScoreContext'
 import { TimerProvider, useTimer } from '@/components/TimerContext';
 import io from 'socket.io-client';
 
@@ -248,7 +249,9 @@ function GameContent() {
 export default function Game() {
     return (
         <TimerProvider>
-            <GameContent />
+            <ScoreProvider>
+                <GameContent />
+            </ScoreProvider>
         </TimerProvider>
     );
 }
