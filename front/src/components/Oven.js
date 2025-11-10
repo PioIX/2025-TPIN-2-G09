@@ -5,8 +5,8 @@ import Image from 'next/image';
 import styles from './Oven.module.css';
 import { useTimer } from './TimerContext';
 
-export default function Oven({ pizzaImage, onGoToCut }) {
-    const { percentage} = useTimer();
+export default function Oven({ pizzaImage, onGoToCut, currentOrderId }) {
+    const { percentage } = useTimer();
     const [isCooking, setIsCooking] = useState(false);
     const [cookingTime, setCookingTime] = useState(10);
     const [timeLeft, setTimeLeft] = useState(0);
@@ -14,6 +14,37 @@ export default function Oven({ pizzaImage, onGoToCut }) {
     const [finalPizzaFilter, setFinalPizzaFilter] = useState('');
     const [pizzaPassedOven, setPizzaPassedOven] = useState(false);
     const [hasTransitioned, setHasTransitioned] = useState(false);
+
+    // Función para calcular el puntaje basado en el tiempo de cocción
+    const calculateOvenScore = (time) => {
+        // Tiempo ideal: 10-12 segundos = 100 puntos
+        if (time >= 10 && time <= 12) {
+            return 100;
+        }
+        
+        // Si está fuera del rango ideal, calculamos el puntaje según la distancia
+        if (time < 10) {
+            // Cruda: 5-9 segundos
+            // 9 segundos = 80 puntos, 5 segundos = 0 puntos
+            const distance = 10 - time;
+            const maxDistance = 5; // distancia máxima (10 - 5)
+            return Math.max(0, 80 - (distance / maxDistance) * 80);
+        } else {
+            // Quemada: 13-20 segundos
+            // 13 segundos = 80 puntos, 20 segundos = 0 puntos
+            const distance = time - 12;
+            const maxDistance = 8; // distancia máxima (20 - 12)
+            return Math.max(0, 80 - (distance / maxDistance) * 80);
+        }
+    };
+
+    // Función para calcular la plata basada en el puntaje
+    const calculateMoney = (score) => {
+        // Convertimos el puntaje (0-100) a dinero
+        // 100 puntos = $100
+        // 0 puntos = $0
+        return Math.round(score);
+    };
 
     const startCooking = () => {
         setIsCooking(true);
@@ -46,7 +77,7 @@ export default function Oven({ pizzaImage, onGoToCut }) {
         } else {
             const burnLevel = (time - 12) / 8;
             const brightness = 0.5 - (burnLevel * 0.2);
-            return `brightness(${brightness}) saturate(0.6) sepia(0.4)`;
+            return `brightness(${brightness}) saturate(1.8) contrast(1.6)`;
         }
     };
 
@@ -88,9 +119,31 @@ export default function Oven({ pizzaImage, onGoToCut }) {
                 finalState = 'burnt';
             }
             
+            // Calcular el puntaje del horno
+            const ovenScore = calculateOvenScore(cookingTime);
+            const money = calculateMoney(ovenScore);
+            
+            // Guardar la plata de este cliente en localStorage
+            const ovenScores = JSON.parse(localStorage.getItem('ovenScores') || '{}');
+            ovenScores[currentOrderId] = {
+                score: ovenScore,
+                money: money,
+                time: cookingTime,
+                state: finalState,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('ovenScores', JSON.stringify(ovenScores));
+            
             const finalFilter = getFilterStyle(cookingTime);
+            
+            // Console logs para ver el resultado
+            console.log("Cliente ID:", currentOrderId);
+            console.log("Tiempo de cocción:", cookingTime, "segundos");
+            console.log("Puntaje del horno:", ovenScore.toFixed(2), "/ 100");
+            console.log("Dinero ganado: $", money);
             console.log("Filtro calculado:", finalFilter);
-            console.log("Estado final:", finalState);
+            console.log("Datos guardados en localStorage");
+            
             
             setCookingState(finalState);
             setFinalPizzaFilter(finalFilter);
@@ -99,22 +152,22 @@ export default function Oven({ pizzaImage, onGoToCut }) {
             setTimeout(() => {
                 console.log("Llamando a onGoToCut");
                 if (onGoToCut) {
-                    console.log("Ejecutando onGoToCut con:", finalState, finalFilter);
-                    onGoToCut(finalState, finalFilter);
+                    console.log("Ejecutando onGoToCut con puntaje:", ovenScore, "y dinero: $", money);
+                    onGoToCut(finalState, finalFilter, ovenScore, money);
                     console.log("onGoToCut ejecutado");
                 } else {
                     console.error("onGoToCut NO EXISTE!");
                 }
             }, 500);
         }
-    }, [timeLeft, isCooking, hasTransitioned, cookingTime, onGoToCut]);
+    }, [timeLeft, isCooking, hasTransitioned, cookingTime, onGoToCut, currentOrderId]);
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <div className={styles.percent}>{percentage}%</div>
                 <div className={styles.order}></div>
-                 <div className={styles.time}></div>
+                <div className={styles.time}></div>
             </div>
 
             <div className={styles.ovenWrapper}>
