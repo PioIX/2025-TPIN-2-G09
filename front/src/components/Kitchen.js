@@ -2,12 +2,14 @@
 
 import { useState, useRef, useEffect} from "react"
 import styles from "./Kitchen.module.css"
+import { useScore } from "./ScoreContext.js"
 import { useRouter } from "next/navigation"
 import { useTimer } from "./TimerContext"
 
 //SECCIÓN DE LA COCINA
 export default function Kitchen({onGoToOven}) {
     const { percentage} = useTimer();
+    const { updateStageScore } = useScore()
     const ingredientsBox = [
         {id:1, name:"tomato", image:"/imagesIngredients/tomato.png", bowl:"/imagesIngredients/tomatoBowl.png", drawMode: "image", size: 160},
         {id:2, name:"cheese", image:"/imagesIngredients/cheese.png", bowl:"/imagesIngredients/cheeseBowl.png", drawMode: "image", size: 140},
@@ -342,19 +344,19 @@ export default function Kitchen({onGoToOven}) {
         score = Math.max(0, score) 
 
         const locationScore = calculateLocationScore(ingredientCoordinates)
-        console.log("Puntaje de ubicación:", locationScore)
-        console.log("Coordenadas colocadas:", ingredientCoordinates)
+        //console.log("Puntaje de ubicación:", locationScore)
+        //console.log("Coordenadas colocadas:", ingredientCoordinates)
 
         const finalScore = Math.round(score * 0.7 + locationScore * 0.3)
 
-        console.log("Puntaje ingredientes:", score)
-        console.log("Puntaje ubicación:", locationScore)
+        //console.log("Puntaje ingredientes:", score)
+        //console.log("Puntaje ubicación:", locationScore)
         console.log("Puntaje final:", finalScore)
 
         return {
             isValid: errors.length === 0,
             score: score,
-            ingredienScore: score,
+            ingredientScore: score,
             locationScore: locationScore,
             errors: errors,
             message: errors.length === 0 
@@ -373,6 +375,13 @@ export default function Kitchen({onGoToOven}) {
         try{
             const validation = validatePizza();
             setValidationResult(validation);
+
+            const finalScore = Math.round(
+                validation.ingredientScore * 0.7 + validation.locationScore * 0.3
+            )
+            
+            updateStageScore('kitchen', finalScore, validation)
+
             
             console.log('Resultado de validación:', validation);
             console.log('Ingredientes usados:', ingredientsUsed);
@@ -381,7 +390,7 @@ export default function Kitchen({onGoToOven}) {
             const pngData = canvas.toDataURL('image/png');
             setSavedPizzaImage(pngData);
             console.log("Pizza guardada exitosamente");
-            console.log("Llamando a onGoToOven con la imagen");
+            //console.log("Llamando a onGoToOven con la imagen");
 
             if(onGoToOven) {
                 onGoToOven(pngData, validation);
