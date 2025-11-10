@@ -9,13 +9,13 @@ import { useTimer } from "./TimerContext"
 export default function Kitchen({onGoToOven}) {
     const { percentage} = useTimer();
     const ingredientsBox = [
-        {id:1, name:"tomato", image:"/imagesIngredients/tomato.png", drawMode: "image", size: 160},
-        {id:2, name:"cheese", image:"/imagesIngredients/cheese.png", drawMode: "image", size: 140},
-        {id:3, name:"pepperoni", image:"/imagesIngredients/pepperoni.png", drawMode: "click", size: 50},
-        {id:4, name:"mushroom", image:"/imagesIngredients/mushroom.png", drawMode: "click", size: 50},
-        {id:5, name:"olive", image:"/imagesIngredients/olive.png", drawMode: "click", size: 50},
-        {id:6, name:"pepper", image:"/imagesIngredients/pepper.png", drawMode: "click", size: 70},
-        {id:7, name:"onion", image:"/imagesIngredients/onion.png", drawMode: "click", size: 80}
+        {id:1, name:"tomato", image:"/imagesIngredients/tomato.png", bowl:"/imagesIngredients/tomatoBowl.png", drawMode: "image", size: 160},
+        {id:2, name:"cheese", image:"/imagesIngredients/cheese.png", bowl:"/imagesIngredients/cheeseBowl.png", drawMode: "image", size: 140},
+        {id:3, name:"pepperoni", image:"/imagesIngredients/pepperoni.png", bowl:"/imagesIngredients/pepperoniBowl.png", drawMode: "click", size: 50},
+        {id:4, name:"mushroom", image:"/imagesIngredients/mushroom.png", bowl:"/imagesIngredients/mushroomBowl.png", drawMode: "click", size: 50},
+        {id:5, name:"olive", image:"/imagesIngredients/olive.png", bowl:"/imagesIngredients/oliveBowl.png", drawMode: "click", size: 50},
+        {id:6, name:"pepper", image:"/imagesIngredients/pepper.png", bowl:"/imagesIngredients/pepperBowl.png", drawMode: "click", size: 70},
+        {id:7, name:"onion", image:"/imagesIngredients/onion.png", bowl:"/imagesIngredients/onionBowl.png", drawMode: "click", size: 80}
     ]
 
     const [visibleBuns, setVisibleBuns] = useState([true, true, true, true, true, true, true, true])
@@ -409,7 +409,7 @@ export default function Kitchen({onGoToOven}) {
                 <div className={styles.ingredientsBox}>
                     {ingredientsBox.map((ingredientBox) => (
                         <button key={ingredientBox.id} className={styles.ingredientBtn} onClick={() => handleIngredientClick(ingredientBox)} title={ingredientBox.name}>
-                            <img src={ingredientBox.image} alt={ingredientBox.name}></img>
+                            <img src={ingredientBox.bowl} alt={ingredientBox.name}></img>
                         </button>
                     ))}
                 </div>
