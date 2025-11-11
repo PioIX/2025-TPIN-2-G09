@@ -18,16 +18,14 @@ function GameContent() {
     const [showDeliver, setShowDeliver] = useState(false);
     const [pizzaImage, setPizzaImage] = useState(null);
     const [pizzaFilter, setPizzaFilter] = useState('');
-    const [currentOrderText, setCurrentOrderText] = useState(''); // ✅ NUEVO: Estado para la orden
+    const [currentOrderText, setCurrentOrderText] = useState(''); 
 
-    // Sistema de personajes
     const [customers, setCustomers] = useState([]);
     const [currentCustomerIndex, setCurrentCustomerIndex] = useState(0);
     const [gameFinished, setGameFinished] = useState(false);
 
     const [finalTotalTime, setFinalTotalTime] = useState(0);
 
-    // Socket y datos del jugador
     const [socket, setSocket] = useState(null);
     const [playerId, setPlayerId] = useState(null);
     const [roomCode, setRoomCode] = useState(null);
@@ -36,9 +34,42 @@ function GameContent() {
     const [opponentMoney, setOpponentMoney] = useState(null);
     const [myMoney, setMyMoney] = useState(0);
 
-    const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes } = useTimer();
+    const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes, setTimeoutCallback, percentage } = useTimer();
+    const { applyTimeoutPenalty } = useScore()
 
-    // ✅ FETCH ÚNICO al inicio para obtener los 8 clientes
+    useEffect(() => {
+        const handleTimeout = () => {
+            console.log('TIMEOUT DETECTADO - El tiempo se agotó!');
+            console.log('Estado actual:', {
+                showKitchen,
+                showOven,
+                showCut,
+                showDeliver
+            });
+            
+            const penalizedScore = applyTimeoutPenalty();
+            console.log('Penalización aplicada. Score resultante:', penalizedScore);
+            
+            setShowKitchen(false);
+            setShowOven(false);
+            setShowCut(false);
+            setShowDeliver(true);
+            
+            setPizzaImage(null);
+            setPizzaFilter('');
+            
+            console.log('Redirigiendo a Deliver...');
+        };
+        
+        setTimeoutCallback(handleTimeout);
+        
+        return () => {
+            setTimeoutCallback(null);
+        };
+    }, [setTimeoutCallback, applyTimeoutPenalty, showKitchen, showOven, showCut, showDeliver]);
+
+
+
     useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -65,7 +96,6 @@ function GameContent() {
         fetchOrder();
     }, []);
 
-    // ✅ MODIFICADO: Recibe el orderText de Order
     const handleGoToKitchen = (orderText) => {
         console.log("Cambiando a Kitchen con orden:", orderText);
         setCurrentOrderText(orderText);
@@ -95,7 +125,7 @@ function GameContent() {
 
     const handleNextCustomer = () => {
         const customerTime = saveCustomerTime();
-        console.log(`⏱️ Cliente ${currentCustomerIndex + 1} completado en: ${formatTime(customerTime)}`);
+        console.log(`Cliente ${currentCustomerIndex + 1} completado en: ${formatTime(customerTime)}`);
 
         const nextIndex = currentCustomerIndex + 1;
 
@@ -126,7 +156,7 @@ function GameContent() {
 
             setGameFinished(true);
         } else {
-            console.log(`✅ Pasando al cliente ${nextIndex + 1} de ${customers.length}`);
+            console.log(`Pasando al cliente ${nextIndex + 1} de ${customers.length}`);
             setCurrentCustomerIndex(nextIndex);
             setShowKitchen(false);
             setShowOven(false);
@@ -134,21 +164,19 @@ function GameContent() {
             setShowDeliver(false);
             setPizzaImage(null);
             setPizzaFilter('');
-            setCurrentOrderText(''); // ✅ NUEVO: Limpiar la orden al cambiar de cliente
+            setCurrentOrderText(''); 
         }
     };
 
-    // Si no hay personajes cargados aún, mostrar loading
     if (customers.length === 0) {
         return <div>Cargando clientes...</div>;
     }
 
-    // ✅ SI EL JUEGO TERMINÓ, MOSTRAR SOLO LA PANTALLA FINAL
     if (gameFinished) {
         return (
             <div className={styles.resultsContainer}>
                 <div className={styles.resultsSection}>
-                    <div className={styles.emoji}>🍕</div>
+                    <div className={styles.emoji}></div>
                     <h1 className={styles.resultTitle}>
                         {opponentFinished ? (
                             finalTotalTime < opponentTime ? '¡GANASTE!' :
@@ -201,7 +229,6 @@ function GameContent() {
         );
     }
 
-    // ✅ JUEGO NORMAL (solo se ejecuta si gameFinished es false)
     const currentCustomer = customers[currentCustomerIndex];
 
     return (
