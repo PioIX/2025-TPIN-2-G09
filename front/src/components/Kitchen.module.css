@@ -49,8 +49,14 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  color: #c73e1d;
-  font-size: 1.5rem;
+  color: #9f3419;
+  font-size: 1.2rem;
+  line-height: 1.1;
+  text-align: center;
+  padding: 0 8px;
+  /* Allow wrapping/breaking so longer texts wrap instead of overflowing; hyphens help break words nicely. */
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .order {
@@ -59,6 +65,7 @@
   margin: 0 20px;
   max-width: 500px;
 }
+
 
 /* ============ SECCIÓN DE INGREDIENTES ============ */
 .ingredientsBox {

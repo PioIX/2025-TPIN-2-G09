@@ -200,9 +200,6 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
                 <div className={styles.percent}>
                     {percentage}%
                 </div>
-                <div className={styles.order}>
-                    {orderText || ''}
-                </div>
                  <div className={styles.time}></div>
             </div>
             <canvas

@@ -192,7 +192,6 @@ export default function Order({ customer, onGoToKitchen }) {
     <div className={styles.orderContainer}>
       <div className={styles.header}>
         <div className={styles.percent}>{percentage}%</div>
-        <div className={styles.order}>{showOrderInHeader ? orderText : ''}</div>
         <div className={styles.time}></div>
       </div>
       <canvas

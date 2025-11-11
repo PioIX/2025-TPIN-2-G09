@@ -6,7 +6,7 @@ import clsx from "clsx"
 import { useTimer } from './TimerContext'
 
 //SECCIÓN DE CORTAR
-export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
+export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver, orderText }) {
     const { percentage, stopTimer } = useTimer();
     const [cursorStyle, setCursorStyle] = useState(false)
     const [visibleKnife, setVisibleKnife] = useState(true)
@@ -25,9 +25,19 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     }
 
     const resetCursor = () => {
+        setShowDoneButton(false)
         setCursorStyle(false)
         setHidePizza(false)
         stopTimer(); //Detiene el temporizador al apretar el boton verde Listo!!!!
+        
+        // Limpiar el canvas y las líneas guardadas
+        const canvas = canvasRef.current
+        if (canvas) {
+            const ctx = canvas.getContext('2d')
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+        }
+        setSavedLines([]) // Limpia todas las líneas guardadas
+        
         setTimeout(() => {
             setIsSliding(false)
             setCursorStyle(false)
@@ -192,7 +202,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
 
                     </div>
                     <div className={styles.order}>
-
+                        {orderText || ''}
                     </div>
                     <div className={styles.time}>
 
