@@ -9,6 +9,7 @@ import { useScore } from './ScoreContext'
 //SECCIÓN DE CORTAR
 export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     const { percentage, stopTimer } = useTimer();
+    const { updateStageScore } = useScore()
     const [cursorStyle, setCursorStyle] = useState(false)
     const [visibleKnife, setVisibleKnife] = useState(true)
     const [showDoneButton, setShowDoneButton] = useState(false)
@@ -23,7 +24,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
         { angle: 0 },
         { angle: Math.PI / 4 }, //45°
         { angle: Math.PI / 2 }, //90°
-        { angle: 3*Math.PI / 4 } //135°
+        { angle: 3 * Math.PI / 4 } //135°
     ]
 
     const knifeCursor = () => {
@@ -35,7 +36,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     const calculateLineAngle = (startX, startY, endX, endY) => {
         let angle = Math.atan2(endY - startY, endX - startX)
         angle = angle % Math.PI
-        if(angle < 0) angle += Math.PI
+        if (angle < 0) angle += Math.PI
         return angle
     }
 
@@ -44,12 +45,12 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
         let closestIndex = -1
 
         idealLines.forEach((ideal, index) => {
-            if (!usedAngles.has(index)){
+            if (!usedAngles.has(index)) {
                 let diff = Math.abs(lineAngle - ideal.angle)
                 let diffOpposite = Math.abs(lineAngle - (ideal.angle + Math.PI))
                 diff = Math.min(diff, diffOpposite)
 
-                if(diff<minDiff){
+                if (diff < minDiff) {
                     minDiff = diff
                     closestIndex = index
                 }
@@ -59,12 +60,97 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
         return { index: closestIndex, diff: minDiff }
     }
 
-    { }
+    const validateCuts = () => {
+        if (savedLines.length === 0) {
+            return {
+                isValid: false,
+                score: 0,
+                message: 'No se realizaron cortes'
+            }
+        }
+
+        let score = 100
+        const usedIdealAngles = new Set()
+        const maxPointsPerLine = 100 / Math.max(savedLines.length, idealLines.length)
+        const errors = []
+
+        savedLines.forEach((line, index) => {
+            const canvas = canvasRef.current
+            if (!canvas) return
+
+            const centerX = canvas.width / 2
+            const centerY = canvas.height / 2
+
+            // para calcular el ángulo de la línea cortada
+            const lineAngle = calculateLineAngle(
+                line.startX - centerX,
+                line.startY - centerY,
+                line.endX - centerX,
+                line.endY - centerY
+            )
+
+            // para encontrar el ángulo ideal más cercano
+            const { index: idealIndex, diff } = findClosestIdealAngle(lineAngle, usedIdealAngles)
+
+            if (idealIndex !== -1) {
+                usedIdealAngles.add(idealIndex)
+
+                let scorePercentage
+                if (diff <= 0.1) {
+                    scorePercentage = 1.0
+                } else if (diff <= 0.3) {
+                    scorePercentage = 0.7 + (0.3 * (0.3 - diff) / 0.2)
+                } else if (diff <= 0.5) {
+                    scorePercentage = 0.3 + (0.4 * (0.5 - diff) / 0.2)
+                } else {
+                    scorePercentage = Math.max(0, 0.3 * (0.8 - diff) / 0.3)
+                }
+
+                const lineScore = maxPointsPerLine * scorePercentage
+                score = Math.min(score, score - (maxPointsPerLine - lineScore))
+
+                const degrees = (diff * 180 / Math.PI).toFixed(1)
+                if (diff > 0.3) {
+                    errors.push(`Corte ${index + 1}: desviación de ${degrees}°`)
+                }
+            }
+        })
+
+        if (savedLines.length < idealLines.length) {
+            const missingLines = idealLines.length - savedLines.length
+            score -= missingLines * 15
+            errors.push(`Faltan ${missingLines} corte(s)`)
+        } else if (savedLines.length > idealLines.length) {
+            const extraLines = savedLines.length - idealLines.length
+            score -= extraLines * 10
+            errors.push(`${extraLines} corte(s) de más`)
+        }
+
+        score = Math.max(0, Math.round(score))
+
+        return {
+            isValid: errors.length === 0,
+            score: score,
+            errors: errors,
+            totalCuts: savedLines.length,
+            expectedCuts: idealLines.length,
+            message: errors.length === 0
+                ? '¡Cortes perfectos!'
+                : `Cortes con errores: ${errors.join(', ')}`
+        }
+    }
 
     const resetCursor = () => {
         setCursorStyle(false)
         setHidePizza(false)
-        stopTimer(); //Detiene el temporizador al apretar el boton verde Listo!!!!
+        stopTimer();
+
+        const validation = validateCuts()
+        console.log('Resultado de validación de cortes:', validation)
+        console.log('Líneas guardadas:', savedLines)
+
+        updateStageScore('cut', validation.score, validation)
+
         setTimeout(() => {
             setIsSliding(false)
             setCursorStyle(false)
@@ -279,7 +365,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
                     </button>
                 </div>
                 <div className={styles.boxes}>
-                    <img className={styles.box} src={!hidePizza ? "/imagesElements/boxClose.jpeg" : "/imagesElements/boxes.png"}  />
+                    <img className={styles.box} src={!hidePizza ? "/imagesElements/boxClose.jpeg" : "/imagesElements/boxes.png"} />
                     <button className={styles.deliver} onClick={handleGoToDeliver}>Entregar</button>
                 </div>
             </div>
