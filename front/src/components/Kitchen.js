@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { useTimer } from "./TimerContext"
 
 //SECCIÓN DE LA COCINA
-export default function Kitchen({onGoToOven}) {
+export default function Kitchen({onGoToOven, orderText}) {
     const { percentage} = useTimer();
     const { updateStageScore } = useScore()
     const ingredientsBox = [
@@ -408,10 +408,9 @@ export default function Kitchen({onGoToOven}) {
                 <div className={styles.header}>
                     <div className={styles.percent}>
                         {percentage}%
-
                     </div>
                     <div className={styles.order}>
-                
+                        {orderText || ''}
                     </div>
                     <div className={styles.time}></div>
                 </div>

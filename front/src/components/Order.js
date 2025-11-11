@@ -10,7 +10,8 @@ export default function Order({ customer, onGoToKitchen }) {
   const [customerName, setCustomerName] = useState('');
   const [characterImage, setCharacterImage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [showDialog, setShowDialog] = useState(false)
+  const [showDialog, setShowDialog] = useState(false);
+  const [showOrderInHeader, setShowOrderInHeader] = useState(false);
   const { percentage, startTimer } = useTimer();
 
   // ✅ USAR LA PROP customer en lugar de hacer fetch
@@ -24,6 +25,7 @@ export default function Order({ customer, onGoToKitchen }) {
       
       localStorage.setItem('currentCustomerName', customer.name);
       localStorage.setItem('currentPizzaId', customer.id_pizza);
+      localStorage.setItem('currentOrderText', customer.text || ''); // Guardar la orden
       console.log('Order guardó:', customer.name, 'Pizza ID:', customer.id_pizza);
       
       if (customer.name) {
@@ -150,10 +152,12 @@ export default function Order({ customer, onGoToKitchen }) {
 
   const handleGoToKitchen = () => {
     try {
+      //Mostrar la orden en el header antes de ir a la cocina
+      setShowOrderInHeader(true);
       //INICIAR EL TIMER AL PRESIONAR OK
       startTimer();
       if (onGoToKitchen) {
-        onGoToKitchen();
+        onGoToKitchen(orderText); // Pasar el orderText al componente padre
       } else {
         console.error("onGoToKitchen no está definida");
       }
@@ -188,7 +192,7 @@ export default function Order({ customer, onGoToKitchen }) {
     <div className={styles.orderContainer}>
       <div className={styles.header}>
         <div className={styles.percent}>{percentage}%</div>
-        <div className={styles.order}></div>
+        <div className={styles.order}>{showOrderInHeader ? orderText : ''}</div>
         <div className={styles.time}></div>
       </div>
       <canvas

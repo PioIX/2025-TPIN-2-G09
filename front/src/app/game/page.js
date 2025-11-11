@@ -18,6 +18,7 @@ function GameContent() {
     const [showDeliver, setShowDeliver] = useState(false);
     const [pizzaImage, setPizzaImage] = useState(null);
     const [pizzaFilter, setPizzaFilter] = useState('');
+    const [currentOrderText, setCurrentOrderText] = useState(''); // ✅ NUEVO: Estado para la orden
 
     // Sistema de personajes
     const [customers, setCustomers] = useState([]);
@@ -64,8 +65,10 @@ function GameContent() {
         fetchOrder();
     }, []);
 
-    const handleGoToKitchen = () => {
-        console.log("Cambiando a Kitchen");
+    // ✅ MODIFICADO: Recibe el orderText de Order
+    const handleGoToKitchen = (orderText) => {
+        console.log("Cambiando a Kitchen con orden:", orderText);
+        setCurrentOrderText(orderText);
         setShowKitchen(true);
     };
 
@@ -131,6 +134,7 @@ function GameContent() {
             setShowDeliver(false);
             setPizzaImage(null);
             setPizzaFilter('');
+            setCurrentOrderText(''); // ✅ NUEVO: Limpiar la orden al cambiar de cliente
         }
     };
 
@@ -216,7 +220,10 @@ function GameContent() {
                                 </div>
                             ) : (
                                 <div className={styles.section}>
-                                    <Kitchen onGoToOven={handleGoToOven} />
+                                    <Kitchen 
+                                        onGoToOven={handleGoToOven}
+                                        orderText={currentOrderText}
+                                    />
                                 </div>
                             )
                         ) : (
@@ -224,6 +231,7 @@ function GameContent() {
                                 <Oven
                                     pizzaImage={pizzaImage}
                                     onGoToCut={handleGoToCut}
+                                    orderText={currentOrderText}
                                 />
                             </div>
                         )
@@ -232,6 +240,7 @@ function GameContent() {
                             pizzaImage={pizzaImage}
                             pizzaFilter={pizzaFilter}
                             onGoToDeliver={handleGoToDeliver}
+                            orderText={currentOrderText}
                         />
                     )
                 ) : (
@@ -239,6 +248,7 @@ function GameContent() {
                         onNextCustomer={handleNextCustomer}
                         currentCustomer={currentCustomerIndex + 1}
                         totalCustomers={customers.length}
+                        orderText={currentOrderText}
                     />
                 )
             }
