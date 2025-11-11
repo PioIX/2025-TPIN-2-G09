@@ -5,6 +5,7 @@ import styles from "./Cut.module.css"
 import clsx from "clsx"
 import { useTimer } from './TimerContext'
 import { useScore } from './ScoreContext'
+import { useMoney } from './MoneyContext'
 
 //SECCIÓN DE CORTAR
 export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver, orderText }) {
@@ -19,6 +20,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver, orderText 
     const [hidePizza, setHidePizza] = useState(true)
     const canvasRef = useRef(null)
     const containerRef = useRef(null)
+    const { money } = useMoney()
 
     const idealLines = [
         { angle: 0 },
@@ -328,9 +330,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver, orderText 
                     <div className={styles.order}>
                         {orderText || ''}
                     </div>
-                    <div className={styles.time}>
-
-                    </div>
+                    <div className={styles.money}>${money}</div>
                 </div>
                 <div className={styles.table}>
                     <div className={clsx(styles.pizzaCanvas, { [styles.slideOut]: isSliding })}
