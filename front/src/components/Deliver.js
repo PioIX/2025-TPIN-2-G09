@@ -4,7 +4,7 @@ import styles from "./Deliver.module.css"
 import {useRef, useEffect, useState } from "react";
 import { useTimer } from './TimerContext';
 
-export default function Deliver({ onNextCustomer, currentCustomer, totalCustomers }) {
+export default function Deliver({ onNextCustomer, currentCustomer, totalCustomers, orderText }) {
     const { percentage, resetTimer } = useTimer();
     const [characterImage, setCharacterImage] = useState('');
     const [loading, setLoading] = useState(true);
@@ -186,6 +186,8 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
     };
 
     const handleNextCustomer = () => {
+        // Limpiar la orden del localStorage al ir al siguiente cliente
+        localStorage.removeItem('currentOrderText');
         resetTimer();
         if (onNextCustomer) {
             onNextCustomer();
@@ -199,7 +201,7 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
                     {percentage}%
                 </div>
                 <div className={styles.order}>
-                
+                    {orderText || ''}
                 </div>
                  <div className={styles.time}></div>
             </div>

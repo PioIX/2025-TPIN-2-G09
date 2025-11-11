@@ -63,8 +63,15 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  color: #c73e1d;
-  font-size: 1.5rem;
+  color: #9f3419;
+  font-size: 1rem;
+  font-size: clamp(0.9rem, 1.1rem + 0.6vw, 1.6rem);
+  line-height: 1.1;
+  text-align: center;
+  padding: 0 8px;
+  /* Allow wrapping/breaking so longer texts wrap instead of overflowing; hyphens help break words nicely. */
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .order {
