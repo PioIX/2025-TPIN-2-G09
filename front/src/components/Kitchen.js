@@ -16,8 +16,8 @@ export default function Kitchen({onGoToOven, orderText}) {
         {id:3, name:"pepperoni", image:"/imagesIngredients/pepperoni.png", bowl:"/imagesIngredients/pepperoniBowl.png", drawMode: "click", size: 50},
         {id:4, name:"mushroom", image:"/imagesIngredients/mushroom.png", bowl:"/imagesIngredients/mushroomBowl.png", drawMode: "click", size: 50},
         {id:5, name:"olive", image:"/imagesIngredients/olive.png", bowl:"/imagesIngredients/oliveBowl.png", drawMode: "click", size: 50},
-        {id:6, name:"pepper", image:"/imagesIngredients/pepper.png", bowl:"/imagesIngredients/pepperBowl.png", drawMode: "click", size: 70},
-        {id:7, name:"onion", image:"/imagesIngredients/onion.png", bowl:"/imagesIngredients/onionBowl.png", drawMode: "click", size: 80}
+        {id:6, name:"pepper", image:"/imagesIngredients/pepper.png", bowl:"/imagesIngredients/pepperBowl.png", drawMode: "click", size: 60},
+        {id:7, name:"onion", image:"/imagesIngredients/onion.png", bowl:"/imagesIngredients/onionBowl.png", drawMode: "click", size: 60}
     ]
 
     const [visibleBuns, setVisibleBuns] = useState([true, true, true, true, true, true, true, true])
