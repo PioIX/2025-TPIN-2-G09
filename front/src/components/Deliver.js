@@ -3,6 +3,7 @@
 import styles from "./Deliver.module.css"
 import {useRef, useEffect, useState } from "react";
 import { useTimer } from './TimerContext';
+import { useMoney } from './MoneyContext'
 
 export default function Deliver({ onNextCustomer, currentCustomer, totalCustomers, orderText }) {
     const { percentage, resetTimer } = useTimer();
@@ -12,6 +13,7 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
     const [showThanks, setShowThanks] = useState(false);
     const [showNextButton, setShowNextButton] = useState(false);
     const customerName = localStorage.getItem('currentCustomerName');
+    const { money } = useMoney()
     
     useEffect(() => {
         const fetchOrder = async () => {
@@ -200,7 +202,7 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
                 <div className={styles.percent}>
                     {percentage}%
                 </div>
-                 <div className={styles.time}></div>
+                 <div className={styles.money}>${money}</div>
             </div>
             <canvas
                 ref={canvasRef}

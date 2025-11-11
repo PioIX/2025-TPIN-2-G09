@@ -5,9 +5,11 @@ import Image from 'next/image';
 import { useScore } from "./ScoreContext.js"
 import styles from './Oven.module.css';
 import { useTimer } from './TimerContext';
+import { useMoney } from './MoneyContext'
 
 export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText }) {
     const { percentage } = useTimer();
+    const { money } = useMoney()
     const { calculateOvenScore, getCookingState, updateStageScore } = useScore();
     
     const [isCooking, setIsCooking] = useState(false);
@@ -17,6 +19,7 @@ export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText 
     const [finalPizzaFilter, setFinalPizzaFilter] = useState('');
     const [pizzaPassedOven, setPizzaPassedOven] = useState(false);
     const [hasTransitioned, setHasTransitioned] = useState(false);
+    
 
     const startCooking = () => {
         setIsCooking(true);
@@ -136,7 +139,7 @@ export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText 
             <div className={styles.header}>
                 <div className={styles.percent}>{percentage}%</div>
                 <div className={styles.order}>{orderText || ''}</div>
-                <div className={styles.time}></div>
+                <div className={styles.money}>${money}</div>
             </div>
 
             <div className={styles.ovenWrapper}>

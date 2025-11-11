@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 import { useTimer } from './TimerContext';
+import { useMoney } from './MoneyContext'
 
 export default function Order({ customer, onGoToKitchen }) {
   const [orderText, setOrderText] = useState('');
@@ -13,6 +14,7 @@ export default function Order({ customer, onGoToKitchen }) {
   const [showDialog, setShowDialog] = useState(false);
   const [showOrderInHeader, setShowOrderInHeader] = useState(false);
   const { percentage, startTimer } = useTimer();
+  const { money } = useMoney()
 
   // ✅ USAR LA PROP customer en lugar de hacer fetch
   useEffect(() => {
@@ -192,7 +194,7 @@ export default function Order({ customer, onGoToKitchen }) {
     <div className={styles.orderContainer}>
       <div className={styles.header}>
         <div className={styles.percent}>{percentage}%</div>
-        <div className={styles.time}></div>
+        <div className={styles.money}>${money}</div>
       </div>
       <canvas
         ref={canvasRef}

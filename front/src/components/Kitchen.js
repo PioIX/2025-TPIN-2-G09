@@ -5,10 +5,12 @@ import styles from "./Kitchen.module.css"
 import { useScore } from "./ScoreContext.js"
 import { useRouter } from "next/navigation"
 import { useTimer } from "./TimerContext"
+import { useMoney } from './MoneyContext'
 
 //SECCIÓN DE LA COCINA
 export default function Kitchen({onGoToOven, orderText}) {
     const { percentage} = useTimer();
+    const { money } = useMoney()
     const { updateStageScore } = useScore()
     const ingredientsBox = [
         {id:1, name:"tomato", image:"/imagesIngredients/tomato.png", bowl:"/imagesIngredients/tomatoBowl.png", drawMode: "image", size: 160},
@@ -412,7 +414,7 @@ export default function Kitchen({onGoToOven, orderText}) {
                     <div className={styles.order}>
                         {orderText || ''}
                     </div>
-                    <div className={styles.time}></div>
+                    <div className={styles.money}>${money}</div>
                 </div>
                 <div className={styles.ingredientsBox}>
                     {ingredientsBox.map((ingredientBox) => (

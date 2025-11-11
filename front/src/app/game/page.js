@@ -9,6 +9,7 @@ import Cut from "@/components/Cut";
 import Deliver from '@/components/Deliver';
 import { ScoreProvider, useScore } from '@/components/ScoreContext'
 import { TimerProvider, useTimer } from '@/components/TimerContext';
+import { MoneyProvider, useMoney } from '@/components/MoneyContext';
 import io from 'socket.io-client';
 
 function GameContent() {
@@ -34,13 +35,10 @@ function GameContent() {
     const [opponentTime, setOpponentTime] = useState(null);
     const [opponentMoney, setOpponentMoney] = useState(null);
     const [myMoney, setMyMoney] = useState(0);
-
-
     const [customerScores, setCustomerScores] = useState([]);
-
-    
+    const { money, addMoney } = useMoney()
     const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes, setTimeoutCallback, percentage } = useTimer();
-    const { applyTimeoutPenalty } = useScore()
+    const { applyTimeoutPenalty, calculateTotalScore, score, validationDetails, resetAllScores } = useScore()
 
     useEffect(() => {
         const handleTimeout = () => {
@@ -135,6 +133,7 @@ function GameContent() {
 
         // ✅ NUEVO: Guardar el score total de este cliente
         const totalScore = calculateTotalScore();
+        addMoney(totalScore); // Suma el score como dinero
         const customerScore = {
             customerIndex: currentCustomerIndex,
             customerName: customers[currentCustomerIndex]?.name,
@@ -347,7 +346,9 @@ export default function Game() {
     return (
         <TimerProvider>
             <ScoreProvider>
-                <GameContent />
+                <MoneyProvider>
+                    <GameContent />
+                </MoneyProvider>
             </ScoreProvider>
         </TimerProvider>
     );

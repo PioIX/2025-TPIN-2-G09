@@ -37,8 +37,7 @@
 }
 
 
-.order,
-.time {
+.order{
   width: 180px;
   height: 50px;
   background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
@@ -66,6 +65,20 @@
   max-width: 500px;
 }
 
+.money {
+  width: 180px;
+  height: 50px;
+  background: linear-gradient(135deg, #fef5e7 0%, #f9e9d9 100%);
+  border: 2px solid #d4a574;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #c73e1d;
+  font-size: 1.5rem;
+}
 
 /* ============ SECCIÓN DE INGREDIENTES ============ */
 .ingredientsBox {
