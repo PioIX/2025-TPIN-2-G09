@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import styles from "./Cut.module.css"
 import clsx from "clsx"
 import { useTimer } from './TimerContext'
+import { useScore } from './ScoreContext'
 
 //SECCIÓN DE CORTAR
 export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
@@ -18,11 +19,47 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     const canvasRef = useRef(null)
     const containerRef = useRef(null)
 
+    const idealLines = [
+        { angle: 0 },
+        { angle: Math.PI / 4 }, //45°
+        { angle: Math.PI / 2 }, //90°
+        { angle: 3*Math.PI / 4 } //135°
+    ]
+
     const knifeCursor = () => {
         setCursorStyle(true)
         setVisibleKnife(false)
         setShowDoneButton(true)
     }
+
+    const calculateLineAngle = (startX, startY, endX, endY) => {
+        let angle = Math.atan2(endY - startY, endX - startX)
+        angle = angle % Math.PI
+        if(angle < 0) angle += Math.PI
+        return angle
+    }
+
+    const findClosestIdealAngle = (lineAngle, usedAngles) => {
+        let minDiff = Infinity
+        let closestIndex = -1
+
+        idealLines.forEach((ideal, index) => {
+            if (!usedAngles.has(index)){
+                let diff = Math.abs(lineAngle - ideal.angle)
+                let diffOpposite = Math.abs(lineAngle - (ideal.angle + Math.PI))
+                diff = Math.min(diff, diffOpposite)
+
+                if(diff<minDiff){
+                    minDiff = diff
+                    closestIndex = index
+                }
+            }
+        })
+
+        return { index: closestIndex, diff: minDiff }
+    }
+
+    { }
 
     const resetCursor = () => {
         setCursorStyle(false)
