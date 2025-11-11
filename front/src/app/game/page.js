@@ -18,7 +18,7 @@ function GameContent() {
     const [showDeliver, setShowDeliver] = useState(false);
     const [pizzaImage, setPizzaImage] = useState(null);
     const [pizzaFilter, setPizzaFilter] = useState('');
-    const [currentOrderText, setCurrentOrderText] = useState(''); // ✅ NUEVO: Estado para la orden
+    const [currentOrderText, setCurrentOrderText] = useState('');
 
     // Sistema de personajes
     const [customers, setCustomers] = useState([]);
@@ -36,9 +36,12 @@ function GameContent() {
     const [opponentMoney, setOpponentMoney] = useState(null);
     const [myMoney, setMyMoney] = useState(0);
 
-    const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes } = useTimer();
+    // ✅ NUEVO: Almacenar scores de cada cliente
+    const [customerScores, setCustomerScores] = useState([]);
 
-    // ✅ FETCH ÚNICO al inicio para obtener los 8 clientes
+    const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes } = useTimer();
+    const { score, validationDetails, calculateTotalScore, resetAllScores } = useScore();
+
     useEffect(() => {
         const fetchOrder = async () => {
             try {
@@ -65,7 +68,6 @@ function GameContent() {
         fetchOrder();
     }, []);
 
-    // ✅ MODIFICADO: Recibe el orderText de Order
     const handleGoToKitchen = (orderText) => {
         console.log("Cambiando a Kitchen con orden:", orderText);
         setCurrentOrderText(orderText);
@@ -96,6 +98,31 @@ function GameContent() {
     const handleNextCustomer = () => {
         const customerTime = saveCustomerTime();
         console.log(`⏱️ Cliente ${currentCustomerIndex + 1} completado en: ${formatTime(customerTime)}`);
+
+        // ✅ NUEVO: Guardar el score total de este cliente
+        const totalScore = calculateTotalScore();
+        const customerScore = {
+            customerIndex: currentCustomerIndex,
+            customerName: customers[currentCustomerIndex]?.name,
+            time: customerTime,
+            scores: {
+                kitchen: score.kitchen,
+                oven: score.oven,
+                cut: score.cut,
+                total: totalScore
+            },
+            validations: {
+                kitchen: validationDetails.kitchen,
+                oven: validationDetails.oven,
+                cut: validationDetails.cut
+            }
+        };
+
+        setCustomerScores(prev => [...prev, customerScore]);
+        console.log('Score del cliente guardado:', customerScore);
+
+        // Resetear scores para el siguiente cliente
+        resetAllScores();
 
         const nextIndex = currentCustomerIndex + 1;
 
@@ -134,16 +161,16 @@ function GameContent() {
             setShowDeliver(false);
             setPizzaImage(null);
             setPizzaFilter('');
-            setCurrentOrderText(''); // ✅ NUEVO: Limpiar la orden al cambiar de cliente
+            setCurrentOrderText('');
         }
     };
 
-    // Si no hay personajes cargados aún, mostrar loading
+
     if (customers.length === 0) {
         return <div>Cargando clientes...</div>;
     }
 
-    // ✅ SI EL JUEGO TERMINÓ, MOSTRAR SOLO LA PANTALLA FINAL
+    // ✅ PANTALLA FINAL CON RANKING DE SCORES
     if (gameFinished) {
         return (
             <div className={styles.resultsContainer}>
@@ -164,7 +191,7 @@ function GameContent() {
                                 <span className={styles.playerName}>Tú</span>
                             </div>
                             <span className={styles.playerTime}>{formatTime(finalTotalTime)}</span>
-                            <span className={styles.playerMoney}>${myMoney}</span>
+                            <span className={styles.playerScore}>Score: {calculateTotalScore()}</span>
                         </div>
 
                         {opponentFinished && (
@@ -184,24 +211,50 @@ function GameContent() {
                         </div>
                     )}
 
-                    <details className={styles.detailsSection}>
+                    {/* ✅ NUEVO: Ranking de scores por cliente */}
+                    <details className={styles.detailsSection} open>
                         <summary className={styles.detailsSummary}>
-                            Ver tiempos detallados por cliente
+                            Ranking de Puntajes por Cliente
                         </summary>
-                        <ul className={styles.timesList}>
-                            {customerTimes.map((time, index) => (
-                                <li key={index}>
-                                    Cliente {index + 1} ({customers[index]?.name}): {formatTime(time)}
-                                </li>
+                        <div className={styles.scoreRanking}>
+                            {customerScores.map((cs, index) => (
+                                <div key={index} className={styles.customerScoreCard}>
+                                    <div className={styles.customerHeader}>
+                                        <span className={styles.customerNumber}>{index + 1}</span>
+                                        <span className={styles.customerName}>{cs.customerName}</span>
+                                        <span className={styles.customerTime}>{formatTime(cs.time)}</span>
+                                    </div>
+                                    
+                                    <div className={styles.scoresGrid}>
+                                        <div className={styles.scoreItem}>
+                                            <span className={styles.scoreLabel}>Kitchen</span>
+                                            <span className={styles.scoreValue}>{cs.scores.kitchen ?? 'N/A'}</span>
+                                        </div>
+                                        <div className={styles.scoreItem}>
+                                            <span className={styles.scoreLabel}>Oven</span>
+                                            <span className={styles.scoreValue}>{cs.scores.oven ?? 'N/A'}</span>
+                                        </div>
+                                        <div className={styles.scoreItem}>
+                                            <span className={styles.scoreLabel}>Cut</span>
+                                            <span className={styles.scoreValue}>{cs.scores.cut ?? 'N/A'}</span>
+                                        </div>
+                                        <div className={`${styles.scoreItem} ${styles.totalScore}`}>
+                                            <span className={styles.scoreLabel}>Total</span>
+                                            <span className={styles.scoreValue}>{cs.scores.total}</span>
+                                        </div>
+                                    </div>
+
+                                    
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </details>
                 </div>
             </div>
         );
     }
 
-    // ✅ JUEGO NORMAL (solo se ejecuta si gameFinished es false)
+    // JUEGO NORMAL
     const currentCustomer = customers[currentCustomerIndex];
 
     return (
