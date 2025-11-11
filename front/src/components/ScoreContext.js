@@ -17,30 +17,22 @@ export function ScoreProvider({ children }) {
         cut: null
     })
 
-    // Función para calcular el puntaje del horno basado en el tiempo de cocción
     const calculateOvenScore = (cookingTime) => {
-        // Tiempo ideal: 10-12 segundos = 100 puntos
         if (cookingTime >= 10 && cookingTime <= 12) {
             return 100;
         }
         
-        // Si está fuera del rango ideal, calculamos el puntaje según la distancia
         if (cookingTime < 10) {
-            // Cruda: 5-9 segundos
-            // 9 segundos = 80 puntos, 5 segundos = 0 puntos
             const distance = 10 - cookingTime;
-            const maxDistance = 5; // distancia máxima (10 - 5)
+            const maxDistance = 5; 
             return Math.max(0, 80 - (distance / maxDistance) * 80);
         } else {
-            // Quemada: 13-20 segundos
-            // 13 segundos = 80 puntos, 20 segundos = 0 puntos
             const distance = cookingTime - 12;
-            const maxDistance = 8; // distancia máxima (20 - 12)
+            const maxDistance = 8;
             return Math.max(0, 80 - (distance / maxDistance) * 80);
         }
     }
 
-    // Función para determinar el estado de cocción
     const getCookingState = (cookingTime) => {
         if (cookingTime < 8) {
             return 'raw';
@@ -111,6 +103,40 @@ export function ScoreProvider({ children }) {
         }))
     }
 
+    const applyTimeoutPenalty = () => {
+        console.log('Estado actual del score:', score)
+
+        const currentTotal = calculateTotalScore()
+        const penalizedScore = Math.max(0, currentTotal - 70)
+
+        console.log('Score antes de penalización:', currentTotal)
+        console.log('Score después de penalización:', penalizedScore)
+
+        setScore(prev => {
+            const newScore = {...prev}
+            Object.keys(newScore).forEach(stage => {
+                if (newScore[stage] === null) {
+                    console.log(`Etapa ${stage} estaba incompleta, asignando 0`)
+                    newScore[stage] = 0
+                }
+            })
+
+            return newScore
+        })
+
+        setValidationDetails(prev => ({
+            ...prev,
+            timeout: {
+                penalty:70,
+                scoreBefore: currentTotal,
+                scoreAfter: penalizedScore,
+                timestamp: new Date().toISOString()
+            }
+        }))
+
+        return penalizedScore
+    }
+
     return (
         <ScoreContext.Provider value={{ 
             score, 
@@ -122,7 +148,8 @@ export function ScoreProvider({ children }) {
             resetAllScores,
             resetStageScore,
             calculateOvenScore,
-            getCookingState
+            getCookingState,
+            applyTimeoutPenalty
         }}>
             {children}
         </ScoreContext.Provider>
