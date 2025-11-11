@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useScore } from "./ScoreContext.js"
 import styles from './Oven.module.css';
 import { useTimer } from './TimerContext';
 
 export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText }) {
     const { percentage } = useTimer();
+    const { calculateOvenScore, getCookingState, updateStageScore } = useScore();
+    
     const [isCooking, setIsCooking] = useState(false);
     const [cookingTime, setCookingTime] = useState(10);
     const [timeLeft, setTimeLeft] = useState(0);
@@ -14,37 +17,6 @@ export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText 
     const [finalPizzaFilter, setFinalPizzaFilter] = useState('');
     const [pizzaPassedOven, setPizzaPassedOven] = useState(false);
     const [hasTransitioned, setHasTransitioned] = useState(false);
-
-    // Función para calcular el puntaje basado en el tiempo de cocción
-    const calculateOvenScore = (time) => {
-        // Tiempo ideal: 10-12 segundos = 100 puntos
-        if (time >= 10 && time <= 12) {
-            return 100;
-        }
-        
-        // Si está fuera del rango ideal, calculamos el puntaje según la distancia
-        if (time < 10) {
-            // Cruda: 5-9 segundos
-            // 9 segundos = 80 puntos, 5 segundos = 0 puntos
-            const distance = 10 - time;
-            const maxDistance = 5; // distancia máxima (10 - 5)
-            return Math.max(0, 80 - (distance / maxDistance) * 80);
-        } else {
-            // Quemada: 13-20 segundos
-            // 13 segundos = 80 puntos, 20 segundos = 0 puntos
-            const distance = time - 12;
-            const maxDistance = 8; // distancia máxima (20 - 12)
-            return Math.max(0, 80 - (distance / maxDistance) * 80);
-        }
-    };
-
-    // Función para calcular la plata basada en el puntaje
-    const calculateMoney = (score) => {
-        // Convertimos el puntaje (0-100) a dinero
-        // 100 puntos = $100
-        // 0 puntos = $0
-        return Math.round(score);
-    };
 
     const startCooking = () => {
         setIsCooking(true);
@@ -110,29 +82,27 @@ export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText 
             setIsCooking(false);
             setHasTransitioned(true);
             
-            let finalState = 'raw';
-            if (cookingTime < 8) {
-                finalState = 'raw';
-            } else if (cookingTime >= 8 && cookingTime <= 12) {
-                finalState = 'perfect';
-            } else {
-                finalState = 'burnt';
-            }
-            
-            // Calcular el puntaje del horno
+            // Usar las funciones del contexto
+            const finalState = getCookingState(cookingTime);
             const ovenScore = calculateOvenScore(cookingTime);
-            const money = calculateMoney(ovenScore);
             
-            // Guardar la plata de este cliente en localStorage
+            // Guardar en localStorage (mantener para persistencia entre sesiones)
             const ovenScores = JSON.parse(localStorage.getItem('ovenScores') || '{}');
             ovenScores[currentOrderId] = {
                 score: ovenScore,
-                money: money,
                 time: cookingTime,
                 state: finalState,
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem('ovenScores', JSON.stringify(ovenScores));
+            
+            // Actualizar el contexto con validación
+            updateStageScore('oven', ovenScore, {
+                time: cookingTime,
+                state: finalState,
+                orderId: currentOrderId,
+                timestamp: new Date().toISOString()
+            });
             
             const finalFilter = getFilterStyle(cookingTime);
             
@@ -140,10 +110,9 @@ export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText 
             console.log("Cliente ID:", currentOrderId);
             console.log("Tiempo de cocción:", cookingTime, "segundos");
             console.log("Puntaje del horno:", ovenScore.toFixed(2), "/ 100");
-            console.log("Dinero ganado: $", money);
+            console.log("Estado de cocción:", finalState);
             console.log("Filtro calculado:", finalFilter);
-            console.log("Datos guardados en localStorage");
-            
+            console.log("Datos guardados en localStorage y contexto");
             
             setCookingState(finalState);
             setFinalPizzaFilter(finalFilter);
@@ -152,15 +121,15 @@ export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText 
             setTimeout(() => {
                 console.log("Llamando a onGoToCut");
                 if (onGoToCut) {
-                    console.log("Ejecutando onGoToCut con puntaje:", ovenScore, "y dinero: $", money);
-                    onGoToCut(finalState, finalFilter, ovenScore, money);
+                    console.log("Ejecutando onGoToCut con puntaje:", ovenScore);
+                    onGoToCut(finalState, finalFilter, ovenScore);
                     console.log("onGoToCut ejecutado");
                 } else {
                     console.error("onGoToCut NO EXISTE!");
                 }
             }, 500);
         }
-    }, [timeLeft, isCooking, hasTransitioned, cookingTime, onGoToCut, currentOrderId]);
+    }, [timeLeft, isCooking, hasTransitioned, cookingTime, onGoToCut, currentOrderId, calculateOvenScore, getCookingState, updateStageScore]);
 
     return (
         <div className={styles.container}>

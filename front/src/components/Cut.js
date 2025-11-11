@@ -7,7 +7,7 @@ import { useTimer } from './TimerContext'
 import { useScore } from './ScoreContext'
 
 //SECCIÓN DE CORTAR
-export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
+export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver, orderText }) {
     const { percentage, stopTimer } = useTimer();
     const { updateStageScore } = useScore()
     const [cursorStyle, setCursorStyle] = useState(false)
@@ -141,9 +141,20 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
     }
 
     const resetCursor = () => {
+        setShowDoneButton(false)
         setCursorStyle(false)
         setHidePizza(false)
-        stopTimer();
+
+        stopTimer(); //Detiene el temporizador al apretar el boton verde Listo!!!!
+        
+        // Limpiar el canvas y las líneas guardadas
+        const canvas = canvasRef.current
+        if (canvas) {
+            const ctx = canvas.getContext('2d')
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+        }
+        setSavedLines([]) // Limpia todas las líneas guardadas
+
 
         const validation = validateCuts()
         console.log('Resultado de validación de cortes:', validation)
@@ -315,7 +326,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver }) {
 
                     </div>
                     <div className={styles.order}>
-
+                        {orderText || ''}
                     </div>
                     <div className={styles.time}>
 
