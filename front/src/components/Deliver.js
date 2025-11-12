@@ -8,7 +8,7 @@ import { useScore } from '../contexts/ScoreContext'
 
 export default function Deliver({ onNextCustomer, currentCustomer, totalCustomers, orderText }) {
     const { percentage, resetTimer } = useTimer();
-    const { calculateTotalScore } = useTimer();
+    const { calculateTotalScore } = useScore();
     const [characterImage, setCharacterImage] = useState('');
     const [loading, setLoading] = useState(true);
     const [showBox, setShowBox] = useState(true);
