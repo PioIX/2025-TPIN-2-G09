@@ -2,8 +2,8 @@
 
 import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
-import { useTimer } from './TimerContext';
-import { useMoney } from './MoneyContext'
+import { useTimer } from '../contexts/TimerContext';
+import { useMoney } from '../contexts/MoneyContext'
 
 export default function Order({ customer, onGoToKitchen }) {
   const [orderText, setOrderText] = useState('');

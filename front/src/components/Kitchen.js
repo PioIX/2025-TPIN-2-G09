@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect} from "react"
 import styles from "./Kitchen.module.css"
-import { useScore } from "./ScoreContext.js"
+import { useScore } from "../contexts/ScoreContext.js"
 import { useRouter } from "next/navigation"
-import { useTimer } from "./TimerContext"
-import { useMoney } from './MoneyContext'
+import { useTimer } from "../contexts/TimerContext"
+import { useMoney } from '../contexts/MoneyContext'
 import { useConnection } from "@/hooks/useConnection"
 
 //SECCIÓN DE LA COCINA

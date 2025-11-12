@@ -2,16 +2,19 @@
 
 import styles from "./Deliver.module.css"
 import {useRef, useEffect, useState } from "react";
-import { useTimer } from './TimerContext';
-import { useMoney } from './MoneyContext'
+import { useTimer } from '../contexts/TimerContext';
+import { useMoney } from '../contexts/MoneyContext'
+import { useScore } from '../contexts/ScoreContext'
 
 export default function Deliver({ onNextCustomer, currentCustomer, totalCustomers, orderText }) {
     const { percentage, resetTimer } = useTimer();
+    const { calculateTotalScore } = useTimer();
     const [characterImage, setCharacterImage] = useState('');
     const [loading, setLoading] = useState(true);
     const [showBox, setShowBox] = useState(true);
     const [showThanks, setShowThanks] = useState(false);
     const [showNextButton, setShowNextButton] = useState(false);
+    const [dialogMessage, setDialogMessage] = useState('');
     const customerName = localStorage.getItem('currentCustomerName');
     const { money } = useMoney()
     
@@ -30,19 +33,20 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
         };
 
         fetchOrder();
-    }, [customerName]);
+    }, [customerName])
 
-    const canvasRef = useRef(null);
+    const canvasRef = useRef(null)
     const [imagesLoaded, setImagesLoaded] = useState({
         background: false,
         character: false,
         box: false
-    });
+    })
+
     const imagesRef = useRef({
         background: null,
         character: null,
         box: null
-    });
+    })
 
     useEffect(() => {
         const bgImg = new Image();
@@ -177,6 +181,24 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
         // Verificar si el click está dentro de la caja
         if (x >= boxX && x <= boxX + boxWidth && y >= boxY && y <= boxY + boxHeight) {
             setShowBox(false);
+
+            const totalScore = calculateTotalScore()
+            let message = ''
+
+            if (totalScore >= 0 && totalScore <= 20) {
+                message = 'Esto… ¿se supone que debo imaginar el resto de los ingredientes?';
+            } else if (totalScore > 20 && totalScore <= 40) {
+                message = 'Parece que alguien se olvidó del amor en esta receta.';
+            } else if (totalScore > 40 && totalScore <= 60) {
+                message = 'Podría ser peor, pero también podría ser más rica.';
+            } else if (totalScore > 60 && totalScore <= 80) {
+                message = '¡Casi perfecta! Solo le faltó un poquito más de magia.';
+            } else if (totalScore > 80 && totalScore <= 100) {
+                message = 'Todo en su punto justo. ¡Una pizza excelente!';
+            }
+            
+            setDialogMessage(message)
+
             setTimeout(() => {
                 setShowThanks(true);
                 // Mostrar el botón después del mensaje de gracias
@@ -215,7 +237,7 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
                 <div className={styles.dialogContainer}>
                     <div className={styles.dialogBubble}>
                         <p className={styles.dialogText}>
-                            ¡Gracias!
+                            {dialogMessage}
                         </p>
                     </div>
                 </div>

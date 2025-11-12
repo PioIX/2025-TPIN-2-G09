@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useScore } from "./ScoreContext.js"
+import { useScore } from "../contexts/ScoreContext.js"
 import styles from './Oven.module.css';
-import { useTimer } from './TimerContext';
-import { useMoney } from './MoneyContext'
+import { useTimer } from '../contexts/TimerContext.js';
+import { useMoney } from '../contexts/MoneyContext.js'
 
 export default function Oven({ pizzaImage, onGoToCut, currentOrderId, orderText }) {
     const { percentage } = useTimer();
