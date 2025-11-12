@@ -3,9 +3,9 @@
 import { useEffect, useState, useRef } from "react"
 import styles from "./Cut.module.css"
 import clsx from "clsx"
-import { useTimer } from './TimerContext'
-import { useScore } from './ScoreContext'
-import { useMoney } from './MoneyContext'
+import { useTimer } from '../contexts/TimerContext'
+import { useScore } from '../contexts/ScoreContext'
+import { useMoney } from '../contexts/MoneyContext'
 
 //SECCIÓN DE CORTAR
 export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver, orderText }) {

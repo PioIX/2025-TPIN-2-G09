@@ -7,9 +7,9 @@ import Order from "@/components/Order";
 import Oven from "@/components/Oven";
 import Cut from "@/components/Cut";
 import Deliver from '@/components/Deliver';
-import { ScoreProvider, useScore } from '@/components/ScoreContext'
-import { TimerProvider, useTimer } from '@/components/TimerContext';
-import { MoneyProvider, useMoney } from '@/components/MoneyContext';
+import { ScoreProvider, useScore } from '@/contexts/ScoreContext'
+import { TimerProvider, useTimer } from '@/contexts/TimerContext';
+import { MoneyProvider, useMoney } from '@/contexts/MoneyContext';
 import { useSocket } from '@/hooks/useSocket';
 import { useConnection } from '@/hooks/useConnection';
 
