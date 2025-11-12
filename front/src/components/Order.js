@@ -16,7 +16,6 @@ export default function Order({ customer, onGoToKitchen }) {
   const { percentage, startTimer } = useTimer();
   const { money } = useMoney()
 
-  // ✅ USAR LA PROP customer en lugar de hacer fetch
   useEffect(() => {
     if (customer) {
       console.log("Customer recibido en Order:", customer);
