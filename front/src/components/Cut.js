@@ -294,7 +294,7 @@ export default function Cut({ pizzaImage, pizzaFilter, onGoToDeliver, orderText 
 
         const angle = Math.atan2(mouseY - centerY, mouseX - centerX)
 
-        const maxLength = Math.sqrt(canvas.width * 25 + canvas.height * 25)
+        const maxLength = Math.sqrt(canvas.width * 38 + canvas.height * 38)
 
         const endX = (centerX + Math.cos(angle) * maxLength)
         const endY = centerY + Math.sin(angle) * maxLength
