@@ -6,9 +6,11 @@ import { useScore } from "./ScoreContext.js"
 import { useRouter } from "next/navigation"
 import { useTimer } from "./TimerContext"
 import { useMoney } from './MoneyContext'
+import { useConnection } from "@/hooks/useConnection"
 
 //SECCIÓN DE LA COCINA
 export default function Kitchen({onGoToOven, orderText}) {
+    const {url} = useConnection()
     const { percentage} = useTimer();
     const { money } = useMoney()
     const { updateStageScore } = useScore()
@@ -65,7 +67,7 @@ export default function Kitchen({onGoToOven, orderText}) {
                     return
                 }
 
-                const response = await fetch(`http://localhost:4000/pizzaValidation/${pizzaId}`)
+                const response = await fetch(url + `/pizzaValidation/${pizzaId}`)
 
                 if(!response.ok){
                     console.log('Error del servidor')

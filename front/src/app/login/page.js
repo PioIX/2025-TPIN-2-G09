@@ -6,8 +6,10 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import styles from "./page.module.css";
 import Popup from "reactjs-popup";
+import { useConnection } from "@/hooks/useConnection";
 
 export default function RegistroYLogin() {
+  const {url} = useConnection()
   const [modo, setModo] = useState("login");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -57,7 +59,7 @@ export default function RegistroYLogin() {
     }
     try {
       console.log(datosLogin)
-      const response = await fetch("http://localhost:4000/loginUser", {
+      const response = await fetch(url + "/loginUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datosLogin),
@@ -102,7 +104,7 @@ export default function RegistroYLogin() {
     console.log("Datos a enviar:", datosRegistro)
 
     try {
-      const response = await fetch("http://localhost:4000/registerUser", {
+      const response = await fetch(url + "/registerUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datosRegistro),

@@ -20,7 +20,11 @@ const server = app.listen(port, function () {
 
 const io = require('socket.io')(server, {
     cors: {
-        origin: ["http://localhost:3000", "http://localhost:3001"],
+        origin: [
+            "http://localhost:3000", 
+            "http://localhost:3001",
+            "http://192.168.0.175:3000"
+        ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
     }
@@ -331,103 +335,127 @@ io.on("connection", (socket) => {
         console.log("Usuario desconectado:", socket.id);
     });
 
-    socket.on("gameFinished", async (data) => {
-        try {
-            const { playerId, roomCode, totalTime, customerTimes } = data;
+    // Ahora sí tu handler de gameFinished
+socket.on("gameFinished", async (data) => {
+    try {
+        const { playerId, roomCode, totalTime, totalScore, customerTimes, customerScores } = data;
 
-            console.log(`🏁 Jugador ${playerId} terminó en sala ${roomCode}`);
-            console.log(`⏱️ Tiempo total: ${totalTime}ms (${(totalTime / 1000).toFixed(2)}s)`);
-            console.log(`📊 Tiempos por cliente:`, customerTimes);
+        console.log(`🏁 Jugador ${playerId} terminó en sala ${roomCode}`);
+        console.log(`⏱️ Tiempo total: ${totalTime}ms (${(totalTime / 1000).toFixed(2)}s)`);
+        console.log(`⭐ Score total: ${totalScore} puntos`);
+        console.log(`📊 Tiempos por cliente:`, customerTimes);
+        console.log(`🎯 Scores por cliente:`, customerScores);
 
-            // Obtener el id_game de la sala
-            const sala = await realizarQuery(`
+        // Obtener el id_game de la sala
+        const sala = await realizarQuery(`
             SELECT id_game FROM Games WHERE code = '${roomCode}'
         `);
 
-            if (sala.length === 0) {
-                console.error(`❌ Sala ${roomCode} no encontrada`);
-                socket.emit("errorGame", "Sala no encontrada");
-                return;
-            }
+        if (sala.length === 0) {
+            console.error(`❌ Sala ${roomCode} no encontrada`);
+            socket.emit("errorGame", "Sala no encontrada");
+            return;
+        }
 
-            const id_game = sala[0].id_game;
+        const id_game = sala[0].id_game;
 
-            // Calcular money (puedes ajustar esta lógica según tu sistema)
-            // Por ejemplo: 1000 puntos base - tiempo en segundos
-            const timeInSeconds = Math.floor(totalTime / 1000);
-            const money = Math.max(0, 1000 - timeInSeconds); // No puede ser negativo
+        // Calcular money basado en el score (puedes ajustar esta lógica)
+        // Opción 1: El score es el money directamente
+        const money = totalScore;
+        
+        // Opción 2: Combinar score y tiempo
+        // const timeBonus = Math.max(0, 1000 - Math.floor(totalTime / 1000));
+        // const money = totalScore + timeBonus;
 
-            // Insertar resultado en ResultxPlayer
-            const insertResult = `
-            INSERT INTO ResultxPlayer (time, money, id_player, id_game)
-            VALUES (${totalTime}, ${money}, ${playerId}, ${id_game})
+        // ✅ Insertar resultado en ResultxPlayer incluyendo el score
+        const insertResult = `
+            INSERT INTO ResultxPlayer (time, money, score, id_player, id_game)
+            VALUES (${totalTime}, ${money}, ${totalScore}, ${playerId}, ${id_game})
         `;
-            const result = await realizarQuery(insertResult);
+        const result = await realizarQuery(insertResult);
 
-            console.log(`✅ Resultado guardado para jugador ${playerId}:`);
-            console.log(`   - Time: ${totalTime}ms`);
-            console.log(`   - Money: ${money}`);
-            console.log(`   - ID Result: ${result.insertId}`);
+        console.log(`✅ Resultado guardado para jugador ${playerId}:`);
+        console.log(`   - Time: ${totalTime}ms`);
+        console.log(`   - Score: ${totalScore}`);
+        console.log(`   - Money: ${money}`);
+        console.log(`   - ID Result: ${result.insertId}`);
 
-            // Notificar al otro jugador en la sala que este jugador terminó
-            socket.to(roomCode).emit('playerFinished', {
-                playerId: playerId,
-                totalTime: totalTime,
-                money: money,
-                customerTimes: customerTimes
-            });
+        // ✅ Notificar al otro jugador con el score incluido
+        socket.to(roomCode).emit('opponentFinished', {
+            playerId: playerId,
+            totalTime: totalTime,
+            totalScore: totalScore,
+            money: money,
+            customerTimes: customerTimes,
+            customerScores: customerScores
+        });
 
-            console.log(`📤 Notificación enviada a sala ${roomCode}`);
+        console.log(`📤 Notificación enviada a sala ${roomCode}`);
 
-            // Verificar si ambos jugadores terminaron
-            const resultados = await realizarQuery(`
+        // Verificar si ambos jugadores terminaron
+        const resultados = await realizarQuery(`
             SELECT COUNT(*) as total 
             FROM ResultxPlayer 
             WHERE id_game = ${id_game}
         `);
 
-            if (resultados[0].total === 2) {
-                console.log(`🎮 Ambos jugadores terminaron. Determinando ganador...`);
+        if (resultados[0].total === 2) {
+            console.log(`🎮 Ambos jugadores terminaron. Determinando ganador...`);
 
-                // Obtener ambos resultados para determinar el ganador
-                const finalResults = await realizarQuery(`
+            // ✅ Obtener ambos resultados ordenados por SCORE (mayor a menor)
+            // En caso de empate en score, usa el tiempo como desempate
+            const finalResults = await realizarQuery(`
                 SELECT 
                     r.id_player,
                     r.time,
                     r.money,
+                    r.score,
                     p.username
                 FROM ResultxPlayer r
                 JOIN Players p ON r.id_player = p.id_player
                 WHERE r.id_game = ${id_game}
-                ORDER BY r.time ASC
+                ORDER BY r.score DESC, r.time ASC
             `);
 
-                const winner = finalResults[0]; // El que tiene menor tiempo
-                const loser = finalResults[1];
+            const winner = finalResults[0]; // El que tiene mayor score
+            const loser = finalResults[1];
 
-                console.log(`🏆 GANADOR: ${winner.username} (${winner.time}ms)`);
-                console.log(`   PERDEDOR: ${loser.username} (${loser.time}ms)`);
+            const isTie = winner.score === loser.score && winner.time === loser.time;
 
-                // Notificar a ambos jugadores el resultado final
-                io.to(roomCode).emit('gameResults', {
-                    winner: {
-                        id: winner.id_player,
-                        username: winner.username,
-                        time: winner.time,
-                        money: winner.money
-                    },
-                    loser: {
-                        id: loser.id_player,
-                        username: loser.username,
-                        time: loser.time,
-                        money: loser.money
-                    }
-                });
-            }
+            console.log(`🏆 GANADOR: ${winner.username}`);
+            console.log(`   - Score: ${winner.score}`);
+            console.log(`   - Tiempo: ${winner.time}ms`);
+            console.log(`   - Money: ${winner.money}`);
+            console.log(`📊 PERDEDOR: ${loser.username}`);
+            console.log(`   - Score: ${loser.score}`);
+            console.log(`   - Tiempo: ${loser.time}ms`);
+            console.log(`   - Money: ${loser.money}`);
 
-        } catch (err) {
-            console.error("❌ Error al procesar gameFinished:", err);
-            socket.emit("errorGame", "No se pudo guardar el resultado");
+            // ✅ Notificar a ambos jugadores el resultado final con score
+            io.to(roomCode).emit('finalResults', {
+                winner: {
+                    id: winner.id_player,
+                    username: winner.username,
+                    time: winner.time,
+                    score: winner.score,
+                    money: winner.money
+                },
+                loser: {
+                    id: loser.id_player,
+                    username: loser.username,
+                    time: loser.time,
+                    score: loser.score,
+                    money: loser.money
+                },
+                isTie: isTie
+            });
+
+            console.log(`🎊 Resultados finales enviados a sala ${roomCode}`);
         }
-    });
+
+    } catch (err) {
+        console.error("❌ Error al procesar gameFinished:", err);
+        socket.emit("errorGame", "No se pudo guardar el resultado");
+    }
+});
 });
