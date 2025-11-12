@@ -15,7 +15,7 @@ import { useConnection } from '@/hooks/useConnection';
 
 function GameContent() {
     const { url } = useConnection();
-    const { socket, isConnected } = useSocket(); // ✅ Usar el socket del hook
+    const { socket, isConnected } = useSocket();
     
     const [showKitchen, setShowKitchen] = useState(false);
     const [showOven, setShowOven] = useState(false);
@@ -39,41 +39,62 @@ function GameContent() {
     const [opponentScore, setOpponentScore] = useState(null);
     const [customerScores, setCustomerScores] = useState([]);
     
+    // ✅ Usar refs para mantener valores actualizados en los callbacks
+    const socketRef = useRef(socket);
+    const isConnectedRef = useRef(isConnected);
+    const roomCodeRef = useRef(roomCode);
+    const gameFinishedRef = useRef(false);
+    
     const { money, addMoney } = useMoney()
     const { stopTimer, resetAll, formatTime, calculateTotalTime, saveCustomerTime, customerTimes, setTimeoutCallback, percentage } = useTimer();
     const { applyTimeoutPenalty, calculateTotalScore, score, validationDetails, resetAllScores } = useScore()
     const [totalScore, setTotalScore] = useState(0);
 
-    // ✅ Obtener el roomCode de localStorage o query params
+    // ✅ Mantener refs actualizadas
     useEffect(() => {
-        // Intenta obtener el código de sala del localStorage o sessionStorage
+        socketRef.current = socket;
+    }, [socket]);
+
+    useEffect(() => {
+        isConnectedRef.current = isConnected;
+    }, [isConnected]);
+
+    useEffect(() => {
+        roomCodeRef.current = roomCode;
+    }, [roomCode]);
+
+    useEffect(() => {
+        gameFinishedRef.current = gameFinished;
+    }, [gameFinished]);
+
+    // ✅ Obtener el roomCode
+    useEffect(() => {
         const storedRoomCode = localStorage.getItem('roomCode') || sessionStorage.getItem('roomCode');
         if (storedRoomCode) {
             setRoomCode(storedRoomCode);
-            console.log('🔑 Room code obtenido:', storedRoomCode);
+            console.log('Room code obtenido:', storedRoomCode);
         }
         
-        // O desde los query params si los usas
         const urlParams = new URLSearchParams(window.location.search);
         const codeFromUrl = urlParams.get('code');
         if (codeFromUrl) {
             setRoomCode(codeFromUrl);
-            console.log('🔑 Room code desde URL:', codeFromUrl);
+            console.log('Room code desde URL:', codeFromUrl);
         }
     }, []);
 
-    // ✅ IMPORTANTE: Unirse a la sala cuando tengamos socket y roomCode
+    // ✅ Unirse a la sala
     useEffect(() => {
         if (!socket || !isConnected || !roomCode) {
             return;
         }
 
-        console.log('🚪 Uniéndome a la sala:', roomCode);
-        socket.emit('joinRoom', roomCode);
+        console.log('Uniéndome a la sala:', roomCode);
+        const id_user = localStorage.getItem('id_user') || sessionStorage.getItem('id_user');
+        socket.emit('joinRoom', { code: roomCode, id_user: id_user });
 
-        // Confirmar que nos unimos
         socket.on('roomJoined', (data) => {
-            console.log('✅ Unido a la sala exitosamente:', data);
+            console.log('Unido a la sala exitosamente:', data);
         });
 
         return () => {
@@ -81,60 +102,81 @@ function GameContent() {
         };
     }, [socket, isConnected, roomCode]);
 
-    // ✅ Configurar listeners del socket
+    // ✅ Configurar listeners del socket con mejor manejo
     useEffect(() => {
         if (!socket || !isConnected) {
-            console.log('⚠️ Socket no disponible o no conectado');
+            console.log('Socket no disponible o no conectado');
             return;
         }
 
-        console.log('🔌 Configurando listeners del socket');
+        console.log('Configurando listeners del socket');
 
-        // ✅ Escuchar cuando el oponente termina el juego
+        // ✅ Escuchar cuando el oponente termina
         const handleOpponentFinished = (data) => {
-            console.log('🎮 Oponente terminó el juego:', data);
+            console.log('Oponente terminó el juego:', data);
             setOpponentFinished(true);
             setOpponentTime(data.totalTime);
             setOpponentScore(data.totalScore);
         };
 
+        // ✅ Confirmación de que nuestro gameFinished fue recibido
+        const handleGameFinishedAck = (data) => {
+            console.log('Servidor confirmó recepción de gameFinished:', data);
+        };
+
         // ✅ Detectar desconexión
         const handleDisconnect = (reason) => {
-            console.log('❌ Socket desconectado. Razón:', reason);
+            console.log('Socket desconectado. Razón:', reason);
             if (reason === 'io server disconnect') {
-                console.log('🔄 Intentando reconectar...');
+                console.log('Intentando reconectar...');
                 socket.connect();
             }
         };
 
         // ✅ Detectar reconexión
         const handleReconnect = (attemptNumber) => {
-            console.log('✅ Socket reconectado después de', attemptNumber, 'intentos');
+            console.log('Socket reconectado después de', attemptNumber, 'intentos');
+            
             // Re-unirse a la sala
-            if (roomCode) {
-                console.log('🔄 Re-uniéndose a la sala:', roomCode);
-                socket.emit('joinRoom', roomCode);
+            if (roomCodeRef.current) {
+                console.log('Re-uniéndose a la sala:', roomCodeRef.current);
+                const id_user = localStorage.getItem('id_user') || sessionStorage.getItem('id_user');
+                socket.emit('joinRoom', { code: roomCodeRef.current, id_user: id_user });
+                
+                // Si ya terminamos el juego, reenviar el resultado
+                if (gameFinishedRef.current) {
+                    console.log('Reenviando resultado del juego después de reconexión');
+                    socket.emit('gameFinished', {
+                        playerId: socket.id,
+                        roomCode: roomCodeRef.current,
+                        totalTime: finalTotalTime,
+                        totalScore: finalTotalScore,
+                        customerTimes: customerTimes,
+                        customerScores: customerScores
+                    });
+                }
             }
         };
 
         // ✅ Detectar errores
         const handleConnectError = (error) => {
-            console.error('❌ Error de conexión:', error.message);
+            console.error('Error de conexión:', error.message);
         };
 
         socket.on('opponentFinished', handleOpponentFinished);
+        socket.on('gameFinishedAck', handleGameFinishedAck);
         socket.on('disconnect', handleDisconnect);
         socket.on('reconnect', handleReconnect);
         socket.on('connect_error', handleConnectError);
 
-        // Cleanup al desmontar o cambiar socket
         return () => {
             socket.off('opponentFinished', handleOpponentFinished);
+            socket.off('gameFinishedAck', handleGameFinishedAck);
             socket.off('disconnect', handleDisconnect);
             socket.off('reconnect', handleReconnect);
             socket.off('connect_error', handleConnectError);
         };
-    }, [socket, isConnected, roomCode]);
+    }, [socket, isConnected, finalTotalTime, finalTotalScore, customerTimes, customerScores]);
 
     // ✅ Manejar timeout
     useEffect(() => {
@@ -209,7 +251,6 @@ function GameContent() {
         const customerTime = saveCustomerTime();
         console.log(`Cliente ${currentCustomerIndex + 1} completado en: ${formatTime(customerTime)}`);
 
-        // ✅ Calcular y guardar el score total de este cliente
         const currentTotalScore = calculateTotalScore();
         setTotalScore(currentTotalScore);
         addMoney(currentTotalScore);
@@ -235,7 +276,6 @@ function GameContent() {
         setCustomerScores(updatedCustomerScores);
         console.log('Score del cliente guardado:', customerScore);
 
-        // Resetear scores para el siguiente cliente
         resetAllScores();
 
         const nextIndex = currentCustomerIndex + 1;
@@ -244,7 +284,6 @@ function GameContent() {
             const totalTime = calculateTotalTime();
             setFinalTotalTime(totalTime);
 
-            // ✅ Calcular el score total acumulado de TODOS los clientes
             const allCustomersScore = updatedCustomerScores.reduce((sum, cs) => sum + cs.scores.total, 0);
             setFinalTotalScore(allCustomersScore);
 
@@ -254,29 +293,45 @@ function GameContent() {
 
             stopTimer();
 
-            // ✅ Enviar el score total al servidor
-            if (socket && isConnected && roomCode) {
-                console.log('📤 Enviando gameFinished...');
-                console.log('   Socket ID:', socket.id);
-                console.log('   Room Code:', roomCode);
-                console.log('   Total Score:', allCustomersScore);
-                console.log('   Socket conectado:', isConnected);
+            // ✅ Usar refs para asegurar valores actuales
+            const currentSocket = socketRef.current;
+            const currentIsConnected = isConnectedRef.current;
+            const currentRoomCode = roomCodeRef.current;
+
+            // ✅ Enviar gameFinished con retry
+            if (currentSocket && currentIsConnected && currentRoomCode) {
+                console.log('Enviando gameFinished...');
+                console.log('Socket ID:', currentSocket.id);
+                console.log('Room Code:', currentRoomCode);
+                console.log('Total Score:', allCustomersScore);
+                console.log('Total Time:', totalTime);
                 
-                socket.emit('gameFinished', {
-                    playerId: socket.id,
-                    roomCode: roomCode,
+                const gameData = {
+                    playerId: currentSocket.id,
+                    roomCode: currentRoomCode,
                     totalTime: totalTime,
                     totalScore: allCustomersScore,
                     customerTimes: customerTimes,
                     customerScores: updatedCustomerScores
-                });
-                
-                console.log('✅ Evento gameFinished enviado con score:', allCustomersScore);
+                };
+
+                // Enviar el evento
+                currentSocket.emit('gameFinished', gameData);
+                console.log('Evento gameFinished enviado');
+
+                // ✅ Reenviar después de 2 segundos por si acaso
+                setTimeout(() => {
+                    if (socketRef.current && isConnectedRef.current) {
+                        console.log('Reenviando gameFinished por seguridad...');
+                        socketRef.current.emit('gameFinished', gameData);
+                    }
+                }, 2000);
+
             } else {
-                console.error('❌ No se pudo enviar gameFinished:');
-                console.error('   - Socket:', socket ? 'existe' : 'null');
-                console.error('   - isConnected:', isConnected);
-                console.error('   - roomCode:', roomCode);
+                console.error('No se pudo enviar gameFinished:');
+                console.error('   - Socket:', currentSocket ? 'existe' : 'null');
+                console.error('   - isConnected:', currentIsConnected);
+                console.error('   - roomCode:', currentRoomCode);
             }
 
             setGameFinished(true);
@@ -297,7 +352,7 @@ function GameContent() {
         return <div className={styles.loadingContainer}>Cargando clientes...</div>;
     }
 
-    // ✅ Pantalla de resultados con comparación de scores
+    // ✅ Pantalla de resultados mejorada
     if (gameFinished) {
         const iWon = opponentFinished && finalTotalScore > opponentScore;
         const iLost = opponentFinished && finalTotalScore < opponentScore;
@@ -328,8 +383,8 @@ function GameContent() {
                                 </span>
                             </div>
                             <div className={styles.playerStats}>
-                                <span className={styles.playerTime}>⏱️ {formatTime(finalTotalTime)}</span>
-                                <span className={styles.playerScore}>⭐ {finalTotalScore} pts</span>
+                                <span className={styles.playerTime}>{formatTime(finalTotalTime)}</span>
+                                <span className={styles.playerScore}>{finalTotalScore} pts</span>
                             </div>
                         </div>
 
@@ -341,8 +396,8 @@ function GameContent() {
                                     </span>
                                 </div>
                                 <div className={styles.playerStats}>
-                                    <span className={styles.playerTime}>⏱️ {formatTime(opponentTime)}</span>
-                                    <span className={styles.playerScore}>⭐ {opponentScore} pts</span>
+                                    <span className={styles.playerTime}>{formatTime(opponentTime)}</span>
+                                    <span className={styles.playerScore}>{opponentScore} pts</span>
                                 </div>
                             </div>
                         )}
@@ -350,47 +405,55 @@ function GameContent() {
 
                     {!opponentFinished && (
                         <div className={styles.waitingBox}>
-                            <p>⏳ Esperando a que el otro jugador termine...</p>
+                            <p>Esperando a que el otro jugador termine...</p>
                             <p className={styles.yourScore}>Tu score: <strong>{finalTotalScore}</strong> puntos</p>
+                            {/* ✅ Indicador de estado de conexión */}
+                            {isConnected ? (
+                                <p style={{color: 'green', fontSize: '0.9em', marginTop: '10px'}}>
+                                    Conectado - Recibirás los resultados automáticamente
+                                </p>
+                            ) : (
+                                <p style={{color: 'red', fontSize: '0.9em', marginTop: '10px'}}>
+                                    Reconectando...
+                                </p>
+                            )}
                         </div>
                     )}
 
-                    {/* ✅ Ranking de scores por cliente */}
+                    {/* Desglose por Cliente */}
                     <details className={styles.detailsSection} open>
                         <summary className={styles.detailsSummary}>
-                            📊 Desglose por Cliente
+                            Resultados por Cliente
                         </summary>
                         <div className={styles.scoreRanking}>
                             {customerScores.map((cs, index) => (
                                 <div key={index} className={styles.customerScoreCard}>
                                     <div className={styles.customerHeader}>
-                                        <span className={styles.customerNumber}>#{index + 1}</span>
-                                        <span className={styles.customerName}>{cs.customerName}</span>
-                                        <span className={styles.customerTime}>⏱️ {formatTime(cs.time)}</span>
+                                        <span className={styles.customerNumber}>Cliente {index + 1}</span>
+                                        <span className={styles.customerTime}>{formatTime(cs.time)}</span>
                                     </div>
                                     
                                     <div className={styles.scoresGrid}>
                                         <div className={styles.scoreItem}>
-                                            <span className={styles.scoreLabel}>🍕 Kitchen</span>
+                                            <span className={styles.scoreLabel}>Kitchen</span>
                                             <span className={styles.scoreValue}>{cs.scores.kitchen ?? 'N/A'}</span>
                                         </div>
                                         <div className={styles.scoreItem}>
-                                            <span className={styles.scoreLabel}>🔥 Oven</span>
+                                            <span className={styles.scoreLabel}>Oven</span>
                                             <span className={styles.scoreValue}>{cs.scores.oven ?? 'N/A'}</span>
                                         </div>
                                         <div className={styles.scoreItem}>
-                                            <span className={styles.scoreLabel}>🔪 Cut</span>
+                                            <span className={styles.scoreLabel}>Cut</span>
                                             <span className={styles.scoreValue}>{cs.scores.cut ?? 'N/A'}</span>
                                         </div>
                                         <div className={`${styles.scoreItem} ${styles.totalScore}`}>
-                                            <span className={styles.scoreLabel}>⭐ Total</span>
+                                            <span className={styles.scoreLabel}>Total</span>
                                             <span className={styles.scoreValue}>{cs.scores.total}</span>
                                         </div>
                                     </div>
                                 </div>
                             ))}
                             
-                            {/* Resumen total */}
                             <div className={styles.totalSummary}>
                                 <span>Score Total Acumulado:</span>
                                 <span className={styles.grandTotal}>{finalTotalScore} pts</span>
@@ -401,7 +464,7 @@ function GameContent() {
                     {/* Indicador de conexión */}
                     {!isConnected && (
                         <div className={styles.connectionWarning}>
-                            ⚠️ Conexión perdida con el servidor
+                            Conexión perdida con el servidor - Intentando reconectar...
                         </div>
                     )}
                 </div>

@@ -1,34 +1,68 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-
-const useSocket = (options = { withCredentials: false }, serverUrl = "ws://10.1.5.119:4000/") => { 
+const useSocket = (serverUrl = "ws://10.1.5.90:4000/", options = {}) => {
   const [socket, setSocket] = useState(null);
-  const [isConnected, setIsConnected] = useState(false) 
-  
-  useEffect(() => {
-    // Crear una conexión con el backend usando Socket.IO
-    const socketIo = io(serverUrl, options);
+  const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef(null);
 
-    // Actualizar el estado de la conexión
+  useEffect(() => {
+    console.log('Inicializando socket...');
+
+    const defaultOptions = {
+      withCredentials: false,
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
+      ...options
+    };
+
+    const socketIo = io(serverUrl, defaultOptions);
+
+    socketRef.current = socketIo;
     socketIo.on('connect', () => {
       setIsConnected(true);
-      console.log('WebSocket connectado.');
+      console.log('Socket conectado. ID:', socketIo.id);
     });
 
-    socketIo.on('disconnect', () => {
+    socketIo.on('disconnect', (reason) => {
       setIsConnected(false);
-      console.log('WebSocket desconectado');
+      console.log('Socket desconectado. Razón:', reason);
     });
 
-    // Guardar la instancia del socket en el estado
+    socketIo.on('reconnect_attempt', (attemptNumber) => {
+      console.log('Intento de reconexión:', attemptNumber);
+    });
+
+    socketIo.on('reconnect', (attemptNumber) => {
+      console.log('Reconectado después de', attemptNumber, 'intentos');
+      setIsConnected(true);
+    });
+
+    socketIo.on('reconnect_error', (error) => {
+      console.error('Error de reconexión:', error.message);
+    });
+
+    socketIo.on('reconnect_failed', () => {
+      console.error('Falló la reconexión después de todos los intentos');
+    });
+
+    socketIo.on('connect_error', (error) => {
+      console.error('Error de conexión:', error.message);
+      setIsConnected(false);
+    });
+
+
     setSocket(socketIo);
 
-    // Limpiar la conexión cuando el componente se desmonte
     return () => {
+      console.log('🧹 Limpiando socket...');
+      socketIo.removeAllListeners();
       socketIo.disconnect();
     };
-  }, [serverUrl, JSON.stringify(options)]);
+  }, [serverUrl]);
 
   return { socket, isConnected };
 };
