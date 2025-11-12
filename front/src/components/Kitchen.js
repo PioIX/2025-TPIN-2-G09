@@ -103,10 +103,10 @@ export default function Kitchen({onGoToOven, orderText}) {
     useEffect(() => {
         if (activePizza && canvasRef.current) {
             const canvas = canvasRef.current
-            canvas.width = 500
-            canvas.height = 500
-            pizzaCenterRef.current = { x: 250, y: 250 }
-            pizzaRadiusRef.current = 250
+            canvas.width = 400
+            canvas.height = 400
+            pizzaCenterRef.current = { x: 200, y: 200 }
+            pizzaRadiusRef.current = 200
 
             const pizzaBunImg = new Image()
             pizzaBunImg.onload = () => {
@@ -140,7 +140,7 @@ export default function Kitchen({onGoToOven, orderText}) {
     }
 
     const calculateLocationScore = (placedCoords) => {
-        if (placedCoords.length === 0) return 100 // Si no hay ingredientes para validar posición
+        if (placedCoords.length === 0) return 0 // Si no hay ingredientes para validar posición
         
         const usedIdealIndices = new Set()
         let totalScore = 0
@@ -320,7 +320,7 @@ export default function Kitchen({onGoToOven, orderText}) {
         validIngredients.forEach((ingredientName, index) => {
             if (!ingredientsUsed[ingredientName]) {
                 errors.push(`Falta el ingrediente: ${ingredientName}`)
-                score -= 20
+                score -= 50
             } else {
                 const ingredient = ingredientsBox.find(ing => ing.name === ingredientName)
                 if (ingredient?.drawMode === "click") {
@@ -329,7 +329,7 @@ export default function Kitchen({onGoToOven, orderText}) {
                     
                     if (expectedQuantity !== null && Math.abs(clicks - expectedQuantity) > 2) {
                         errors.push(`${ingredientName}: cantidad incorrecta (esperado ~${expectedQuantity}, obtenido ${clicks})`)
-                        score -= 10
+                        score -= 20
                     }
                 }
             }
@@ -341,7 +341,7 @@ export default function Kitchen({onGoToOven, orderText}) {
                 ingredientName !== 'cheese' &&
                 ingredientClicks[ingredientName] > 0) {
                 errors.push(`Ingrediente extra no solicitado: ${ingredientName}`)
-                score -= 15
+                score -= 25
             }
         })
 
