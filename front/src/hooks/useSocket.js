@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
-const useSocket = (serverUrl = "ws://10.1.5.90:4000/", options = {}) => {
+const useSocket = (serverUrl = "ws://10.1.4.142:4000/", options = {}) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);

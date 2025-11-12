@@ -23,7 +23,7 @@ const io = require('socket.io')(server, {
         origin: [
             "http://localhost:3000", 
             "http://localhost:3001",
-            "http://10.1.5.90:3000"
+            "http://10.1.4.142:3000"
         ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
@@ -370,7 +370,7 @@ socket.on("gameFinished", async (data) => {
         // ✅ Insertar resultado en ResultxPlayer incluyendo el score
         const insertResult = `
             INSERT INTO ResultxPlayer (time, money, score, id_player, id_game)
-            VALUES (${totalTime}, ${money}, ${totalScore}, ${playerId}, ${id_game})
+            VALUES (${totalTime}, ${money}, ${totalScore}, '${playerId}', ${id_game})
         `;
         const result = await realizarQuery(insertResult);
 
