@@ -92,30 +92,10 @@ export default function AdminPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Estás seguro de eliminar este usuario?")) return;
-
-    try {
-      const response = await fetch(url + `/admin/players/${id}`, {
-        method: "DELETE"
-      });
-      const result = await response.json();
-      
-      if (result.success) {
-        showModal("Usuario eliminado correctamente");
-        cargarPlayers();
-      } else {
-        showModal("Error al eliminar el usuario");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      showModal("Error de conexión al eliminar");
-    }
-  };
 
   const handleLogout = () => {
     sessionStorage.removeItem("playerId");
-    router.push("/");
+    router.push("/login");
   };
 
   return (
@@ -219,9 +199,6 @@ export default function AdminPage() {
                     <td>
                       <button onClick={() => handleEdit(player)} className={styles.btnEdit}>
                         Editar
-                      </button>
-                      <button onClick={() => handleDelete(player.id_player)} className={styles.btnDelete}>
-                        Eliminar
                       </button>
                     </td>
                   </>
