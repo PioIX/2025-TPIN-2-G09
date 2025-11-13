@@ -49,105 +49,70 @@ app.get('/', function (req, res) {
     });
 });
 
-app.post('/loginUser', async (req, res) => {
-  const { email, password } = req.body;
-  
-  try {
-    const query = 'SELECT * FROM players WHERE email = ?';
-    const [results] = await db.query(query, [email]);
-    
-    if (results.length === 0) {
-      return res.json({ validar: false, message: 'Usuario no encontrado' });
+app.post('/loginUser', async function (req, res) {
+    console.log("Resultado de búsqueda:", req.body);
+    try {
+        const result = await realizarQuery(`
+            SELECT * FROM Players WHERE email = "${req.body.email}" AND password = "${req.body.password}";
+        `);
+        if (result.length > 0) {
+            res.send({ 
+                validar: true, 
+                id: result[0].id_player,
+                es_admin: result[0].es_admin 
+            })
+        } else {
+            res.send({ validar: false })
+        }
+    } catch (error) {
+        console.log("Error al buscar usuario:", error);
+        res.status(500).send({ error: "No se pudo buscar el usuario" });
     }
-    
-    const user = results[0];
-    
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    
-    if (!passwordMatch) {
-      return res.json({ validar: false, message: 'Contraseña incorrecta' });
-    }
-    
-    res.json({
-      validar: true,
-      id: user.id_player,
-      username: user.username,
-      es_admin: user.es_admin
-    });
-    
-  } catch (error) {
-    console.error('Error en login:', error);
-    res.status(500).json({ validar: false, message: 'Error del servidor' });
-  }
 });
 
-app.get('/getAllPlayers', async (req, res) => {
-  try {
-    const query = 'SELECT id_player, username, email, avatar, es_admin FROM players';
-    const [results] = await db.query(query);
-    
-    res.json({
-      res: true,
-      players: results
-    });
-    
-  } catch (error) {
-    console.error('Error al obtener jugadores:', error);
-    res.status(500).json({ res: false, message: 'Error del servidor' });
-  }
+app.get('/admin/players', async function (req, res) {
+    try {
+        const result = await realizarQuery(`SELECT * FROM Players;`);
+        res.send({ success: true, players: result });
+    } catch (error) {
+        console.log("Error al obtener usuarios:", error);
+        res.status(500).send({ error: "No se pudieron obtener los usuarios" });
+    }
 });
 
-app.put('/updatePlayer', async (req, res) => {
-  const { id_player, username, email, password, avatar, es_admin } = req.body;
-  
-  try {
-    let query;
-    let params;
+app.put('/admin/players/:id', async function (req, res) {
+    const { id } = req.params;
+    const { username, email, password, avatar, es_admin } = req.body;
     
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      query = `UPDATE players 
-               SET username = ?, email = ?, password = ?, avatar = ?, es_admin = ? 
-               WHERE id_player = ?`;
-      params = [username, email, hashedPassword, avatar, es_admin, id_player];
-    } else {
-      query = `UPDATE players 
-               SET username = ?, email = ?, avatar = ?, es_admin = ? 
-               WHERE id_player = ?`;
-      params = [username, email, avatar, es_admin, id_player];
+    try {
+        const result = await realizarQuery(`
+            UPDATE Players 
+            SET username = "${username}", 
+                email = "${email}", 
+                password = "${password}", 
+                avatar = "${avatar}", 
+                es_admin = ${es_admin}
+            WHERE id_player = ${id};
+        `);
+        res.send({ success: true, message: "Usuario actualizado correctamente" });
+    } catch (error) {
+        console.log("Error al actualizar usuario:", error);
+        res.status(500).send({ error: "No se pudo actualizar el usuario" });
     }
-    
-    const [result] = await db.query(query, params);
-    
-    if (result.affectedRows > 0) {
-      res.json({ res: true, message: 'Jugador actualizado correctamente' });
-    } else {
-      res.json({ res: false, message: 'No se encontró el jugador' });
-    }
-    
-  } catch (error) {
-    console.error('Error al actualizar jugador:', error);
-    res.status(500).json({ res: false, message: 'Error del servidor' });
-  }
 });
 
-app.delete('/deletePlayer', async (req, res) => {
-  const { id_player } = req.body;
-  
-  try {
-    const query = 'DELETE FROM players WHERE id_player = ?';
-    const [result] = await db.query(query, [id_player]);
+app.delete('/admin/players/:id', async function (req, res) {
+    const { id } = req.params;
     
-    if (result.affectedRows > 0) {
-      res.json({ res: true, message: 'Jugador eliminado correctamente' });
-    } else {
-      res.json({ res: false, message: 'No se encontró el jugador' });
+    try {
+        const result = await realizarQuery(`
+            DELETE FROM Players WHERE id_player = ${id};
+        `);
+        res.send({ success: true, message: "Usuario eliminado correctamente" });
+    } catch (error) {
+        console.log("Error al eliminar usuario:", error);
+        res.status(500).send({ error: "No se pudo eliminar el usuario" });
     }
-    
-  } catch (error) {
-    console.error('Error al eliminar jugador:', error);
-    res.status(500).json({ res: false, message: 'Error del servidor' });
-  }
 });
 
 app.post('/registerUser', async function (req, res) {
@@ -237,7 +202,7 @@ app.get('/pizzaValidation/:id_pizza', async function (req, res) {
         console.error('Stack trace:', error.stack)
         res.status(500).json({
             error: 'Error al obtener datos de validación',
-            detalles: error.message // Útil solo en desarrollo
+            detalles: error.message 
         })
     }
 })
@@ -417,48 +382,40 @@ io.on("connection", (socket) => {
         console.log(` Tiempos por cliente:`, customerTimes);
         console.log(`Scores por cliente:`, customerScores);
 
-        // Obtener el id_game de la sala
         const sala = await realizarQuery(`
             SELECT id_game FROM Games WHERE code = '${roomCode}'
         `);
 
         if (sala.length === 0) {
-            console.error(`❌ Sala ${roomCode} no encontrada`);
+            console.error(`Sala ${roomCode} no encontrada`);
             socket.emit("errorGame", "Sala no encontrada");
             return;
         }
 
         const id_game = sala[0].id_game;
-        console.log("✅ id_game obtenido:", id_game);
-        // Calcular money basado en el score (puedes ajustar esta lógica)
-        // Opción 1: El score es el money directamente
+        console.log("id_game obtenido:", id_game);
+       
         const money = totalScore;
         
-        // Opción 2: Combinar score y tiempo
-        // const timeBonus = Math.max(0, 1000 - Math.floor(totalTime / 1000));
-        // const money = totalScore + timeBonus;
-
-        // ✅ Convertir milisegundos a formato TIME (HH:MM:SS)
         const totalSeconds = Math.floor(totalTime / 1000);
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
         const timeFormatted = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-        // ✅ Insertar resultado en ResultxPlayer incluyendo el score
+        
         const insertResult = `
             INSERT INTO ResultxPlayer (time, money, score, id_player, id_game)
             VALUES ('${timeFormatted}', ${money}, ${totalScore}, '${playerId}', ${id_game})
         `;
         const result = await realizarQuery(insertResult);
 
-        console.log(`✅ Resultado guardado para jugador ${playerId}:`);
-        console.log(`   - Time: ${timeFormatted} (${totalTime}ms)`);
-        console.log(`   - Score: ${totalScore}`);
-        console.log(`   - Money: ${money}`);
-        console.log(`   - ID Result: ${result.insertId}`);
+        console.log(`Resultado guardado para jugador ${playerId}:`);
+        console.log(`- Time: ${timeFormatted} (${totalTime}ms)`);
+        console.log(`- Score: ${totalScore}`);
+        console.log(`- Money: ${money}`);
+        console.log(`- ID Result: ${result.insertId}`);
 
-        // ✅ Notificar al otro jugador con el score incluido
         io.to(roomCode).emit("oponenteTermino", {
             playerId: playerId,
             totalTime: totalTime,
@@ -468,9 +425,8 @@ io.on("connection", (socket) => {
             customerScores: customerScores
         });
 
-        console.log(`📤 Notificación enviada a sala ${roomCode}`);
+        console.log(`Notificación enviada a sala ${roomCode}`);
 
-        // Verificar si ambos jugadores terminaron
         const resultados = await realizarQuery(`
             SELECT COUNT(*) as total 
             FROM ResultxPlayer 
@@ -478,10 +434,8 @@ io.on("connection", (socket) => {
         `);
 
         if (resultados[0].total === 2) {
-            console.log(`🎮 Ambos jugadores terminaron. Determinando ganador...`);
+            console.log(`Ambos jugadores terminaron. Determinando ganador...`);
 
-            // ✅ Obtener ambos resultados ordenados por SCORE (mayor a menor)
-            // En caso de empate en score, usa el tiempo como desempate
             const finalResults = await realizarQuery(`
                 SELECT 
                     r.id_player,
@@ -495,21 +449,20 @@ io.on("connection", (socket) => {
                 ORDER BY r.score DESC, r.time ASC
             `);
 
-            const winner = finalResults[0]; // El que tiene mayor score
+            const winner = finalResults[0]; 
             const loser = finalResults[1];
 
             const isTie = winner.score === loser.score && winner.time === loser.time;
 
-            console.log(`🏆 GANADOR: ${winner.username}`);
-            console.log(`   - Score: ${winner.score}`);
-            console.log(`   - Tiempo: ${winner.time}ms`);
-            console.log(`   - Money: ${winner.money}`);
-            console.log(`📊 PERDEDOR: ${loser.username}`);
-            console.log(`   - Score: ${loser.score}`);
-            console.log(`   - Tiempo: ${loser.time}ms`);
-            console.log(`   - Money: ${loser.money}`);
+            console.log(`GANADOR: ${winner.username}`);
+            console.log(`Score: ${winner.score}`);
+            console.log(`Tiempo: ${winner.time}ms`);
+            console.log(`Money: ${winner.money}`);
+            console.log(`PERDEDOR: ${loser.username}`);
+            console.log(`Score: ${loser.score}`);
+            console.log(`Tiempo: ${loser.time}ms`);
+            console.log(`Money: ${loser.money}`);
 
-            // ✅ Notificar a ambos jugadores el resultado final con score
             io.to(roomCode).emit('finalResults', {
                 winner: {
                     id: winner.id_player,
@@ -528,11 +481,11 @@ io.on("connection", (socket) => {
                 isTie: isTie
             });
 
-            console.log(`🎊 Resultados finales enviados a sala ${roomCode}`);
+            console.log(`Resultados finales enviados a sala ${roomCode}`);
         }
 
     } catch (err) {
-        console.error("❌ Error al procesar gameFinished:", err);
+        console.error("Error al procesar gameFinished:", err);
         socket.emit("errorGame", "No se pudo guardar el resultado");
     }
 });
