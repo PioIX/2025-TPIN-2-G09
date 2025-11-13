@@ -101,20 +101,6 @@ app.put('/admin/players/:id', async function (req, res) {
     }
 });
 
-app.delete('/admin/players/:id', async function (req, res) {
-    const { id } = req.params;
-    
-    try {
-        const result = await realizarQuery(`
-            DELETE FROM Players WHERE id_player = ${id};
-        `);
-        res.send({ success: true, message: "Usuario eliminado correctamente" });
-    } catch (error) {
-        console.log("Error al eliminar usuario:", error);
-        res.status(500).send({ error: "No se pudo eliminar el usuario" });
-    }
-});
-
 app.post('/registerUser', async function (req, res) {
     console.log(req.body)
     try {
