@@ -16,8 +16,8 @@ export default function RegistroYLogin() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [avatar, setAvatar] = useState("");
-  const [mostrarMensaje, setMostrarMensaje] = useState(false);
-  const [textoMensaje, setTextoMensaje] = useState("");
+  const [mostrarMensaje, setMostrarMensaje] = useState(false); 
+  const [textoMensaje, setTextoMensaje] = useState(""); 
   const router = useRouter();
   const [isPopupOpen, setIsPopupOpen] = useState(false)
 
@@ -69,9 +69,8 @@ export default function RegistroYLogin() {
       if (result.validar === true) {
         sessionStorage.setItem("playerId", result.id)
         
-        // Verificar si es administrador
-        if (result.es_admin === true) {
-          sessionStorage.setItem("isAdmin", "true")
+        
+        if (result.es_admin === 1 || result.es_admin === true) {
           router.push("/admin");
         } else {
           router.push("/menu");

@@ -2,19 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import styles from "./page.module.css";
 import { useConnection } from "@/hooks/useConnection";
-import styles from "./admin.module.css";
 
 export default function AdminPage() {
   const { url } = useConnection();
   const router = useRouter();
   const [players, setPlayers] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [editingPlayer, setEditingPlayer] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [mensaje, setMensaje] = useState({ texto: "", tipo: "" });
-
-  // Estados del formulario de edición
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -22,53 +17,46 @@ export default function AdminPage() {
     avatar: "",
     es_admin: false
   });
+  const [mensaje, setMensaje] = useState("");
+  const [mostrarMensaje, setMostrarMensaje] = useState(false);
 
   const avatares = ["Ana", "Juan", "Luca", "Sol"];
 
   useEffect(() => {
-    // Verificar si es admin
-    const isAdmin = sessionStorage.getItem("isAdmin");
-    if (isAdmin !== "true") {
-      router.push("/menu");
-      return;
-    }
     cargarPlayers();
   }, []);
 
+  const showModal = (message) => {
+    setMensaje(message);
+    setMostrarMensaje(true);
+    setTimeout(() => setMostrarMensaje(false), 3000);
+  };
+
   const cargarPlayers = async () => {
     try {
-      const response = await fetch(url + "/getAllPlayers");
-      const data = await response.json();
-      if (data.res) {
-        setPlayers(data.players);
+      const response = await fetch(url + "/admin/players");
+      const result = await response.json();
+      if (result.success) {
+        setPlayers(result.players);
       }
-      setLoading(false);
     } catch (error) {
-      console.error("Error al cargar jugadores:", error);
-      mostrarMensaje("Error al cargar los jugadores", "error");
-      setLoading(false);
+      console.error("Error al cargar usuarios:", error);
+      showModal("Error al cargar los usuarios");
     }
   };
 
-  const mostrarMensaje = (texto, tipo) => {
-    setMensaje({ texto, tipo });
-    setTimeout(() => setMensaje({ texto: "", tipo: "" }), 3000);
-  };
-
-  const abrirModalEditar = (player) => {
-    setEditingPlayer(player);
+  const handleEdit = (player) => {
+    setEditingPlayer(player.id_player);
     setFormData({
       username: player.username,
       email: player.email,
-      password: "",
+      password: player.password,
       avatar: player.avatar,
-      es_admin: player.es_admin
+      es_admin: player.es_admin === 1
     });
-    setShowModal(true);
   };
 
-  const cerrarModal = () => {
-    setShowModal(false);
+  const handleCancelEdit = () => {
     setEditingPlayer(null);
     setFormData({
       username: "",
@@ -79,103 +67,68 @@ export default function AdminPage() {
     });
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
-  };
-
-  const actualizarPlayer = async () => {
-    if (!formData.username || !formData.email || !formData.avatar) {
-      mostrarMensaje("Completa todos los campos obligatorios", "error");
-      return;
-    }
-
+  const handleUpdate = async (id) => {
     try {
-      const datosActualizar = {
-        id_player: editingPlayer.id_player,
-        username: formData.username,
-        email: formData.email,
-        avatar: formData.avatar,
-        es_admin: formData.es_admin
-      };
-
-      // Solo incluir password si se proporcionó uno nuevo
-      if (formData.password) {
-        datosActualizar.password = formData.password;
-      }
-
-      const response = await fetch(url + "/updatePlayer", {
+      const response = await fetch(url + `/admin/players/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datosActualizar)
+        body: JSON.stringify({
+          ...formData,
+          es_admin: formData.es_admin ? 1 : 0
+        })
       });
-
       const result = await response.json();
-
-      if (result.res) {
-        mostrarMensaje("Jugador actualizado correctamente", "success");
+      
+      if (result.success) {
+        showModal("Usuario actualizado correctamente");
         cargarPlayers();
-        cerrarModal();
+        handleCancelEdit();
       } else {
-        mostrarMensaje(result.message || "Error al actualizar", "error");
+        showModal("Error al actualizar el usuario");
       }
     } catch (error) {
       console.error("Error:", error);
-      mostrarMensaje("Error al actualizar el jugador", "error");
+      showModal("Error de conexión al actualizar");
     }
   };
 
-  const eliminarPlayer = async (id_player) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar este jugador?")) {
-      return;
-    }
+  const handleDelete = async (id) => {
+    if (!confirm("¿Estás seguro de eliminar este usuario?")) return;
 
     try {
-      const response = await fetch(url + "/deletePlayer", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_player })
+      const response = await fetch(url + `/admin/players/${id}`, {
+        method: "DELETE"
       });
-
       const result = await response.json();
-
-      if (result.res) {
-        mostrarMensaje("Jugador eliminado correctamente", "success");
+      
+      if (result.success) {
+        showModal("Usuario eliminado correctamente");
         cargarPlayers();
       } else {
-        mostrarMensaje(result.message || "Error al eliminar", "error");
+        showModal("Error al eliminar el usuario");
       }
     } catch (error) {
       console.error("Error:", error);
-      mostrarMensaje("Error al eliminar el jugador", "error");
+      showModal("Error de conexión al eliminar");
     }
   };
 
-  const cerrarSesion = () => {
-    sessionStorage.clear();
+  const handleLogout = () => {
+    sessionStorage.removeItem("playerId");
     router.push("/");
   };
 
-  if (loading) {
-    return <div className={styles.loading}>Cargando...</div>;
-  }
-
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1>Panel de Administrador</h1>
-        <button onClick={cerrarSesion} className={styles.btnCerrarSesion}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Panel de Administración</h1>
+        <button onClick={handleLogout} className={styles.logoutBtn}>
           Cerrar Sesión
         </button>
-      </header>
+      </div>
 
-      {mensaje.texto && (
-        <div className={`${styles.mensaje} ${styles[mensaje.tipo]}`}>
-          {mensaje.texto}
-        </div>
+      {mostrarMensaje && (
+        <div className={styles.mensaje}>{mensaje}</div>
       )}
 
       <div className={styles.tableContainer}>
@@ -183,8 +136,9 @@ export default function AdminPage() {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Username</th>
+              <th>Usuario</th>
               <th>Email</th>
+              <th>Contraseña</th>
               <th>Avatar</th>
               <th>Admin</th>
               <th>Acciones</th>
@@ -193,122 +147,90 @@ export default function AdminPage() {
           <tbody>
             {players.map((player) => (
               <tr key={player.id_player}>
-                <td>{player.id_player}</td>
-                <td>{player.username}</td>
-                <td>{player.email}</td>
-                <td>
-                  <img 
-                    src={`/imagesAvatar/${player.avatar}.png`} 
-                    alt={player.avatar}
-                    className={styles.avatarSmall}
-                  />
-                </td>
-                <td>{player.es_admin ? "Sí" : "No"}</td>
-                <td>
-                  <button 
-                    onClick={() => abrirModalEditar(player)}
-                    className={styles.btnEditar}
-                  >
-                    Editar
-                  </button>
-                  <button 
-                    onClick={() => eliminarPlayer(player.id_player)}
-                    className={styles.btnEliminar}
-                  >
-                    Eliminar
-                  </button>
-                </td>
+                {editingPlayer === player.id_player ? (
+                  <>
+                    <td>{player.id_player}</td>
+                    <td>
+                      <input
+                        type="text"
+                        value={formData.username}
+                        onChange={(e) => setFormData({...formData, username: e.target.value})}
+                        className={styles.input}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        className={styles.input}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={formData.password}
+                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        className={styles.input}
+                      />
+                    </td>
+                    <td>
+                      <select
+                        value={formData.avatar}
+                        onChange={(e) => setFormData({...formData, avatar: e.target.value})}
+                        className={styles.select}
+                      >
+                        {avatares.map((av) => (
+                          <option key={av} value={av}>{av}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={formData.es_admin}
+                        onChange={(e) => setFormData({...formData, es_admin: e.target.checked})}
+                        className={styles.checkbox}
+                      />
+                    </td>
+                    <td>
+                      <button onClick={() => handleUpdate(player.id_player)} className={styles.btnSave}>
+                        Guardar
+                      </button>
+                      <button onClick={handleCancelEdit} className={styles.btnCancel}>
+                        Cancelar
+                      </button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td>{player.id_player}</td>
+                    <td>{player.username}</td>
+                    <td>{player.email}</td>
+                    <td>{"•".repeat(8)}</td>
+                    <td>
+                      <img 
+                        src={`/imagesAvatar/${player.avatar}.png`} 
+                        alt={player.avatar}
+                        className={styles.avatarImg}
+                      />
+                    </td>
+                    <td>{player.es_admin ? "Sí" : "No"}</td>
+                    <td>
+                      <button onClick={() => handleEdit(player)} className={styles.btnEdit}>
+                        Editar
+                      </button>
+                      <button onClick={() => handleDelete(player.id_player)} className={styles.btnDelete}>
+                        Eliminar
+                      </button>
+                    </td>
+                  </>
+                )}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h2>Editar Jugador</h2>
-            <form className={styles.form}>
-              <div className={styles.formGroup}>
-                <label>Username:</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Email:</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Nueva Contraseña (dejar vacío para mantener):</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="Nueva contraseña"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Avatar:</label>
-                <select
-                  name="avatar"
-                  value={formData.avatar}
-                  onChange={handleInputChange}
-                  className={styles.select}
-                >
-                  {avatares.map((av) => (
-                    <option key={av} value={av}>{av}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    name="es_admin"
-                    checked={formData.es_admin}
-                    onChange={handleInputChange}
-                  />
-                  Es Administrador
-                </label>
-              </div>
-
-              <div className={styles.modalButtons}>
-                <button 
-                  type="button" 
-                  onClick={actualizarPlayer}
-                  className={styles.btnGuardar}
-                >
-                  Guardar
-                </button>
-                <button 
-                  type="button" 
-                  onClick={cerrarModal}
-                  className={styles.btnCancelar}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
