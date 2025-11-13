@@ -8,7 +8,7 @@ import { useScore } from '../contexts/ScoreContext'
 
 export default function Deliver({ onNextCustomer, currentCustomer, totalCustomers, orderText }) {
     const { percentage, resetTimer } = useTimer();
-    const { calculateTotalScore } = useScore();
+    const { calculateTotalScore, validationDetails } = useScore();
     const [characterImage, setCharacterImage] = useState('');
     const [loading, setLoading] = useState(true);
     const [showBox, setShowBox] = useState(true);
@@ -159,6 +159,97 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
         return () => window.removeEventListener('resize', handleResize);
     }, [imagesLoaded, showBox]);
 
+    const getCustomerFeedBack = () => {
+        console.log('Detalles de validación completos:', validationDetails)
+
+        const kitchenValidation = validationDetails.kitchen
+        const ovenValidation = validationDetails.oven
+        const cutValidation = validationDetails.cut
+
+        const hasMissingIngredient = kitchenValidation.errors.some(error =>
+            error.includes('Falta el ingrediente')
+        ) || false
+
+        const ingredientsCorrect = !hasMissingIngredient;
+
+        const cookingPerfect = ovenValidation?.state === 'perfect';
+        const cookingRaw = ovenValidation?.state === 'raw';
+        const cookingBurnt = ovenValidation?.state === 'burnt';
+        const cookingWrong = cookingRaw || cookingBurnt;
+
+        const cutsCorrect = cutValidation?.totalCuts === 4 && cutValidation?.isValid;
+        const cutsWrong = cutValidation?.totalCuts !== 4 || !cutValidation?.isValid;
+
+        //todo bien
+        if (ingredientsCorrect && cookingPerfect && cutsCorrect) {
+            return 'Todo en su punto justo. ¡Una pizza excelente!';
+        }
+
+        //todo mal
+        if (hasMissingIngredient && cookingWrong && cutsWrong) {
+            return 'Esto es un desastre completo. ¿Seguro que esto es una pizza?';
+        }
+
+        //ingredientes bien, cocción mal, cortes mal
+        if (ingredientsCorrect && cookingWrong && cutsWrong) {
+            return 'Los ingredientes están bien, pero la cocción y los cortes fallaron.';
+        }
+
+        //ingredientes mal, cocción bien, cortes mal
+        if (hasMissingIngredient && cookingPerfect && cutsWrong) {
+            return 'La cocción está perfecta, pero faltan ingredientes y los cortes están mal.';
+        }
+
+        //ingredientes mal, cocción mal, cortes bien
+        if (hasMissingIngredient && cookingWrong && cutsCorrect) {
+            return 'Los cortes están bien, pero faltan ingredientes y la cocción está mal.';
+        }
+
+        //ingredientes bien, cocción bien, cortes mal
+        if (ingredientsCorrect && cookingPerfect && cutsWrong) {
+            return 'Ingredientes y cocción perfectos, pero los cortes arruinan la presentación.';
+        }
+
+        //ingredientes bien, cortes bien, cocción mal
+        if (ingredientsCorrect && cutsCorrect && cookingWrong) {
+            if (cookingRaw) {
+                return 'Ingredientes y cortes perfectos, pero está cruda. No puedo comerla así.';
+            }
+            if (cookingBurnt) {
+                return 'Ingredientes y cortes perfectos, pero está quemada. Qué lástima.';
+            }
+        }
+
+        //cocción bien, cortes bien, ingredientes mal
+        if (hasMissingIngredient && cookingPerfect && cutsCorrect) {
+            return 'Cocción y cortes perfectos, pero falta un ingrediente importante.';
+        }
+
+        //casos individuales específicos
+        /*
+        if (hasMissingIngredient && !cookingWrong && !cutsWrong) {
+            return 'Falta un ingrediente importante. Así no se disfruta igual.';
+        }
+
+        if (cookingRaw && !hasMissingIngredient && !cutsWrong) {
+            return 'Parece que olvidaste cocinarla del todo.';
+        }
+
+        if (cookingBurnt && !hasMissingIngredient && !cutsWrong) {
+            return 'Crujiente está bien… pero esto parece carbón.';
+        }
+
+        if (cutValidation?.totalCuts === 0) {
+            return 'No la cortaron, imposible de compartir así.';
+        }
+
+        if (cutsWrong && !hasMissingIngredient && !cookingWrong) {
+            return 'Mal cortada, arruina la presentación.';
+        }*/
+
+        return 'Podría estar mejor, pero es aceptable.'
+    }
+
     const handleCanvasClick = (e) => {
         if (!showBox) return;
 
@@ -182,26 +273,14 @@ export default function Deliver({ onNextCustomer, currentCustomer, totalCustomer
         if (x >= boxX && x <= boxX + boxWidth && y >= boxY && y <= boxY + boxHeight) {
             setShowBox(false);
 
-            const totalScore = calculateTotalScore()
-            let message = ''
+            const message = getCustomerFeedBack();
+            setDialogMessage(message);
 
-            if (totalScore >= 0 && totalScore <= 20) {
-                message = 'Esto… ¿se supone que debo imaginar el resto de los ingredientes?';
-            } else if (totalScore > 20 && totalScore <= 40) {
-                message = 'Parece que alguien se olvidó del amor en esta receta.';
-            } else if (totalScore > 40 && totalScore <= 60) {
-                message = 'Podría ser peor, pero también podría ser más rica.';
-            } else if (totalScore > 60 && totalScore <= 80) {
-                message = '¡Casi perfecta! Solo le faltó un poquito más de magia.';
-            } else if (totalScore > 80 && totalScore <= 100) {
-                message = 'Todo en su punto justo. ¡Una pizza excelente!';
-            }
+            console.log('Feedback del cliente:', message);
+            console.log('Score total:', calculateTotalScore());
             
-            setDialogMessage(message)
-
             setTimeout(() => {
                 setShowThanks(true);
-                // Mostrar el botón después del mensaje de gracias
                 setTimeout(() => {
                     setShowNextButton(true);
                 }, 1000);
