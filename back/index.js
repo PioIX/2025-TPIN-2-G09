@@ -23,7 +23,8 @@ const io = require('socket.io')(server, {
         origin: [
             "http://localhost:3000", 
             "http://localhost:3001",
-            "http://192.168.0.8:3000"
+            "http://192.168.0.8:3000",
+            "http://192.168.0.175:3000"
         ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
@@ -330,14 +331,21 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("pingall", (data) => {
+        const { message } = data;
+        console.log(`📶 Ping recibido: ${message}`);
+        io.emit("pongall", { message: "Pong desde el servidor!" });
+    });
+
     // DESCONEXIÓN
     socket.on("disconnect", () => {
         console.log("Usuario desconectado:", socket.id);
     });
 
     // Ahora sí tu handler de gameFinished
-socket.on("gameFinished", async (data) => {
+    socket.on("gameFinished", async (data) => {
     try {
+        console.log("🏁 gameFinished recibido:", data);
         const { playerId, roomCode, totalTime, totalScore, customerTimes, customerScores } = data;
 
         console.log(`🏁 Jugador ${playerId} terminó en sala ${roomCode}`);
@@ -358,7 +366,7 @@ socket.on("gameFinished", async (data) => {
         }
 
         const id_game = sala[0].id_game;
-
+        console.log("✅ id_game obtenido:", id_game);
         // Calcular money basado en el score (puedes ajustar esta lógica)
         // Opción 1: El score es el money directamente
         const money = totalScore;
@@ -367,21 +375,28 @@ socket.on("gameFinished", async (data) => {
         // const timeBonus = Math.max(0, 1000 - Math.floor(totalTime / 1000));
         // const money = totalScore + timeBonus;
 
+        // ✅ Convertir milisegundos a formato TIME (HH:MM:SS)
+        const totalSeconds = Math.floor(totalTime / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const timeFormatted = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
         // ✅ Insertar resultado en ResultxPlayer incluyendo el score
         const insertResult = `
             INSERT INTO ResultxPlayer (time, money, score, id_player, id_game)
-            VALUES (${totalTime}, ${money}, ${totalScore}, '${playerId}', ${id_game})
+            VALUES ('${timeFormatted}', ${money}, ${totalScore}, '${playerId}', ${id_game})
         `;
         const result = await realizarQuery(insertResult);
 
         console.log(`✅ Resultado guardado para jugador ${playerId}:`);
-        console.log(`   - Time: ${totalTime}ms`);
+        console.log(`   - Time: ${timeFormatted} (${totalTime}ms)`);
         console.log(`   - Score: ${totalScore}`);
         console.log(`   - Money: ${money}`);
         console.log(`   - ID Result: ${result.insertId}`);
 
         // ✅ Notificar al otro jugador con el score incluido
-        socket.to(roomCode).emit('opponentFinished', {
+        io.to(roomCode).emit("oponenteTermino", {
             playerId: playerId,
             totalTime: totalTime,
             totalScore: totalScore,

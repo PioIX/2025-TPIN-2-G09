@@ -89,6 +89,17 @@ function GameContent() {
             return;
         }
 
+        socket.on("pongall", (data) => {
+            console.log(`📶 Pong recibido: ${data.message}`);
+        });
+
+        socket.on("oponenteTermino", (data) => {
+            console.log('Oponente terminó el juego:', data);
+            setOpponentFinished(true);
+            setOpponentTime(data.totalTime);
+            setOpponentScore(data.totalScore);
+        });
+
         console.log('Uniéndome a la sala:', roomCode);
         const id_user = localStorage.getItem('id_user') || sessionStorage.getItem('id_user');
         socket.emit('joinRoom', { code: roomCode, id_user: id_user });
@@ -101,6 +112,10 @@ function GameContent() {
             socket.off('roomJoined');
         };
     }, [socket, isConnected, roomCode]);
+
+
+
+
 
     // ✅ Configurar listeners del socket con mejor manejo
     useEffect(() => {
@@ -146,8 +161,10 @@ function GameContent() {
                 // Si ya terminamos el juego, reenviar el resultado
                 if (gameFinishedRef.current) {
                     console.log('Reenviando resultado del juego después de reconexión');
+                    console.log(sessionStorage.getItem("playerId"));
+                    console.log(localStorage.getItem("id_user"));
                     socket.emit('gameFinished', {
-                        playerId: socket.id,
+                        playerId: sessionStorage.getItem("playerId"),
                         roomCode: roomCodeRef.current,
                         totalTime: finalTotalTime,
                         totalScore: finalTotalScore,
@@ -163,7 +180,7 @@ function GameContent() {
             console.error('Error de conexión:', error.message);
         };
 
-        socket.on('opponentFinished', handleOpponentFinished);
+        
         socket.on('gameFinishedAck', handleGameFinishedAck);
         socket.on('disconnect', handleDisconnect);
         socket.on('reconnect', handleReconnect);
@@ -280,7 +297,7 @@ function GameContent() {
 
         const nextIndex = currentCustomerIndex + 1;
 
-        if (nextIndex >= customers.length) {
+        if (nextIndex >= 2) {
             const totalTime = calculateTotalTime();
             setFinalTotalTime(totalTime);
 
@@ -307,7 +324,7 @@ function GameContent() {
                 console.log('Total Time:', totalTime);
                 
                 const gameData = {
-                    playerId: currentSocket.id,
+                    playerId: sessionStorage.getItem("playerId"),
                     roomCode: currentRoomCode,
                     totalTime: totalTime,
                     totalScore: allCustomersScore,
@@ -317,7 +334,7 @@ function GameContent() {
 
                 // Enviar el evento
                 currentSocket.emit('gameFinished', gameData);
-                console.log('Evento gameFinished enviado');
+                console.log('Evento gameFinished enviado'); 
 
                 // ✅ Reenviar después de 2 segundos por si acaso
                 setTimeout(() => {

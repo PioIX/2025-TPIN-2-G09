@@ -4,6 +4,8 @@ import { useRef, useEffect, useState } from 'react';
 import styles from "./Order.module.css";
 import { useTimer } from '../contexts/TimerContext';
 import { useMoney } from '../contexts/MoneyContext'
+import { Socket } from 'engine.io-client';
+import { useSocket } from '@/hooks/useSocket';
 
 export default function Order({ customer, onGoToKitchen }) {
   const [orderText, setOrderText] = useState('');
@@ -15,6 +17,7 @@ export default function Order({ customer, onGoToKitchen }) {
   const [showOrderInHeader, setShowOrderInHeader] = useState(false);
   const { percentage, startTimer } = useTimer();
   const { money } = useMoney()
+  const {socket} = useSocket()
 
   useEffect(() => {
     if (customer) {
@@ -153,6 +156,7 @@ export default function Order({ customer, onGoToKitchen }) {
 
   const handleGoToKitchen = () => {
     try {
+      socket.emit("pingall", { message: "Nueva orden enviada a cocina." });
       //Mostrar la orden en el header antes de ir a la cocina
       setShowOrderInHeader(true);
       //INICIAR EL TIMER AL PRESIONAR OK
