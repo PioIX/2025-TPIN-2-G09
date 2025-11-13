@@ -23,8 +23,7 @@ const io = require('socket.io')(server, {
         origin: [
             "http://localhost:3000", 
             "http://localhost:3001",
-            "http://192.168.0.8:3000",
-            "http://192.168.0.175:3000"
+            "http://10.1.4.24:3000"
         ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
