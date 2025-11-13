@@ -16,8 +16,8 @@ export default function RegistroYLogin() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [avatar, setAvatar] = useState("");
-  const [mostrarMensaje, setMostrarMensaje] = useState(false); //showModal
-  const [textoMensaje, setTextoMensaje] = useState(""); //showModal
+  const [mostrarMensaje, setMostrarMensaje] = useState(false);
+  const [textoMensaje, setTextoMensaje] = useState("");
   const router = useRouter();
   const [isPopupOpen, setIsPopupOpen] = useState(false)
 
@@ -68,7 +68,14 @@ export default function RegistroYLogin() {
       console.log("Respuesta del servidor:", result)
       if (result.validar === true) {
         sessionStorage.setItem("playerId", result.id)
-        router.push("/menu");
+        
+        // Verificar si es administrador
+        if (result.es_admin === true) {
+          sessionStorage.setItem("isAdmin", "true")
+          router.push("/admin");
+        } else {
+          router.push("/menu");
+        }
       } else {
         showModal("Error", result.message || "Credenciales incorrectas");
       }
