@@ -7,8 +7,13 @@ Es el proyecto final compuesto por las materias:
 - Desarrollo de aplicaciones Web
 
 ## ¿En qué consiste el juego?
-El juego consiste en gestionar una pizzería virtual, preparando pizzas según los pedidos de los clientes. Los jugadores crean un perfil para guardar su progreso y puntaje, eligen ingredientes, hornean y entregan las pizzas. Con el dinero ganado, desbloquean más ingredientes y enfrentan días con más clientes. Al final de cada jornada, se muestra un ranking con su puntaje frente a otros jugadores, fomentando la mejora continua.
+El juego se centra en la experiencia de gestionar una pizzería virtual en pleno funcionamiento, donde el jugador asume el rol de pizzero y administrador del local. La dinámica principal consiste en preparar pizzas siguiendo con precisión los pedidos de los distintos clientes, cada uno con sus gustos, tiempos de espera y niveles de exigencia. Para avanzar, el usuario crea un perfil propio, que le permite guardar su progreso, registrar su puntaje acumulado y seguir su evolución a lo largo de las distintas jornadas laborales.
 
+Durante el juego, los jugadores deben seleccionar cuidadosamente los ingredientes adecuados, controlar los tiempos de cocción en el horno, cortar y entregar las pizzas en el momento justo. A medida que completan pedidos con éxito y reciben buenas propinas, van ganando dinero, lo que les permite desbloquear nuevos ingredientes, mejorar el equipamiento de la cocina y afrontar niveles con una mayor cantidad de clientes y pedidos más complejos. Esto agrega un elemento de desafío progresivo y estrategia.
+
+Cada día de trabajo culmina con un informe de rendimiento, donde se muestran los resultados obtenidos: cantidad de pizzas completadas, errores cometidos, dinero ganado y bonificaciones. Además, se presenta un ranking comparativo en el que el jugador puede ver su puntaje frente al de otros participantes del juego, fomentando la competencia sana, la superación personal y las ganas de perfeccionar sus habilidades culinarias y de gestión.
+
+Con esta combinación de preparación, administración, progreso y competencia, el juego busca crear una experiencia divertida, dinámica y motivadora, que invite al jugador a mejorar constantemente y a llevar su pizzería al máximo nivel.
 <ins> Pantalla de inicio <ins>
 - Al abrir la aplicación, el usuario se encuentra con una interfaz inicial donde puede registrarse creando un nombre de usuario, correo electrónico, contraseña y avatar, o bien iniciar sesión si ya tiene cuenta.
 - Esto permite que cada jugador tenga un perfil propio, guarde su progreso y acumule puntaje en el ranking global.
@@ -33,13 +38,8 @@ El juego consiste en gestionar una pizzería virtual, preparando pizzas según l
 <img width="1919" height="875" alt="image" src="https://github.com/user-attachments/assets/ad16d1de-cfb7-4f37-a3bf-7ea665adb93f" />
 
 - Entrega la pizza al cliente y si está correcta, recibe dinero y puntos de satisfacción, si está mal, gana menos dinero y baja de posición en el ranking.
-<img width="1919" height="876" alt="image" src="https://github.com/user-attachments/assets/5ec0ed4f-851c-4d37-8499-f0bb3665eba7" />
+- <img width="1919" height="876" alt="image" src="https://github.com/user-attachments/assets/5ec0ed4f-851c-4d37-8499-f0bb3665eba7" />
 
-<ins>Ranking (al finalizar cada partida)<ins>
-- Al terminar una sesión de juego (cuando cierra el día en la pizzería), aparece una pantalla con el puntaje del jugador.
-- Ese puntaje se compara con el de otros usuarios en línea.
-- Se muestra un ranking de todos los jugadores y otro semanal, con los mejores jugadores.
-- Cada usuario puede ver en qué posición quedó y tratar de superarse en la próxima partida.
 
 ## Listado de tareas
 
